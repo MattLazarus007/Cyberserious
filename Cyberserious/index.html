@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>CyberSerious | Dashboard</title>
+
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+<div class="app">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+
+        <div class="logo">
+            <h1>CYBERSERIOUS</h1>
+            <p>Information Regulator</p>
+        </div>
+
+        <nav class="nav">
+
+            <a href="index.html" class="active">
+                <span class="nav-icon">▦</span>
+                Dashboard
+            </a>
+
+            <a href="notifications.html">
+                <span class="nav-icon">▤</span>
+                Notifications
+            </a>
+
+            <a href="alerts.html">
+                <span class="nav-icon">⚠</span>
+                Alerts
+            </a>
+
+        </nav>
+
+        <div class="sidebar-footer">
+            POPIA Section 22<br>
+            Breach Monitoring System
+        </div>
+
+    </aside>
+
+
+    <!-- MAIN -->
+    <main class="main">
+
+        <header class="topbar">
+
+            <div class="topbar-title">
+                Information Regulator / Dashboard
+            </div>
+
+            <div class="user">
+
+                <div class="user-avatar">
+                    IR
+                </div>
+
+                <span>Regulator Admin</span>
+
+            </div>
+
+        </header>
+
+
+        <section class="content">
+
+            <div class="page-header">
+
+                <div>
+                    <h2>Dashboard</h2>
+
+                    <p>
+                        Overview of breach notifications and potential non-compliance.
+                    </p>
+                </div>
+
+            </div>
+
+
+            <!-- STATISTICS -->
+
+            <div class="stats-grid">
+
+                <div class="card stat-card">
+
+                    <div class="label">
+                        TOTAL NOTIFICATIONS
+                    </div>
+
+                    <div class="number" id="totalNotifications">
+                        0
+                    </div>
+
+                    <div class="description">
+                        Section 22 notifications received
+                    </div>
+
+                </div>
+
+
+                <div class="card stat-card">
+
+                    <div class="label">
+                        PENDING CASES
+                    </div>
+
+                    <div class="number" id="pendingCases">
+                        0
+                    </div>
+
+                    <div class="description">
+                        Cases requiring review
+                    </div>
+
+                </div>
+
+
+                <div class="card stat-card">
+
+                    <div class="label">
+                        ACTIVE ALERTS
+                    </div>
+
+                    <div class="number" id="activeAlerts">
+                        0
+                    </div>
+
+                    <div class="description">
+                        Potential non-compliance cases
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- DASHBOARD CONTENT -->
+
+            <div class="dashboard-grid">
+
+
+                <!-- RECENT ACTIVITY -->
+
+                <div class="card">
+
+                    <div class="card-header">
+
+                        <h3>Recent Activity</h3>
+
+                        <a href="notifications.html">
+                            View all →
+                        </a>
+
+                    </div>
+
+                    <div class="table-container">
+
+                        <table>
+
+                            <thead>
+
+                                <tr>
+                                    <th>Organisation</th>
+                                    <th>Event</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                </tr>
+
+                            </thead>
+
+                            <tbody>
+
+                                <tr>
+                                    <td>Standard Bank</td>
+                                    <td>Notification received</td>
+                                    <td>17 Aug 2026</td>
+                                    <td>
+                                        <span class="status review">
+                                            Under Review
+                                        </span>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td>Liberty Group</td>
+                                    <td>Case updated</td>
+                                    <td>16 Aug 2026</td>
+                                    <td>
+                                        <span class="status closed">
+                                            Closed
+                                        </span>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td>Stats SA</td>
+                                    <td>Notification received</td>
+                                    <td>15 Aug 2026</td>
+                                    <td>
+                                        <span class="status pending">
+                                            Pending
+                                        </span>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td>Gauteng Provincial Government</td>
+                                    <td>Notification reviewed</td>
+                                    <td>14 Aug 2026</td>
+                                    <td>
+                                        <span class="status alert">
+                                            Alert
+                                        </span>
+                                    </td>
+                                </tr>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+
+                <!-- ALERTS -->
+
+                <div class="card">
+
+                    <div class="card-header">
+
+                        <h3>Priority Alerts</h3>
+
+                        <a href="alerts.html">
+                            View all →
+                        </a>
+
+                    </div>
+
+                    <div class="card-body">
+
+                        <div style="margin-bottom: 20px;">
+
+                            <strong>
+                                🔴 Possible late notification
+                            </strong>
+
+                            <p style="font-size: 12px; color: #6b7280; margin-top: 5px;">
+                                Gauteng Provincial Government
+                            </p>
+
+                        </div>
+
+
+                        <div style="margin-bottom: 20px;">
+
+                            <strong>
+                                🟠 Missing notification
+                            </strong>
+
+                            <p style="font-size: 12px; color: #6b7280; margin-top: 5px;">
+                                Example Organisation
+                            </p>
+
+                        </div>
+
+
+                        <div>
+
+                            <strong>
+                                🟡 Review required
+                            </strong>
+
+                            <p style="font-size: 12px; color: #6b7280; margin-top: 5px;">
+                                Standard Bank
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+<script src="js/app.js"></script>
+
+</body>
+</html>
