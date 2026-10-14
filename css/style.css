@@ -516,3 +516,217 @@ tr:hover td {
         flex-direction: column;
     }
 }
+
+/* =========================================
+   CYBERSERIOUS — UI POLISH
+   Safe visual overrides; no app logic changes
+   ========================================= */
+
+:root {
+    --primary: #174a78;
+    --primary-dark: #0b2038;
+    --primary-light: #eaf3fb;
+    --background: #f3f6fa;
+    --border: #e1e7ef;
+    --text: #172536;
+    --text-light: #66758a;
+}
+
+body {
+    font-family: Inter, "Segoe UI", system-ui, sans-serif;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+}
+
+.sidebar {
+    background: linear-gradient(180deg, #0b2038, #12385b);
+    box-shadow: 5px 0 24px rgba(8, 25, 45, 0.08);
+}
+
+.logo h1 {
+    font-weight: 800;
+    letter-spacing: 1.4px;
+}
+
+.nav a {
+    border: 1px solid transparent;
+    border-radius: 8px;
+    transition: background 160ms ease, transform 160ms ease;
+}
+
+.nav a:hover {
+    background: rgba(255, 255, 255, 0.08);
+    transform: translateX(2px);
+}
+
+.nav a.active {
+    background: rgba(106, 169, 228, 0.17);
+    border-color: rgba(163, 205, 244, 0.16);
+    box-shadow: inset 3px 0 0 #8fc7ff;
+}
+
+.content {
+    max-width: 1680px;
+    margin: 0 auto;
+    padding: 30px;
+}
+
+.page-header h2 {
+    color: #142b43;
+    font-size: clamp(23px, 2.2vw, 29px);
+    font-weight: 750;
+    letter-spacing: -0.035em;
+}
+
+.card,
+.alert-card {
+    border: 1px solid #e3e9f0;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(15, 35, 60, 0.05);
+    transition: box-shadow 180ms ease, border-color 180ms ease;
+}
+
+.card-header {
+    padding: 19px 22px;
+}
+
+.card-body {
+    padding: 22px;
+}
+
+.stat-card {
+    position: relative;
+    overflow: hidden;
+    padding: 24px;
+}
+
+.stat-card::before {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 4px;
+    background: #6fa8dc;
+}
+
+.stat-card .number {
+    color: #153b60;
+    font-size: 34px;
+    font-weight: 750;
+    letter-spacing: -0.04em;
+    font-variant-numeric: tabular-nums;
+}
+
+th {
+    background: #f7f9fc;
+    font-size: 10px;
+    letter-spacing: 0.045em;
+    text-transform: uppercase;
+}
+
+tbody tr:hover td {
+    background: #f6faff;
+}
+
+.btn {
+    min-height: 38px;
+    padding: 10px 15px;
+    border-radius: 7px;
+    font-weight: 650;
+    transition: background 160ms ease, transform 160ms ease;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+}
+
+.search input,
+.filters select,
+.notes-box {
+    border-color: #d7e0ea;
+    border-radius: 8px;
+    transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.search input:focus,
+.filters select:focus,
+.notes-box:focus {
+    border-color: #6fa8dc;
+    box-shadow: 0 0 0 3px rgba(65, 139, 204, 0.12);
+    outline: none;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+    outline: 3px solid rgba(62, 142, 220, 0.4);
+    outline-offset: 2px;
+}
+
+.detail-row {
+    grid-template-columns: minmax(130px, 180px) minmax(0, 1fr);
+    gap: 12px;
+    line-height: 1.6;
+}
+
+@media (hover: hover) {
+    .card:hover,
+    .alert-card:hover {
+        border-color: #d5e1ed;
+        box-shadow: 0 12px 30px rgba(15, 35, 60, 0.08);
+    }
+}
+
+@media (max-width: 900px) {
+    .content {
+        padding: 24px;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .dashboard-grid,
+    .detail-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+@media (max-width: 650px) {
+    .content {
+        padding: 18px 14px;
+    }
+
+    .page-header h2 {
+        font-size: 23px;
+    }
+
+    .stats-grid {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 12px;
+    }
+
+    .card-header,
+    .card-body {
+        padding: 16px;
+    }
+
+    .detail-row {
+        grid-template-columns: 1fr;
+        gap: 3px;
+    }
+
+    .sidebar {
+        display: none;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+    }
+}
