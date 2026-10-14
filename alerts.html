@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>CyberSerious | Alerts</title>
+
+    <link rel="stylesheet" href="css/style.css">
+
+</head>
+
+
+<body>
+
+<div class="app">
+
+
+    <!-- SIDEBAR -->
+
+    <aside class="sidebar">
+
+        <div class="logo">
+
+            <h1>CYBERSERIOUS</h1>
+
+            <p>Information Regulator</p>
+
+        </div>
+
+
+        <nav class="nav">
+
+            <a href="index.html">
+
+                <span class="nav-icon">▦</span>
+
+                Dashboard
+
+            </a>
+
+
+            <a href="notifications.html">
+
+                <span class="nav-icon">▤</span>
+
+                Notifications
+
+            </a>
+
+
+            <a href="alerts.html" class="active">
+
+                <span class="nav-icon">⚠</span>
+
+                Alerts
+
+            </a>
+
+        </nav>
+
+
+        <div class="sidebar-footer">
+
+            POPIA Section 22<br>
+
+            Breach Monitoring System
+
+        </div>
+
+    </aside>
+
+
+
+    <!-- MAIN CONTENT -->
+
+    <main class="main">
+
+
+        <!-- TOP BAR -->
+
+        <header class="topbar">
+
+            <div class="topbar-title">
+
+                Information Regulator / Alerts
+
+            </div>
+
+
+            <div class="user">
+
+                <div class="user-avatar">
+
+                    IR
+
+                </div>
+
+                <span>
+
+                    Regulator Admin
+
+                </span>
+
+            </div>
+
+        </header>
+
+
+
+        <!-- PAGE CONTENT -->
+
+        <section class="content">
+
+
+            <!-- PAGE HEADER -->
+
+            <div class="page-header">
+
+                <div>
+
+                    <h2>Alerts & Potential Non-Compliance</h2>
+
+                    <p>
+
+                        Cases requiring investigation or regulator attention.
+
+                    </p>
+
+                </div>
+
+
+                <div>
+
+                    <span class="status alert">
+
+                        6 Active Alerts
+
+                    </span>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- FILTERS -->
+
+            <div class="card">
+
+                <div class="card-body">
+
+
+                    <div class="filters">
+
+
+                        <div class="search">
+
+                            <input
+
+                                type="text"
+
+                                id="alertSearch"
+
+                                placeholder="Search organisation or alert..."
+
+                            >
+
+                        </div>
+
+
+                        <div>
+
+                            <select id="alertPriority">
+
+                                <option value="">All Priorities</option>
+
+                                <option value="High">High</option>
+
+                                <option value="Medium">Medium</option>
+
+                                <option value="Low">Low</option>
+
+                            </select>
+
+                        </div>
+
+
+                        <div>
+
+                            <select id="alertType">
+
+                                <option value="">All Alert Types</option>
+
+                                <option value="Late Notification">
+
+                                    Late Notification
+
+                                </option>
+
+                                <option value="Missing Notification">
+
+                                    Missing Notification
+
+                                </option>
+
+                                <option value="Review Required">
+
+                                    Review Required
+
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- ALERT LIST -->
+
+            <div class="alert-list" style="margin-top: 20px;">
+
+
+                <!-- HIGH PRIORITY ALERT -->
+
+                <div class="alert-card">
+
+
+                    <div style="
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: flex-start;
+                    ">
+
+
+                        <div>
+
+                            <span class="priority high">
+
+                                🔴 HIGH PRIORITY
+
+                            </span>
+
+
+                            <h3 style="margin-top: 10px;">
+
+                                Possible Late Notification
+
+                            </h3>
+
+                        </div>
+
+
+                        <span class="status alert">
+
+                            Action Required
+
+                        </span>
+
+
+                    </div>
+
+
+
+                    <p style="margin-top: 10px;">
+
+                        The system has identified a potential delay between
+
+                        the suspected incident date and the date the
+
+                        notification was received.
+
+                    </p>
+
+
+
+                    <div class="alert-meta">
+
+                        <span>
+
+                            <strong>Organisation:</strong>
+
+                            Gauteng Provincial Government
+
+                        </span>
+
+
+                        <span>
+
+                            <strong>Incident:</strong>
+
+                            25 Jul 2026
+
+                        </span>
+
+
+                        <span>
+
+                            <strong>Notification:</strong>
+
+                            28 Jul 2026
+
+                        </span>
+
+                    </div>
+
+
+
+                    <div>
+
+                        <a
+
+                            href="breach.html?id=BR-2026-004"
+
+                            class="btn btn-primary"
+
+                        >
+
+                            Investigate
+
+                        </a>
+
+
+                        <button
+
+                            class="btn btn-secondary"
+
+                            onclick="alert('Alert marked for later review.')"
+
+                        >
+
+                            Review Later
+
+                        </button>
+
+                    </div>
+
+
+                </div>
+
+
+
+                <!-- HIGH PRIORITY ALERT -->
+
+                <div class="alert-card">
+
+
+                    <div style="
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: flex-start;
+                    ">
+
+
+                        <div>
+
+                            <span class="priority high">
+
+                                🔴 HIGH PRIORITY
+
+                            </span>
+
+
+                            <h3 style="margin-top: 10px;">
+
+                                Possible Unreported Breach
+
+                            </h3>
+
+                        </div>
+
+
+                        <span class="status alert">
+
+                            Action Required
+
+                        </span>
+
+
+                    </div>
+
+
+
+                    <p style="margin-top: 10px;">
+
+                        An incident has been identified but no corresponding
+
+                        Section 22 notification has been located in the system.
+
+                    </p>
+
+
+
+                    <div class="alert-meta">
+
+                        <span>
+
+                            <strong>Organisation:</strong>
+
+                            Example Financial Services
+
+                        </span>
+
+
+                        <span>
+
+                            <strong>Incident:</strong>
+
+                            14 Aug 2026
+
+                        </span>
+
+
+                        <span>
+
+                            <strong>Notification:</strong>
+
+                            Not Received
+
+                        </span>
+
+                    </div>
+
+
+
+                    <div>
+
+                        <a
+
+                            href="breach.html?id=BR-2026-007"
+
+                            class="btn btn-primary"
+
+                        >
+
+                            Investigate
+
+                        </a>
+
+
+                        <button
+
+                            class="btn btn-secondary"
+
+                            onclick="alert('Alert marked for later review.')"
+
+                        >
+
+                            Review Later
+
+                        </button>
+
+                    </div>
+
+
+                </div>
+
+
+
+                <!-- MEDIUM PRIORITY ALERT -->
+
+                <div class="alert-card medium">
+
+
+                    <div style="
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: flex-start;
+                    ">
+
+
+                        <div>
+
+                            <span class="priority medium">
+
+                                🟠 MEDIUM PRIORITY
+
+                            </span>
+
+
+                            <h3 style="margin-top: 10px;">
+
+                                Review Required
+
+                            </h3>
+
+                        </div>
+
+
+                        <span class="status pending">
+
+                            Pending Review
+
+                        </span>
+
+
+                    </div>
+
+
+
+                    <p style="margin-top: 10px;">
+
+                        The submitted notification contains information that
+
+                        may require additional review by the regulator.
+
+                    </p>
+
+
+
+                    <div class="alert-meta">
+
+                        <span>
+
+                            <strong>Organisation:</strong>
+
+                            Standard Bank
+
+                        </span>
+
+
+                        <span>
+
+                            <strong>Incident:</strong>
+
+                            12 Aug 2026
+
+                        </span>
+
+
+                        <span>
+
+                            <strong>Notification:</strong>
+
+                            13 Aug 2026
+
+                        </span>
+
+                    </div>
+
+
+
+                    <div>
+
+                        <a
+
+                            href="breach.html?id=BR-2026-001"
+
+                            class="btn btn-primary"
+
+                        >
+
+                            Investigate
+
+                        </a>
+
+
+                        <button
+
+                            class="btn btn-secondary"
+
+                            onclick="alert('Alert marked for later review.')"
+
+                        >
+
+                            Review Later
+
+                        </button>
+
+                    </div>
+
+
+                </div>
+
+
+
+                <!-- MEDIUM PRIORITY ALERT -->
+
+                <div class="alert-card medium">
+
+
+                    <div style="
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: flex-start;
+                    ">
+
+
+                        <div>
+
+                            <span class="priority medium">
+
+                                🟠 MEDIUM PRIORITY
+
+                            </span>
+
+
+                            <h3 style="margin-top: 10px;">
+
+                                Missing Supporting Information
+
+                            </h3>
+
+                        </div>
+
+
+                        <span class="status pending">
+
+                            Pending Review
+
+                        </span>
+
+                    </div>
+
+
+
+                    <p style="margin-top: 10px;">
+
+                        The notification has been received, but additional
+
+                        information may be required before the case can
+
+                        be assessed.
+
+                    </p>
+
+
+
+                    <div class="alert-meta">
+
+                        <span>
+
+                            <strong>Organisation:</strong>
+
+                            Example Healthcare
+
+                        </span>
+
+
+                        <span>
+
+                            <strong>Incident:</strong>
+
+                            10 Aug 2026
+
+                        </span>
+
+
+                        <span>
+
+                            <strong>Notification:</strong>
+
+                            11 Aug 2026
+
+                        </span>
+
+                    </div>
+
+
+
+                    <div>
+
+                        <a
+
+                            href="breach.html?id=BR-2026-005"
+
+                            class="btn btn-primary"
+
+                        >
+
+                            Investigate
+
+                        </a>
+
+
+                        <button
+
+                            class="btn btn-secondary"
+
+                            onclick="alert('Alert marked for later review.')"
+
+                        >
+
+                            Review Later
+
+                        </button>
+
+                    </div>
+
+
+                </div>
+
+
+
+                <!-- LOW PRIORITY ALERT -->
+
+                <div class="alert-card medium" style="border-left-color: #198754;">
+
+
+                    <div style="
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: flex-start;
+                    ">
+
+
+                        <div>
+
+                            <span class="priority low">
+
+                                🟢 LOW PRIORITY
+
+                            </span>
+
+
+                            <h3 style="margin-top: 10px;">
+
+                                Information Verification
+
+                            </h3>
+
+                        </div>
+
+
+                        <span class="status review">
+
+                            Monitoring
+
+                        </span>
+
+                    </div>
+
+
+
+                    <p style="margin-top: 10px;">
+
+                        Information submitted by the organisation may require
+
+                        verification before the notification can be closed.
+
+                    </p>
+
+
+
+                    <div class="alert-meta">
+
+                        <span>
+
+                            <strong>Organisation:</strong>
+
+                            Liberty Group
+
+                        </span>
+
+
+                        <span>
+
+                            <strong>Incident:</strong>
+
+                            08 Aug 2026
+
+                        </span>
+
+
+                        <span>
+
+                            <strong>Notification:</strong>
+
+                            08 Aug 2026
+
+                        </span>
+
+                    </div>
+
+
+
+                    <div>
+
+                        <a
+
+                            href="breach.html?id=BR-2026-002"
+
+                            class="btn btn-primary"
+
+                        >
+
+                            Investigate
+
+                        </a>
+
+
+                        <button
+
+                            class="btn btn-secondary"
+
+                            onclick="alert('Alert marked for later review.')"
+
+                        >
+
+                            Review Later
+
+                        </button>
+
+                    </div>
+
+
+                </div>
+
+
+            </div>
+
+
+        </section>
+
+    </main>
+
+</div>
+
+
+</body>
+
+</html>
