@@ -128,7 +128,7 @@ CyberSerious is **not affiliated with or endorsed by the Information Regulator o
 
 ## `09` // Maintainer
 
-**MattLazarus007**
+**MattLazarus** **TrsitanMellet** **YadavSingh** **RynhardtVanNiekerk** **AndileMushwana**
 
 [View GitHub Profile](https://github.com/MattLazarus007) · [Explore Repository](https://github.com/MattLazarus007/Cyberserious)
 
