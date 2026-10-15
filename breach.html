@@ -459,20 +459,20 @@
                         </div>
                     </div>
 
+                    <!-- SAVED NOTES (shows notes after you add them) -->
                     <div class="card">
                         <div class="card-header">
-
-                            <div class="card">
-                <div class="card-header">
                             <h3>Saved Notes</h3>
+                        </div>
+                        <div class="card-body">
+                            <div id="notesList">
+                                <p style="color: #64748b; font-size: 13px; margin: 0;">No notes added yet.</p>
                             </div>
-                    <div class="card-body">
-                        <div id="notesList">
-                            <p style="color: #64748b; font-size: 13px; margin: 0;">No notes added yet.</p>
-                         </div>
+                        </div>
                     </div>
-                </div>
-                            
+
+                    <div class="card">
+                        <div class="card-header">
                             <h3>Case Priority</h3>
                         </div>
                         <div class="card-body">
@@ -525,5 +525,44 @@
 </div>
 
 <script src="js/app.js"></script>
+<script>
+function addNote() {
+    const notes = document.getElementById("notes");
+    const message = document.getElementById("noteMessage");
+    const notesList = document.getElementById("notesList");
+
+    if (!notes || !message || !notesList) return;
+
+    if (notes.value.trim() === "") {
+        message.style.color = "#b42323";
+        message.textContent = "Please enter a note first.";
+        return;
+    }
+
+    // Remove the "No notes added yet" message
+    const emptyMsg = notesList.querySelector("p");
+    if (emptyMsg) {
+        notesList.innerHTML = "";
+    }
+
+    // Create the note
+    const noteItem = document.createElement("div");
+    noteItem.style.cssText = "padding: 12px 0; border-bottom: 1px solid #edf1f7; font-size: 13px; color: #33445f; line-height: 1.5;";
+
+    const now = new Date();
+    const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+    noteItem.innerHTML = `
+        <div style="margin-bottom: 4px;">${notes.value.trim()}</div>
+        <div style="font-size: 11px; color: #8794a8;">${timeStr} · Internal note</div>
+    `;
+
+    notesList.prepend(noteItem);
+
+    message.style.color = "#13784f";
+    message.textContent = "Note added successfully.";
+    notes.value = "";
+}
+</script>
 </body>
 </html>
