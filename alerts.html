@@ -15,19 +15,10 @@
             --muted: #64748b;
             --border: #e4eaf2;
         }
-        body {
-            background: var(--page-bg);
-        }
-        .main {
-            min-width: 0;
-        }
-        .topbar {
-            background: #fff;
-            border-bottom: 1px solid var(--border);
-        }
-        .content {
-            padding-top: 28px;
-        }
+        body { background: var(--page-bg); }
+        .main { min-width: 0; }
+        .topbar { background: #fff; border-bottom: 1px solid var(--border); }
+        .content { padding-top: 28px; }
         .page-intro {
             display: flex;
             align-items: flex-start;
@@ -98,20 +89,9 @@
             box-shadow: 0 4px 16px rgba(20, 39, 70, .035);
             margin-bottom: 22px;
         }
-        .filters-heading {
-            padding: 20px 22px 0;
-        }
-        .filters-heading h3 {
-            margin: 0 0 5px;
-            color: var(--text);
-            font-size: 15px;
-        }
-        .filters-heading p {
-            margin: 0;
-            color: var(--muted);
-            font-size: 12px;
-            line-height: 1.6;
-        }
+        .filters-heading { padding: 20px 22px 0; }
+        .filters-heading h3 { margin: 0 0 5px; color: var(--text); font-size: 15px; }
+        .filters-heading p { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.6; }
         .filters {
             display: grid;
             grid-template-columns: minmax(220px, 2fr) minmax(150px, 1fr) minmax(150px, 1fr);
@@ -171,18 +151,9 @@
             letter-spacing: .04em;
             text-transform: uppercase;
         }
-        .priority-badge.high {
-            background: #ffebeb;
-            color: #b42323;
-        }
-        .priority-badge.medium {
-            background: #fff3df;
-            color: #9b5a08;
-        }
-        .priority-badge.low {
-            background: #e4f7ee;
-            color: #13784f;
-        }
+        .priority-badge.high { background: #ffebeb; color: #b42323; }
+        .priority-badge.medium { background: #fff3df; color: #9b5a08; }
+        .priority-badge.low { background: #e4f7ee; color: #13784f; }
         .alert-card h3 {
             margin: 10px 0 0;
             color: var(--text);
@@ -198,18 +169,9 @@
             font-weight: 750;
             white-space: nowrap;
         }
-        .status-pill.action {
-            background: #ffebeb;
-            color: #b42323;
-        }
-        .status-pill.pending {
-            background: #fff3df;
-            color: #9b5a08;
-        }
-        .status-pill.monitoring {
-            background: #eaf1ff;
-            color: #2858a6;
-        }
+        .status-pill.action { background: #ffebeb; color: #b42323; }
+        .status-pill.pending { background: #fff3df; color: #9b5a08; }
+        .status-pill.monitoring { background: #eaf1ff; color: #2858a6; }
         .alert-card > p {
             margin: 0 0 16px;
             color: var(--muted);
@@ -224,9 +186,7 @@
             font-size: 12px;
             color: var(--muted);
         }
-        .alert-meta strong {
-            color: #40516b;
-        }
+        .alert-meta strong { color: #40516b; }
         .alert-actions {
             display: flex;
             gap: 10px;
@@ -246,9 +206,7 @@
             text-decoration: none;
             cursor: pointer;
         }
-        .btn-primary:hover {
-            background: #0c1a30;
-        }
+        .btn-primary:hover { background: #0c1a30; }
         .btn-secondary {
             display: inline-flex;
             align-items: center;
@@ -262,8 +220,15 @@
             font-weight: 700;
             cursor: pointer;
         }
-        .btn-secondary:hover {
-            background: #dfeaff;
+        .btn-secondary:hover { background: #dfeaff; }
+        .empty-state {
+            padding: 40px 20px;
+            text-align: center;
+            color: var(--muted);
+            font-size: 14px;
+            border: 1px dashed var(--border);
+            border-radius: 16px;
+            background: #fff;
         }
         .alerts-footer {
             display: flex;
@@ -276,30 +241,16 @@
             font-size: 11px;
             line-height: 1.6;
         }
-        .alerts-footer strong {
-            color: #52637a;
-        }
+        .alerts-footer strong { color: #52637a; }
         @media (max-width: 800px) {
-            .filters {
-                grid-template-columns: 1fr 1fr;
-            }
-            .filters .search {
-                grid-column: 1 / -1;
-            }
+            .filters { grid-template-columns: 1fr 1fr; }
+            .filters .search { grid-column: 1 / -1; }
         }
         @media (max-width: 600px) {
-            .page-intro {
-                flex-direction: column;
-            }
-            .filters {
-                grid-template-columns: 1fr;
-            }
-            .alert-card-header {
-                flex-direction: column;
-            }
-            .alerts-footer {
-                flex-direction: column;
-            }
+            .page-intro { flex-direction: column; }
+            .filters { grid-template-columns: 1fr; }
+            .alert-card-header { flex-direction: column; }
+            .alerts-footer { flex-direction: column; }
         }
     </style>
 </head>
@@ -332,9 +283,7 @@
 
     <main class="main">
         <header class="topbar">
-            <div class="topbar-title">
-                Information Regulator / Alerts
-            </div>
+            <div class="topbar-title">Information Regulator / Alerts</div>
             <div class="user">
                 <div class="user-avatar">IR</div>
                 <span>Regulator Admin</span>
@@ -353,7 +302,7 @@
                 </div>
                 <div style="display:flex; gap:10px; flex-wrap:wrap;">
                     <span class="prototype-badge">Demonstration environment</span>
-                    <span class="alert-count-badge" id="activeAlertCount">— Active Alerts</span>
+                    <span class="alert-count-badge" id="activeAlertCount">0 Active Alerts</span>
                 </div>
             </div>
 
@@ -364,12 +313,7 @@
                 </div>
                 <div class="filters">
                     <div class="search">
-                        <input
-                            type="search"
-                            id="alertSearch"
-                            placeholder="Search organisation or alert..."
-                            aria-label="Search alerts"
-                        >
+                        <input type="search" id="alertSearch" placeholder="Search organisation or alert..." aria-label="Search alerts">
                     </div>
                     <div>
                         <select id="alertPriority" aria-label="Filter by priority">
@@ -391,181 +335,133 @@
             </section>
 
             <div class="alert-list" id="alertList">
-                <!-- Alerts will be rendered by JS or remain static for now -->
-                <!-- Keeping the existing static cards for prototype stability -->
-                <div class="alert-card" data-priority="High" data-type="Late Notification">
-                    <div class="alert-card-header">
-                        <div>
-                            <span class="priority-badge high">High Priority</span>
-                            <h3>Possible Late Notification</h3>
-                        </div>
-                        <span class="status-pill action">Action Required</span>
-                    </div>
-                    <p>
-                        The system has identified a potential delay between
-                        the suspected incident date and the date the
-                        notification was received.
-                    </p>
-                    <div class="alert-meta">
-                        <span><strong>Organisation:</strong> Gauteng Provincial Government</span>
-                        <span><strong>Incident:</strong> 25 Jul 2026</span>
-                        <span><strong>Notification:</strong> 28 Jul 2026</span>
-                    </div>
-                    <div class="alert-actions">
-                        <a href="breach.html?id=BR-2026-004" class="btn-primary">Investigate</a>
-                        <button class="btn-secondary" onclick="alert('Alert marked for later review.')">Review Later</button>
-                    </div>
-                </div>
-
-                <div class="alert-card" data-priority="High" data-type="Missing Notification">
-                    <div class="alert-card-header">
-                        <div>
-                            <span class="priority-badge high">High Priority</span>
-                            <h3>Possible Unreported Breach</h3>
-                        </div>
-                        <span class="status-pill action">Action Required</span>
-                    </div>
-                    <p>
-                        An incident has been identified but no corresponding
-                        Section 22 notification has been located in the system.
-                    </p>
-                    <div class="alert-meta">
-                        <span><strong>Organisation:</strong> Example Financial Services</span>
-                        <span><strong>Incident:</strong> 14 Aug 2026</span>
-                        <span><strong>Notification:</strong> Not Received</span>
-                    </div>
-                    <div class="alert-actions">
-                        <a href="breach.html?id=BR-2026-007" class="btn-primary">Investigate</a>
-                        <button class="btn-secondary" onclick="alert('Alert marked for later review.')">Review Later</button>
-                    </div>
-                </div>
-
-                <div class="alert-card" data-priority="Medium" data-type="Review Required">
-                    <div class="alert-card-header">
-                        <div>
-                            <span class="priority-badge medium">Medium Priority</span>
-                            <h3>Review Required</h3>
-                        </div>
-                        <span class="status-pill pending">Pending Review</span>
-                    </div>
-                    <p>
-                        The submitted notification contains information that
-                        may require additional review by the regulator.
-                    </p>
-                    <div class="alert-meta">
-                        <span><strong>Organisation:</strong> Standard Bank</span>
-                        <span><strong>Incident:</strong> 12 Aug 2026</span>
-                        <span><strong>Notification:</strong> 13 Aug 2026</span>
-                    </div>
-                    <div class="alert-actions">
-                        <a href="breach.html?id=BR-2026-001" class="btn-primary">Investigate</a>
-                        <button class="btn-secondary" onclick="alert('Alert marked for later review.')">Review Later</button>
-                    </div>
-                </div>
-
-                <div class="alert-card" data-priority="Medium" data-type="Review Required">
-                    <div class="alert-card-header">
-                        <div>
-                            <span class="priority-badge medium">Medium Priority</span>
-                            <h3>Missing Supporting Information</h3>
-                        </div>
-                        <span class="status-pill pending">Pending Review</span>
-                    </div>
-                    <p>
-                        The notification has been received, but additional
-                        information may be required before the case can
-                        be assessed.
-                    </p>
-                    <div class="alert-meta">
-                        <span><strong>Organisation:</strong> Example Healthcare</span>
-                        <span><strong>Incident:</strong> 10 Aug 2026</span>
-                        <span><strong>Notification:</strong> 11 Aug 2026</span>
-                    </div>
-                    <div class="alert-actions">
-                        <a href="breach.html?id=BR-2026-005" class="btn-primary">Investigate</a>
-                        <button class="btn-secondary" onclick="alert('Alert marked for later review.')">Review Later</button>
-                    </div>
-                </div>
-
-                <div class="alert-card" data-priority="Low" data-type="Review Required">
-                    <div class="alert-card-header">
-                        <div>
-                            <span class="priority-badge low">Low Priority</span>
-                            <h3>Information Verification</h3>
-                        </div>
-                        <span class="status-pill monitoring">Monitoring</span>
-                    </div>
-                    <p>
-                        Information submitted by the organisation may require
-                        verification before the notification can be closed.
-                    </p>
-                    <div class="alert-meta">
-                        <span><strong>Organisation:</strong> Liberty Group</span>
-                        <span><strong>Incident:</strong> 08 Aug 2026</span>
-                        <span><strong>Notification:</strong> 08 Aug 2026</span>
-                    </div>
-                    <div class="alert-actions">
-                        <a href="breach.html?id=BR-2026-002" class="btn-primary">Investigate</a>
-                        <button class="btn-secondary" onclick="alert('Alert marked for later review.')">Review Later</button>
-                    </div>
-                </div>
+                <!-- Cards generated by JavaScript -->
             </div>
 
             <footer class="alerts-footer">
-                <span>
-                    <strong>CyberSerious</strong> · POPIA Section 22 monitoring prototype
-                </span>
-                <span>
-                    Illustrative data only · Not an official reporting system
-                </span>
+                <span><strong>CyberSerious</strong> · POPIA Section 22 monitoring prototype</span>
+                <span>Illustrative data only · Not an official reporting system</span>
             </footer>
         </section>
     </main>
 </div>
 
 <script src="js/app.js"></script>
-<script src="js/app.js"></script>
 <script>
 document.addEventListener("DOMContentLoaded", function () {
+    const listEl = document.getElementById("alertList");
+    const countEl = document.getElementById("activeAlertCount");
     const searchInput = document.getElementById("alertSearch");
     const prioritySelect = document.getElementById("alertPriority");
     const typeSelect = document.getElementById("alertType");
-    const cards = document.querySelectorAll(".alert-card");
-    const countEl = document.getElementById("activeAlertCount");
+
+    if (typeof breaches === "undefined" || !Array.isArray(breaches)) {
+        listEl.innerHTML = `<div class="empty-state">Could not load demonstration data. Check js/app.js</div>`;
+        return;
+    }
+
+    // Only records with status === "Alert"
+    const alertRecords = breaches.filter(b =>
+        String(b.status || "").toLowerCase() === "alert"
+    );
+
+    function getAlertType(record) {
+        if (!record.notificationDate) return "Missing Notification";
+        if (record.notificationTiming && record.notificationTiming.toLowerCase().includes("delay")) {
+            return "Late Notification";
+        }
+        if (record.notificationTiming && record.notificationTiming.toLowerCase().includes("potentially delayed")) {
+            return "Late Notification";
+        }
+        return "Review Required";
+    }
+
+    function getTitle(record) {
+        const type = getAlertType(record);
+        if (type === "Missing Notification") return "Possible Unreported Breach";
+        if (type === "Late Notification") return "Possible Late Notification";
+        return "Review Required";
+    }
+
+    function getDescription(record) {
+        const type = getAlertType(record);
+        if (type === "Missing Notification") {
+            return "An incident has been identified but no corresponding Section 22 notification has been located in the system.";
+        }
+        if (type === "Late Notification") {
+            return "The system has identified a potential delay between the suspected incident date and the date the notification was received.";
+        }
+        return "The submitted notification contains information that may require additional review by the regulator.";
+    }
+
+    function renderAlerts(records) {
+        if (records.length === 0) {
+            listEl.innerHTML = `<div class="empty-state">No alerts match the current filters.</div>`;
+            countEl.textContent = "0 Active Alerts";
+            return;
+        }
+
+        listEl.innerHTML = records.map(record => {
+            const priority = record.priority || "High";
+            const priorityClass = priority.toLowerCase();
+            const type = getAlertType(record);
+            const title = getTitle(record);
+            const description = getDescription(record);
+            const notificationDate = record.notificationDate || "Not Received";
+
+            return `
+                <div class="alert-card" data-priority="${priority}" data-type="${type}">
+                    <div class="alert-card-header">
+                        <div>
+                            <span class="priority-badge ${priorityClass}">${priority} Priority</span>
+                            <h3>${title}</h3>
+                        </div>
+                        <span class="status-pill action">Action Required</span>
+                    </div>
+                    <p>${description}</p>
+                    <div class="alert-meta">
+                        <span><strong>Organisation:</strong> ${record.organisation}</span>
+                        <span><strong>Incident:</strong> ${record.incidentDate}</span>
+                        <span><strong>Notification:</strong> ${notificationDate}</span>
+                    </div>
+                    <div class="alert-actions">
+                        <a href="breach.html?id=${record.id}" class="btn-primary">Investigate</a>
+                        <button class="btn-secondary" onclick="alert('Alert marked for later review.')">Review Later</button>
+                    </div>
+                </div>
+            `;
+        }).join("");
+
+        countEl.textContent = records.length + " Active Alert" + (records.length === 1 ? "" : "s");
+    }
 
     function filterAlerts() {
         const search = (searchInput.value || "").toLowerCase().trim();
         const priority = prioritySelect.value;
         const type = typeSelect.value;
 
-        let visibleCount = 0;
-
-        cards.forEach(function (card) {
-            const cardPriority = card.getAttribute("data-priority") || "";
-            const cardType = card.getAttribute("data-type") || "";
-            const text = card.textContent.toLowerCase();
+        const filtered = alertRecords.filter(record => {
+            const text = (
+                (record.organisation || "") + " " +
+                (record.id || "") + " " +
+                getTitle(record) + " " +
+                getDescription(record)
+            ).toLowerCase();
 
             const matchesSearch = !search || text.includes(search);
-            const matchesPriority = !priority || cardPriority === priority;
-            const matchesType = !type || cardType === type;
+            const matchesPriority = !priority || (record.priority || "") === priority;
+            const matchesType = !type || getAlertType(record) === type;
 
-            if (matchesSearch && matchesPriority && matchesType) {
-                card.style.display = "";
-                visibleCount++;
-            } else {
-                card.style.display = "none";
-            }
+            return matchesSearch && matchesPriority && matchesType;
         });
 
-        if (countEl) {
-            countEl.textContent = visibleCount + " Active Alert" + (visibleCount === 1 ? "" : "s");
-        }
+        renderAlerts(filtered);
     }
 
-    // Run once on load
-    filterAlerts();
+    // Initial render
+    renderAlerts(alertRecords);
 
-    // Re-run when user types or changes filters
+    // Filters
     searchInput.addEventListener("input", filterAlerts);
     prioritySelect.addEventListener("change", filterAlerts);
     typeSelect.addEventListener("change", filterAlerts);
