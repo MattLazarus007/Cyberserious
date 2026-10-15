@@ -13,9 +13,9 @@ const breaches = [
 
     {
         id: "BR-2026-001",
-        organisation: "Standard Bank",
-        incidentDate: "12 August 2026",
-        notificationDate: "13 August 2026",
+        organisation: "Bosmont Financial",
+        incidentDate: "04 May 2026",
+        notificationDate: "05 May 2026",
         breachType: "Unauthorised Access",
         severity: "High",
         affectedSubjects: 2450,
@@ -42,15 +42,15 @@ const breaches = [
         activity: [
             {
                 event: "Notification submitted",
-                date: "13 Aug 2026"
+                date: "05 May 2026"
             },
             {
                 event: "Case assigned for review",
-                date: "14 Aug 2026"
+                date: "06 May 2026"
             },
             {
                 event: "Regulator review started",
-                date: "15 Aug 2026"
+                date: "07 May 2026"
             }
         ]
     },
@@ -58,9 +58,9 @@ const breaches = [
 
     {
         id: "BR-2026-002",
-        organisation: "Liberty Group",
-        incidentDate: "08 August 2026",
-        notificationDate: "08 August 2026",
+        organisation: "Langeberg Insurance",
+        incidentDate: "21 April 2026",
+        notificationDate: "21 April 2026",
         breachType: "Unauthorised Access",
         severity: "Medium",
         affectedSubjects: 830,
@@ -85,15 +85,15 @@ const breaches = [
         activity: [
             {
                 event: "Notification submitted",
-                date: "08 Aug 2026"
+                date: "21 Apr 2026"
             },
             {
                 event: "Case assigned for review",
-                date: "09 Aug 2026"
+                date: "22 Apr 2026"
             },
             {
                 event: "Case closed",
-                date: "15 Aug 2026"
+                date: "28 Apr 2026"
             }
         ]
     },
@@ -101,9 +101,9 @@ const breaches = [
 
     {
         id: "BR-2026-003",
-        organisation: "Statistics South Africa",
-        incidentDate: "02 August 2026",
-        notificationDate: "03 August 2026",
+        organisation: "Highveld Municipal Services",
+        incidentDate: "12 April 2026",
+        notificationDate: "13 April 2026",
         breachType: "Data Exposure",
         severity: "High",
         affectedSubjects: 5100,
@@ -129,15 +129,15 @@ const breaches = [
         activity: [
             {
                 event: "Incident identified",
-                date: "02 Aug 2026"
+                date: "12 Apr 2026"
             },
             {
                 event: "Notification submitted",
-                date: "03 Aug 2026"
+                date: "13 Apr 2026"
             },
             {
                 event: "Case pending regulator review",
-                date: "04 Aug 2026"
+                date: "14 Apr 2026"
             }
         ]
     },
@@ -145,9 +145,9 @@ const breaches = [
 
     {
         id: "BR-2026-004",
-        organisation: "Gauteng Provincial Government",
-        incidentDate: "25 July 2026",
-        notificationDate: "28 July 2026",
+        organisation: "Bushveld Provincial Services",
+        incidentDate: "06 March 2026",
+        notificationDate: "09 March 2026",
         breachType: "Cyberattack",
         severity: "High",
         affectedSubjects: 12000,
@@ -174,15 +174,15 @@ const breaches = [
         activity: [
             {
                 event: "Incident identified",
-                date: "25 Jul 2026"
+                date: "06 Mar 2026"
             },
             {
                 event: "Notification received",
-                date: "28 Jul 2026"
+                date: "09 Mar 2026"
             },
             {
                 event: "Potential compliance alert created",
-                date: "29 Jul 2026"
+                date: "10 Mar 2026"
             }
         ]
     },
@@ -190,9 +190,9 @@ const breaches = [
 
     {
         id: "BR-2026-005",
-        organisation: "Example Healthcare",
-        incidentDate: "20 July 2026",
-        notificationDate: "21 July 2026",
+        organisation: "Thabazimbi Health Group",
+        incidentDate: "18 February 2026",
+        notificationDate: "19 February 2026",
         breachType: "Personal Information Exposure",
         severity: "Low",
         affectedSubjects: 340,
@@ -217,15 +217,15 @@ const breaches = [
         activity: [
             {
                 event: "Notification submitted",
-                date: "21 Jul 2026"
+                date: "19 Feb 2026"
             },
             {
                 event: "Investigation completed",
-                date: "25 Jul 2026"
+                date: "23 Feb 2026"
             },
             {
                 event: "Case closed",
-                date: "28 Jul 2026"
+                date: "26 Feb 2026"
             }
         ]
     },
@@ -233,9 +233,9 @@ const breaches = [
 
     {
         id: "BR-2026-006",
-        organisation: "Example Financial Services",
-        incidentDate: "18 July 2026",
-        notificationDate: "20 July 2026",
+        organisation: "Swartland Financial Services",
+        incidentDate: "03 February 2026",
+        notificationDate: "05 February 2026",
         breachType: "Unauthorised Access",
         severity: "Medium",
         affectedSubjects: 1700,
@@ -261,15 +261,15 @@ const breaches = [
         activity: [
             {
                 event: "Incident identified",
-                date: "18 Jul 2026"
+                date: "03 Feb 2026"
             },
             {
                 event: "Notification submitted",
-                date: "20 Jul 2026"
+                date: "05 Feb 2026"
             },
             {
                 event: "Additional information requested",
-                date: "22 Jul 2026"
+                date: "07 Feb 2026"
             }
         ]
     },
@@ -277,8 +277,8 @@ const breaches = [
 
     {
         id: "BR-2026-007",
-        organisation: "Example Financial Services",
-        incidentDate: "14 August 2026",
+        organisation: "Swartland Financial Services",
+        incidentDate: "27 January 2026",
         notificationDate: null,
         breachType: "Potential Data Breach",
         severity: "High",
@@ -303,11 +303,11 @@ const breaches = [
         activity: [
             {
                 event: "Potential incident identified",
-                date: "14 Aug 2026"
+                date: "27 Jan 2026"
             },
             {
                 event: "Compliance alert created",
-                date: "15 Aug 2026"
+                date: "28 Jan 2026"
             }
         ]
     }
@@ -338,7 +338,7 @@ const alerts = [
         priority: "High",
         reason: "Severity is recorded as high, and 5,100 data subjects are in scope.",
         state: "open",
-        raisedOn: "05 Aug 2026"
+        raisedOn: "13 Apr 2026"
     },
     {
         id: "AL-2026-002",
@@ -347,7 +347,7 @@ const alerts = [
         priority: "High",
         reason: "Notification arrived three days after the incident was identified.",
         state: "open",
-        raisedOn: "29 Jul 2026"
+        raisedOn: "10 Mar 2026"
     },
     {
         id: "AL-2026-003",
@@ -356,7 +356,7 @@ const alerts = [
         priority: "High",
         reason: "An incident was identified and no notification is linked to it.",
         state: "open",
-        raisedOn: "15 Aug 2026"
+        raisedOn: "28 Jan 2026"
     }
 ];
 
