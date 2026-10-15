@@ -524,15 +524,52 @@
 </div>
 
 <script src="js/app.js"></script>
+<script src="js/app.js"></script>
 <script>
-    // Simple count update to match actual visible cards
-    document.addEventListener("DOMContentLoaded", function () {
-        const cards = document.querySelectorAll(".alert-card");
-        const countEl = document.getElementById("activeAlertCount");
+document.addEventListener("DOMContentLoaded", function () {
+    const searchInput = document.getElementById("alertSearch");
+    const prioritySelect = document.getElementById("alertPriority");
+    const typeSelect = document.getElementById("alertType");
+    const cards = document.querySelectorAll(".alert-card");
+    const countEl = document.getElementById("activeAlertCount");
+
+    function filterAlerts() {
+        const search = (searchInput.value || "").toLowerCase().trim();
+        const priority = prioritySelect.value;
+        const type = typeSelect.value;
+
+        let visibleCount = 0;
+
+        cards.forEach(function (card) {
+            const cardPriority = card.getAttribute("data-priority") || "";
+            const cardType = card.getAttribute("data-type") || "";
+            const text = card.textContent.toLowerCase();
+
+            const matchesSearch = !search || text.includes(search);
+            const matchesPriority = !priority || cardPriority === priority;
+            const matchesType = !type || cardType === type;
+
+            if (matchesSearch && matchesPriority && matchesType) {
+                card.style.display = "";
+                visibleCount++;
+            } else {
+                card.style.display = "none";
+            }
+        });
+
         if (countEl) {
-            countEl.textContent = cards.length + " Active Alerts";
+            countEl.textContent = visibleCount + " Active Alert" + (visibleCount === 1 ? "" : "s");
         }
-    });
+    }
+
+    // Run once on load
+    filterAlerts();
+
+    // Re-run when user types or changes filters
+    searchInput.addEventListener("input", filterAlerts);
+    prioritySelect.addEventListener("change", filterAlerts);
+    typeSelect.addEventListener("change", filterAlerts);
+});
 </script>
 </body>
 </html>
