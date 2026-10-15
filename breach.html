@@ -230,6 +230,14 @@
             color: #b42323;
             letter-spacing: -0.02em;
         }
+
+        .priority-display.p-medium {
+            color: #9b5a08;
+        }
+
+        .priority-display.p-low {
+            color: #13784f;
+        }
         .priority-note {
             margin-top: 6px;
             color: var(--muted);
@@ -341,10 +349,10 @@
             <div class="page-intro">
                 <div>
                     <span class="page-eyebrow">Case details</span>
-                    <h2 id="caseTitle">Breach Case #BR-2026-001</h2>
-                    <p id="organisationName">Standard Bank</p>
+                    <h2 id="caseTitle"></h2>
+                    <p id="organisationName"></p>
                 </div>
-                <span class="status-badge review" id="headerStatus">Under Review</span>
+                <span class="status-badge review" id="headerStatus"></span>
             </div>
 
             <div class="detail-grid">
@@ -357,33 +365,33 @@
                         <div class="card-body">
                             <div class="detail-row">
                                 <div class="detail-label">Case ID</div>
-                                <div id="detailCaseId">BR-2026-001</div>
+                                <div id="detailCaseId"></div>
                             </div>
                             <div class="detail-row">
                                 <div class="detail-label">Organisation</div>
-                                <div id="detailOrganisation">Standard Bank</div>
+                                <div id="detailOrganisation"></div>
                             </div>
                             <div class="detail-row">
                                 <div class="detail-label">Incident Date</div>
-                                <div id="detailIncidentDate">12 August 2026</div>
+                                <div id="detailIncidentDate"></div>
                             </div>
                             <div class="detail-row">
                                 <div class="detail-label">Notification Date</div>
-                                <div id="detailNotificationDate">13 August 2026</div>
+                                <div id="detailNotificationDate"></div>
                             </div>
                             <div class="detail-row">
                                 <div class="detail-label">Breach Type</div>
-                                <div id="detailBreachType">Unauthorised Access</div>
+                                <div id="detailBreachType"></div>
                             </div>
                             <div class="detail-row">
                                 <div class="detail-label">Severity</div>
                                 <div>
-                                    <span id="detailSeverity" class="priority high">High</span>
+                                    <span id="detailSeverity" class="priority"></span>
                                 </div>
                             </div>
                             <div class="detail-row">
                                 <div class="detail-label">Affected Data Subjects</div>
-                                <div id="detailAffectedSubjects">2,450</div>
+                                <div id="detailAffectedSubjects"></div>
                             </div>
                         </div>
                     </div>
@@ -477,7 +485,7 @@
                             <h3>Case Priority</h3>
                         </div>
                         <div class="card-body">
-                            <div class="priority-display" id="priorityDisplay">HIGH</div>
+                            <div class="priority-display" id="priorityDisplay"></div>
                             <p class="priority-note">Requires regulator review.</p>
                         </div>
                     </div>
@@ -489,15 +497,15 @@
                         <div class="card-body">
                             <div class="assessment-item">
                                 <span class="assessment-label">Notification received</span>
-                                <strong class="assessment-value" id="notificationReceived">Yes</strong>
+                                <strong class="assessment-value" id="notificationReceived"></strong>
                             </div>
                             <div class="assessment-item">
                                 <span class="assessment-label">Notification timing</span>
-                                <strong class="assessment-value" id="notificationTiming">Within expected timeframe</strong>
+                                <strong class="assessment-value" id="notificationTiming"></strong>
                             </div>
                             <div class="assessment-item">
                                 <span class="assessment-label">Current assessment</span>
-                                <span id="assessment" class="status-badge pending">Under Assessment</span>
+                                <span id="assessment" class="status-badge pending"></span>
                             </div>
                         </div>
                     </div>
