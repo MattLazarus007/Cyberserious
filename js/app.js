@@ -391,6 +391,19 @@ function getBreachIdFromURL() {
 
 
 /* =========================================
+   COUNT FORMATTING
+   ========================================= */
+
+function formatCount(value) {
+
+    const digits = String(Number(value) || 0);
+
+    return digits.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+
+}
+
+
+/* =========================================
    BADGE CLASSES
    ========================================= */
 
@@ -628,7 +641,7 @@ function loadBreachDetails() {
     if (detailAffectedSubjects) {
 
         detailAffectedSubjects.textContent =
-            breach.affectedSubjects.toLocaleString();
+            formatCount(breach.affectedSubjects);
 
     }
 
