@@ -785,21 +785,30 @@ function loadBreachDetails() {
                 }
 
 
-                activityItem.innerHTML = `
+                const eventName =
+                    document.createElement("strong");
 
-                    <strong style="font-size: 13px;">
-                        ${activity.event}
-                    </strong>
+                eventName.style.fontSize = "13px";
 
-                    <p style="
-                        font-size: 12px;
-                        color: #6b7280;
-                        margin-top: 4px;
-                    ">
-                        ${activity.date}
-                    </p>
+                eventName.textContent =
+                    activity.event;
 
-                `;
+
+                const eventDate =
+                    document.createElement("p");
+
+                eventDate.style.fontSize = "12px";
+                eventDate.style.color = "#6b7280";
+                eventDate.style.marginTop = "4px";
+
+                eventDate.textContent =
+                    activity.date;
+
+
+                activityItem.append(
+                    eventName,
+                    eventDate
+                );
 
 
                 activityHistory.appendChild(
@@ -940,19 +949,6 @@ function updateStatus() {
 
 }
 
-
-/* =========================================
-   START APPLICATION
-   ========================================= */
-
-document.addEventListener(
-    "DOMContentLoaded",
-    function () {
-
-        loadBreachDetails();
-
-    }
-);
 
 /* =========================================
    NOTIFICATIONS PAGE
@@ -1196,76 +1192,90 @@ function loadNotifications() {
                     "Not received";
 
 
-                row.innerHTML = `
+                const idCell =
+                    document.createElement("td");
 
-                    <td>
-
-                        ${breach.id}
-
-                    </td>
+                idCell.textContent =
+                    breach.id;
 
 
-                    <td>
+                const orgCell =
+                    document.createElement("td");
 
-                        ${breach.organisation}
-
-                    </td>
-
-
-                    <td>
-
-                        ${breach.incidentDate}
-
-                    </td>
+                orgCell.textContent =
+                    breach.organisation;
 
 
-                    <td>
+                const incidentCell =
+                    document.createElement("td");
 
-                        ${submitted}
-
-                    </td>
-
-
-                    <td>
-
-                        <span
-                            class="priority ${priorityClass}"
-                        >
-
-                            ${breach.priority}
-
-                        </span>
-
-                    </td>
+                incidentCell.textContent =
+                    breach.incidentDate;
 
 
-                    <td>
+                const submittedCell =
+                    document.createElement("td");
 
-                        <span
-                            class="status ${statusClass}"
-                        >
-
-                            ${breach.status}
-
-                        </span>
-
-                    </td>
+                submittedCell.textContent =
+                    submitted;
 
 
-                    <td>
+                const priorityCell =
+                    document.createElement("td");
 
-                        <a
-                            href="breach.html?id=${breach.id}"
-                            class="btn btn-secondary"
-                        >
+                const priorityBadge =
+                    document.createElement("span");
 
-                            View
+                priorityBadge.className =
+                    "priority " + priorityClass;
 
-                        </a>
+                priorityBadge.textContent =
+                    breach.priority;
 
-                    </td>
+                priorityCell.appendChild(priorityBadge);
 
-                `;
+
+                const statusCell =
+                    document.createElement("td");
+
+                const statusBadge =
+                    document.createElement("span");
+
+                statusBadge.className =
+                    "status " + statusClass;
+
+                statusBadge.textContent =
+                    breach.status;
+
+                statusCell.appendChild(statusBadge);
+
+
+                const actionCell =
+                    document.createElement("td");
+
+                const viewLink =
+                    document.createElement("a");
+
+                viewLink.className =
+                    "btn btn-secondary";
+
+                viewLink.href =
+                    "breach.html?id=" + encodeURIComponent(breach.id);
+
+                viewLink.textContent = "View";
+
+                actionCell.appendChild(viewLink);
+
+
+                row.append(
+                    idCell,
+                    orgCell,
+                    incidentCell,
+                    submittedCell,
+                    priorityCell,
+                    statusCell,
+                    actionCell
+                );
 
 
                 tableBody.appendChild(row);
