@@ -68,6 +68,11 @@
             border-radius: 50%;
             background: #4f83e8;
         }
+        .page-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
         .alert-count-badge {
             display: inline-flex;
             align-items: center;
@@ -301,13 +306,13 @@
             <div class="page-intro">
                 <div>
                     <span class="page-eyebrow">Compliance monitoring</span>
-                    <h2>Alerts & Potential Non-Compliance</h2>
+                    <h2>Alerts &amp; Potential Non-Compliance</h2>
                     <p>
                         Cases requiring investigation or regulator attention.
                         Review priority items and take appropriate action.
                     </p>
                 </div>
-                <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                <div class="page-badges">
                     <span class="prototype-badge">Demonstration environment</span>
                     <span class="alert-count-badge" id="activeAlertCount">0 Active Alerts</span>
                 </div>
