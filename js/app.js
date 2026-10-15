@@ -1112,12 +1112,9 @@ function loadNotifications() {
 
             count.textContent =
                 filteredBreaches.length +
-                " notification" +
-                (
-                    filteredBreaches.length === 1
-                        ? ""
-                        : "s"
-                );
+                " of " +
+                breaches.length +
+                " records";
 
         }
 
