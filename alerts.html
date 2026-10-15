@@ -230,6 +230,12 @@
             border-radius: 16px;
             background: #fff;
         }
+        .alert-note {
+            align-self: center;
+            color: #8794a8;
+            font-size: 11px;
+        }
+
         .alerts-footer {
             display: flex;
             justify-content: space-between;
@@ -325,11 +331,13 @@
                         </select>
                     </div>
                     <div>
-                        <select id="alertType" aria-label="Filter by alert type">
-                            <option value="">All Alert Types</option>
-                            <option value="Late Notification">Late Notification</option>
-                            <option value="Missing Notification">Missing Notification</option>
-                            <option value="Review Required">Review Required</option>
+                        <select id="alertType" aria-label="Filter by alert rule">
+                            <option value="">All alert rules</option>
+                            <option value="Possibly late submission">Possibly late submission</option>
+                            <option value="No submission on record">No submission on record</option>
+                            <option value="High severity incident">High severity incident</option>
+                            <option value="High number of people affected">High number of people affected</option>
+                            <option value="Lack of information">Lack of information</option>
                         </select>
                     </div>
                 </div>
@@ -354,119 +362,165 @@ document.addEventListener("DOMContentLoaded", function () {
     const countEl = document.getElementById("activeAlertCount");
     const searchInput = document.getElementById("alertSearch");
     const prioritySelect = document.getElementById("alertPriority");
-    const typeSelect = document.getElementById("alertType");
+    const ruleSelect = document.getElementById("alertType");
 
-    if (typeof breaches === "undefined" || !Array.isArray(breaches)) {
-        listEl.innerHTML = `<div class="empty-state">Could not load demonstration data. Check js/app.js</div>`;
+    if (typeof alerts === "undefined" || !Array.isArray(alerts)) {
+        listEl.innerHTML = '<div class="empty-state">Alert records could not be loaded. Check js/app.js</div>';
         return;
     }
 
-    // Only records with status === "Alert"
-    const alertRecords = breaches.filter(b =>
-        String(b.status || "").toLowerCase() === "alert"
-    );
+    const liveAlerts = alerts.filter(function (entry) {
 
-    function getAlertType(record) {
-        if (!record.notificationDate) return "Missing Notification";
-        if (record.notificationTiming && record.notificationTiming.toLowerCase().includes("delay")) {
-            return "Late Notification";
-        }
-        if (record.notificationTiming && record.notificationTiming.toLowerCase().includes("potentially delayed")) {
-            return "Late Notification";
-        }
-        return "Review Required";
+        return entry.state !== "resolved";
+
+    });
+
+    function caseFor(caseId) {
+
+        return breaches.find(function (breach) {
+
+            return breach.id === caseId;
+
+        }) || null;
+
     }
 
-    function getTitle(record) {
-        const type = getAlertType(record);
-        if (type === "Missing Notification") return "Possible Unreported Breach";
-        if (type === "Late Notification") return "Possible Late Notification";
-        return "Review Required";
+    function metaRow(label, value) {
+
+        const wrap = document.createElement("span");
+        const key = document.createElement("strong");
+
+        key.textContent = label + ":";
+        wrap.append(key, document.createTextNode(" " + value));
+
+        return wrap;
+
     }
 
-    function getDescription(record) {
-        const type = getAlertType(record);
-        if (type === "Missing Notification") {
-            return "An incident has been identified but no corresponding Section 22 notification has been located in the system.";
-        }
-        if (type === "Late Notification") {
-            return "The system has identified a potential delay between the suspected incident date and the date the notification was received.";
-        }
-        return "The submitted notification contains information that may require additional review by the regulator.";
+    function cardFor(entry) {
+
+        const related = caseFor(entry.caseId);
+        const card = document.createElement("div");
+
+        card.className = "alert-card";
+        card.dataset.priority = entry.priority;
+        card.dataset.rule = entry.rule;
+
+        const header = document.createElement("div");
+        header.className = "alert-card-header";
+
+        const titleBox = document.createElement("div");
+        const priority = document.createElement("span");
+
+        priority.className = "priority-badge " + entry.priority.toLowerCase();
+        priority.textContent = entry.priority + " priority";
+
+        const heading = document.createElement("h3");
+
+        heading.textContent = entry.rule;
+        titleBox.append(priority, heading);
+
+        const pill = document.createElement("span");
+
+        pill.className = "status-pill " + (entry.state === "open" ? "action" : "monitoring");
+        pill.textContent = entry.state === "open" ? "Needs review" : entry.state;
+
+        header.append(titleBox, pill);
+
+        const why = document.createElement("p");
+
+        why.textContent = entry.reason;
+
+        const meta = document.createElement("div");
+
+        meta.className = "alert-meta";
+        meta.append(
+            metaRow("Alert", entry.id),
+            metaRow("Organisation", related ? related.organisation : "Not in this dataset"),
+            metaRow("Incident", related ? related.incidentDate : "Unknown"),
+            metaRow("Raised", entry.raisedOn)
+        );
+
+        const actions = document.createElement("div");
+        const openLink = document.createElement("a");
+        const note = document.createElement("span");
+
+        actions.className = "alert-actions";
+        openLink.className = "btn-primary";
+        openLink.href = "breach.html?id=" + entry.caseId;
+        openLink.textContent = "Investigate";
+
+        note.className = "alert-note";
+        note.textContent = "Acknowledge and resolve actions arrive with the case backend.";
+
+        actions.append(openLink, note);
+        card.append(header, why, meta, actions);
+
+        return card;
+
     }
 
-    function renderAlerts(records) {
-        if (records.length === 0) {
-            listEl.innerHTML = `<div class="empty-state">No alerts match the current filters.</div>`;
-            countEl.textContent = "0 Active Alerts";
+    function render(entries) {
+
+        listEl.replaceChildren();
+
+        if (entries.length === 0) {
+
+            const empty = document.createElement("div");
+
+            empty.className = "empty-state";
+            empty.textContent = "No alerts match the current filters.";
+            listEl.append(empty);
+            countEl.textContent = "0 active alerts";
+
             return;
+
         }
 
-        listEl.innerHTML = records.map(record => {
-            const priority = record.priority || "High";
-            const priorityClass = priority.toLowerCase();
-            const type = getAlertType(record);
-            const title = getTitle(record);
-            const description = getDescription(record);
-            const notificationDate = record.notificationDate || "Not Received";
+        entries.forEach(function (entry) {
 
-            return `
-                <div class="alert-card" data-priority="${priority}" data-type="${type}">
-                    <div class="alert-card-header">
-                        <div>
-                            <span class="priority-badge ${priorityClass}">${priority} Priority</span>
-                            <h3>${title}</h3>
-                        </div>
-                        <span class="status-pill action">Action Required</span>
-                    </div>
-                    <p>${description}</p>
-                    <div class="alert-meta">
-                        <span><strong>Organisation:</strong> ${record.organisation}</span>
-                        <span><strong>Incident:</strong> ${record.incidentDate}</span>
-                        <span><strong>Notification:</strong> ${notificationDate}</span>
-                    </div>
-                    <div class="alert-actions">
-                        <a href="breach.html?id=${record.id}" class="btn-primary">Investigate</a>
-                        <button class="btn-secondary" onclick="alert('Alert marked for later review.')">Review Later</button>
-                    </div>
-                </div>
-            `;
-        }).join("");
+            listEl.append(cardFor(entry));
 
-        countEl.textContent = records.length + " Active Alert" + (records.length === 1 ? "" : "s");
-    }
-
-    function filterAlerts() {
-        const search = (searchInput.value || "").toLowerCase().trim();
-        const priority = prioritySelect.value;
-        const type = typeSelect.value;
-
-        const filtered = alertRecords.filter(record => {
-            const text = (
-                (record.organisation || "") + " " +
-                (record.id || "") + " " +
-                getTitle(record) + " " +
-                getDescription(record)
-            ).toLowerCase();
-
-            const matchesSearch = !search || text.includes(search);
-            const matchesPriority = !priority || (record.priority || "") === priority;
-            const matchesType = !type || getAlertType(record) === type;
-
-            return matchesSearch && matchesPriority && matchesType;
         });
 
-        renderAlerts(filtered);
+        countEl.textContent =
+            entries.length +
+            " active alert" +
+            (entries.length === 1 ? "" : "s");
+
     }
 
-    // Initial render
-    renderAlerts(alertRecords);
+    function applyFilters() {
 
-    // Filters
-    searchInput.addEventListener("input", filterAlerts);
-    prioritySelect.addEventListener("change", filterAlerts);
-    typeSelect.addEventListener("change", filterAlerts);
-});
-</script>
+        const term = (searchInput.value || "").toLowerCase().trim();
+        const priority = prioritySelect.value;
+        const rule = ruleSelect.value;
+
+        const shown = liveAlerts.filter(function (entry) {
+
+            const related = caseFor(entry.caseId);
+            const haystack = [
+                entry.id,
+                entry.rule,
+                entry.reason,
+                related ? related.organisation : ""
+            ].join(" ").toLowerCase();
+
+            return (!term || haystack.includes(term)) &&
+                (!priority || entry.priority === priority) &&
+                (!rule || entry.rule === rule);
+
+        });
+
+        render(shown);
+
+    }
+
+    render(liveAlerts);
+
+    searchInput.addEventListener("input", applyFilters);
+    prioritySelect.addEventListener("change", applyFilters);
+    ruleSelect.addEventListener("change", applyFilters);
+});</script>
 </body>
 </html>

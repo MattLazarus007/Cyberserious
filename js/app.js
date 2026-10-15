@@ -151,7 +151,7 @@ const breaches = [
         breachType: "Cyberattack",
         severity: "High",
         affectedSubjects: 12000,
-        status: "Alert",
+        status: "Under Review",
         priority: "High",
 
         description:
@@ -283,7 +283,7 @@ const breaches = [
         breachType: "Potential Data Breach",
         severity: "High",
         affectedSubjects: 3200,
-        status: "Alert",
+        status: "Awaiting Information",
         priority: "High",
 
         description:
@@ -312,6 +312,52 @@ const breaches = [
         ]
     }
 
+];
+
+/*
+    The only case states the interface offers.
+    Every page reads this list, no page keeps its own.
+*/
+const CASE_STATES = [
+    "Pending",
+    "Under Review",
+    "Awaiting Information",
+    "Closed"
+];
+
+
+/*
+    Alert records are separate from cases.
+    A case keeps its own state while alerts come and go.
+*/
+const alerts = [
+    {
+        id: "AL-2026-001",
+        caseId: "BR-2026-003",
+        rule: "High severity incident",
+        priority: "High",
+        reason: "Severity is recorded as high, and 5,100 data subjects are in scope.",
+        state: "open",
+        raisedOn: "05 Aug 2026"
+    },
+    {
+        id: "AL-2026-002",
+        caseId: "BR-2026-004",
+        rule: "Possibly late submission",
+        priority: "High",
+        reason: "Notification arrived three days after the incident was identified.",
+        state: "open",
+        raisedOn: "29 Jul 2026"
+    },
+    {
+        id: "AL-2026-003",
+        caseId: "BR-2026-007",
+        rule: "No submission on record",
+        priority: "High",
+        reason: "An incident was identified and no notification is linked to it.",
+        state: "open",
+        raisedOn: "15 Aug 2026"
+    }
 ];
 
 
@@ -777,6 +823,20 @@ function loadBreachDetails() {
 
     if (statusDropdown) {
 
+        statusDropdown.replaceChildren();
+
+        CASE_STATES.forEach(function (state) {
+
+            const option =
+                document.createElement("option");
+
+            option.value = state;
+            option.textContent = state;
+
+            statusDropdown.append(option);
+
+        });
+
         statusDropdown.value =
             breach.status;
 
@@ -933,6 +993,25 @@ function loadNotifications() {
             "priorityFilter"
         );
 
+
+    statusFilter.replaceChildren();
+
+    const allStates = document.createElement("option");
+
+    allStates.value = "";
+    allStates.textContent = "All statuses";
+    statusFilter.append(allStates);
+
+    CASE_STATES.forEach(function (state) {
+
+        const option = document.createElement("option");
+
+        option.value = state;
+        option.textContent = state;
+
+        statusFilter.append(option);
+
+    });
 
     function renderNotifications() {
 
