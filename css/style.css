@@ -741,3 +741,52 @@ textarea:focus-visible {
     font-weight: 600;
     text-align: center;
 }
+
+/* below 650px the sidebar turns into a strip across the top, so navigation stays reachable */
+
+@media (max-width: 650px) {
+    .sidebar {
+        position: static;
+        display: block;
+        width: 100%;
+    }
+
+    .logo {
+        padding: 14px 16px 8px;
+        border-bottom: 0;
+    }
+
+    .logo h1 {
+        font-size: 18px;
+    }
+
+    .logo p {
+        display: none;
+    }
+
+    .nav {
+        display: flex;
+        gap: 6px;
+        padding: 8px 12px 14px;
+    }
+
+    .nav a {
+        flex: 1;
+        flex-direction: column;
+        justify-content: center;
+        gap: 4px;
+        margin-bottom: 0;
+        padding: 9px 6px;
+        font-size: 11px;
+        text-align: center;
+    }
+
+    .sidebar-footer {
+        display: none;
+    }
+
+    .main {
+        margin-left: 0;
+        width: 100%;
+    }
+}

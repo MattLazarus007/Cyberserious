@@ -208,6 +208,23 @@
         .btn-primary:hover {
             background: #0c1a30;
         }
+        .btn-block {
+            width: 100%;
+            margin-top: 14px;
+        }
+        .note-actions {
+            margin-top: 12px;
+        }
+        .action-message {
+            margin-top: 10px;
+            font-size: 13px;
+            color: #13784f;
+        }
+        .empty-note {
+            margin: 0;
+            color: #64748b;
+            font-size: 13px;
+        }
         select#caseStatus {
             width: 100%;
             min-height: 44px;
@@ -349,7 +366,7 @@
             <div class="page-intro">
                 <div>
                     <span class="page-eyebrow">Case details</span>
-                    <h2 id="caseTitle"></h2>
+                    <h2 id="caseTitle">Case details</h2>
                     <p id="organisationName"></p>
                 </div>
                 <span class="status-badge review" id="headerStatus"></span>
@@ -433,12 +450,12 @@
                                 id="notes"
                                 placeholder="Add an internal note about this case..."
                             ></textarea>
-                            <div style="margin-top: 12px;">
-                                <button class="btn-primary" onclick="addNote()">
+                            <div class="note-actions">
+                                <button type="button" class="btn-primary" onclick="addNote()">
                                     Add Note
                                 </button>
                             </div>
-                            <div id="noteMessage" style="margin-top: 10px; font-size: 13px; color: #13784f;"></div>
+                            <div id="noteMessage" class="action-message"></div>
                         </div>
                     </div>
                 </div>
@@ -453,13 +470,13 @@
                             <label for="caseStatus" class="assessment-label">Current Status</label>
                             <select id="caseStatus" aria-label="Case status"></select>
                             <button
-                                class="btn-primary"
-                                style="width: 100%; margin-top: 14px;"
+                                type="button"
+                                class="btn-primary btn-block"
                                 onclick="updateStatus()"
                             >
                                 Update Status
                             </button>
-                            <div id="statusMessage" style="margin-top: 10px; font-size: 13px; color: #13784f;"></div>
+                            <div id="statusMessage" class="action-message"></div>
                         </div>
                     </div>
 
@@ -470,7 +487,7 @@
                         </div>
                         <div class="card-body">
                             <div id="notesList">
-                                <p style="color: #64748b; font-size: 13px; margin: 0;">No notes added yet.</p>
+                                <p class="empty-note">No notes added yet.</p>
                             </div>
                         </div>
                     </div>
@@ -543,28 +560,32 @@ function addNote() {
         return;
     }
 
-    // Remove the "No notes added yet" message
+    // the empty-state line goes away once a note exists
     const emptyMsg = notesList.querySelector("p");
     if (emptyMsg) {
-        notesList.innerHTML = "";
+        emptyMsg.remove();
     }
 
-    // Create the note
     const noteItem = document.createElement("div");
     noteItem.style.cssText = "padding: 12px 0; border-bottom: 1px solid #edf1f7; font-size: 13px; color: #33445f; line-height: 1.5;";
+
+    const noteText = document.createElement("div");
+    noteText.style.marginBottom = "4px";
+    noteText.textContent = notes.value.trim();
 
     const now = new Date();
     const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-    noteItem.innerHTML = `
-        <div style="margin-bottom: 4px;">${notes.value.trim()}</div>
-        <div style="font-size: 11px; color: #8794a8;">${timeStr} · Internal note</div>
-    `;
+    const noteMeta = document.createElement("div");
+    noteMeta.style.fontSize = "11px";
+    noteMeta.style.color = "#8794a8";
+    noteMeta.textContent = timeStr + " · this page only, not saved yet";
 
+    noteItem.append(noteText, noteMeta);
     notesList.prepend(noteItem);
 
     message.style.color = "#13784f";
-    message.textContent = "Note added successfully.";
+    message.textContent = "Note added to this page. Saving arrives with the backend.";
     notes.value = "";
 }
 </script>
