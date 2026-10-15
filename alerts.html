@@ -1,831 +1,538 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>CyberSerious | Alerts</title>
-
+    <meta name="description" content="Review potential non-compliance and priority alerts under POPIA Section 22.">
+    <title>Alerts | CyberSerious</title>
     <link rel="stylesheet" href="css/style.css">
-
+    <style>
+        :root {
+            --page-bg: #f4f7fc;
+            --navy: #10223f;
+            --blue: #2563eb;
+            --text: #172b4d;
+            --muted: #64748b;
+            --border: #e4eaf2;
+        }
+        body {
+            background: var(--page-bg);
+        }
+        .main {
+            min-width: 0;
+        }
+        .topbar {
+            background: #fff;
+            border-bottom: 1px solid var(--border);
+        }
+        .content {
+            padding-top: 28px;
+        }
+        .page-intro {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+        .page-eyebrow {
+            display: inline-block;
+            margin-bottom: 9px;
+            color: var(--blue);
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: .1em;
+            text-transform: uppercase;
+        }
+        .page-intro h2 {
+            margin: 0 0 9px;
+            color: var(--text);
+            font-size: clamp(26px, 3vw, 34px);
+            letter-spacing: -.035em;
+        }
+        .page-intro p {
+            max-width: 650px;
+            margin: 0;
+            color: var(--muted);
+            font-size: 14px;
+            line-height: 1.7;
+        }
+        .prototype-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 8px 12px;
+            border: 1px solid #dce7f8;
+            border-radius: 30px;
+            background: #edf4ff;
+            color: #2858a6;
+            font-size: 11px;
+            font-weight: 750;
+            white-space: nowrap;
+        }
+        .prototype-badge::before {
+            content: "";
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #4f83e8;
+        }
+        .alert-count-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 8px 12px;
+            border: 1px solid #f5d0d0;
+            border-radius: 30px;
+            background: #fff1f1;
+            color: #b42323;
+            font-size: 11px;
+            font-weight: 750;
+            white-space: nowrap;
+        }
+        .filters-card {
+            overflow: hidden;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            background: #fff;
+            box-shadow: 0 4px 16px rgba(20, 39, 70, .035);
+            margin-bottom: 22px;
+        }
+        .filters-heading {
+            padding: 20px 22px 0;
+        }
+        .filters-heading h3 {
+            margin: 0 0 5px;
+            color: var(--text);
+            font-size: 15px;
+        }
+        .filters-heading p {
+            margin: 0;
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.6;
+        }
+        .filters {
+            display: grid;
+            grid-template-columns: minmax(220px, 2fr) minmax(150px, 1fr) minmax(150px, 1fr);
+            gap: 14px;
+            padding: 19px 22px 22px;
+        }
+        .filters input,
+        .filters select {
+            width: 100%;
+            min-height: 44px;
+            padding: 10px 13px;
+            border: 1px solid #dce3ed;
+            border-radius: 10px;
+            background: #fff;
+            color: var(--text);
+            font: inherit;
+            font-size: 12px;
+            outline: none;
+            transition: border-color .2s, box-shadow .2s;
+        }
+        .filters input:focus,
+        .filters select:focus {
+            border-color: var(--blue);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, .1);
+        }
+        .alert-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .alert-card {
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            background: #fff;
+            box-shadow: 0 4px 16px rgba(20, 39, 70, .035);
+            padding: 22px;
+            transition: box-shadow .2s ease;
+        }
+        .alert-card:hover {
+            box-shadow: 0 8px 24px rgba(20, 39, 70, .07);
+        }
+        .alert-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 16px;
+            margin-bottom: 12px;
+        }
+        .priority-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: .04em;
+            text-transform: uppercase;
+        }
+        .priority-badge.high {
+            background: #ffebeb;
+            color: #b42323;
+        }
+        .priority-badge.medium {
+            background: #fff3df;
+            color: #9b5a08;
+        }
+        .priority-badge.low {
+            background: #e4f7ee;
+            color: #13784f;
+        }
+        .alert-card h3 {
+            margin: 10px 0 0;
+            color: var(--text);
+            font-size: 17px;
+            font-weight: 750;
+        }
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 11px;
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: 750;
+            white-space: nowrap;
+        }
+        .status-pill.action {
+            background: #ffebeb;
+            color: #b42323;
+        }
+        .status-pill.pending {
+            background: #fff3df;
+            color: #9b5a08;
+        }
+        .status-pill.monitoring {
+            background: #eaf1ff;
+            color: #2858a6;
+        }
+        .alert-card > p {
+            margin: 0 0 16px;
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.7;
+        }
+        .alert-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 18px;
+            margin-bottom: 18px;
+            font-size: 12px;
+            color: var(--muted);
+        }
+        .alert-meta strong {
+            color: #40516b;
+        }
+        .alert-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .btn-primary {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 9px 16px;
+            border: none;
+            border-radius: 8px;
+            background: var(--navy);
+            color: #fff;
+            font-size: 12px;
+            font-weight: 700;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .btn-primary:hover {
+            background: #0c1a30;
+        }
+        .btn-secondary {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 9px 16px;
+            border: 1px solid #d6e3fb;
+            border-radius: 8px;
+            background: #edf4ff;
+            color: #2455a4;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .btn-secondary:hover {
+            background: #dfeaff;
+        }
+        .alerts-footer {
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+            margin-top: 28px;
+            padding-top: 16px;
+            border-top: 1px solid #e2e8f0;
+            color: #7b8799;
+            font-size: 11px;
+            line-height: 1.6;
+        }
+        .alerts-footer strong {
+            color: #52637a;
+        }
+        @media (max-width: 800px) {
+            .filters {
+                grid-template-columns: 1fr 1fr;
+            }
+            .filters .search {
+                grid-column: 1 / -1;
+            }
+        }
+        @media (max-width: 600px) {
+            .page-intro {
+                flex-direction: column;
+            }
+            .filters {
+                grid-template-columns: 1fr;
+            }
+            .alert-card-header {
+                flex-direction: column;
+            }
+            .alerts-footer {
+                flex-direction: column;
+            }
+        }
+    </style>
 </head>
-
-
 <body>
-
 <div class="app">
-
-
-    <!-- SIDEBAR -->
-
     <aside class="sidebar">
-
         <div class="logo">
-
             <h1>CYBERSERIOUS</h1>
-
             <p>Information Regulator</p>
-
         </div>
-
-
-        <nav class="nav">
-
+        <nav class="nav" aria-label="Main navigation">
             <a href="index.html">
-
-                <span class="nav-icon">▦</span>
-
+                <span class="nav-icon" aria-hidden="true">▦</span>
                 Dashboard
-
             </a>
-
-
             <a href="notifications.html">
-
-                <span class="nav-icon">▤</span>
-
+                <span class="nav-icon" aria-hidden="true">▤</span>
                 Notifications
-
             </a>
-
-
-            <a href="alerts.html" class="active">
-
-                <span class="nav-icon">⚠</span>
-
+            <a href="alerts.html" class="active" aria-current="page">
+                <span class="nav-icon" aria-hidden="true">⚠</span>
                 Alerts
-
             </a>
-
         </nav>
-
-
         <div class="sidebar-footer">
-
             POPIA Section 22<br>
-
             Breach Monitoring System
-
         </div>
-
     </aside>
 
-
-
-    <!-- MAIN CONTENT -->
-
     <main class="main">
-
-
-        <!-- TOP BAR -->
-
         <header class="topbar">
-
             <div class="topbar-title">
-
                 Information Regulator / Alerts
-
             </div>
-
-
             <div class="user">
-
-                <div class="user-avatar">
-
-                    IR
-
-                </div>
-
-                <span>
-
-                    Regulator Admin
-
-                </span>
-
+                <div class="user-avatar">IR</div>
+                <span>Regulator Admin</span>
             </div>
-
         </header>
 
-
-
-        <!-- PAGE CONTENT -->
-
         <section class="content">
-
-
-            <!-- PAGE HEADER -->
-
-            <div class="page-header">
-
+            <div class="page-intro">
                 <div>
-
+                    <span class="page-eyebrow">Compliance monitoring</span>
                     <h2>Alerts & Potential Non-Compliance</h2>
-
                     <p>
-
                         Cases requiring investigation or regulator attention.
-
+                        Review priority items and take appropriate action.
                     </p>
-
                 </div>
-
-
-                <div>
-
-                    <span class="status alert">
-
-                        6 Active Alerts
-
-                    </span>
-
+                <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                    <span class="prototype-badge">Demonstration environment</span>
+                    <span class="alert-count-badge" id="activeAlertCount">— Active Alerts</span>
                 </div>
-
             </div>
 
-
-
-            <!-- FILTERS -->
-
-            <div class="card">
-
-                <div class="card-body">
-
-
-                    <div class="filters">
-
-
-                        <div class="search">
-
-                            <input
-
-                                type="text"
-
-                                id="alertSearch"
-
-                                placeholder="Search organisation or alert..."
-
-                            >
-
-                        </div>
-
-
-                        <div>
-
-                            <select id="alertPriority">
-
-                                <option value="">All Priorities</option>
-
-                                <option value="High">High</option>
-
-                                <option value="Medium">Medium</option>
-
-                                <option value="Low">Low</option>
-
-                            </select>
-
-                        </div>
-
-
-                        <div>
-
-                            <select id="alertType">
-
-                                <option value="">All Alert Types</option>
-
-                                <option value="Late Notification">
-
-                                    Late Notification
-
-                                </option>
-
-                                <option value="Missing Notification">
-
-                                    Missing Notification
-
-                                </option>
-
-                                <option value="Review Required">
-
-                                    Review Required
-
-                                </option>
-
-                            </select>
-
-                        </div>
-
-
-                    </div>
-
+            <section class="filters-card">
+                <div class="filters-heading">
+                    <h3>Find an alert</h3>
+                    <p>Search or filter alerts by priority and type.</p>
                 </div>
-
-            </div>
-
-
-
-            <!-- ALERT LIST -->
-
-            <div class="alert-list" style="margin-top: 20px;">
-
-
-                <!-- HIGH PRIORITY ALERT -->
-
-                <div class="alert-card">
-
-
-                    <div style="
-                        display: flex;
-                        justify-content: space-between;
-                        align-items: flex-start;
-                    ">
-
-
-                        <div>
-
-                            <span class="priority high">
-
-                                🔴 HIGH PRIORITY
-
-                            </span>
-
-
-                            <h3 style="margin-top: 10px;">
-
-                                Possible Late Notification
-
-                            </h3>
-
-                        </div>
-
-
-                        <span class="status alert">
-
-                            Action Required
-
-                        </span>
-
-
+                <div class="filters">
+                    <div class="search">
+                        <input
+                            type="search"
+                            id="alertSearch"
+                            placeholder="Search organisation or alert..."
+                            aria-label="Search alerts"
+                        >
                     </div>
+                    <div>
+                        <select id="alertPriority" aria-label="Filter by priority">
+                            <option value="">All Priorities</option>
+                            <option value="High">High</option>
+                            <option value="Medium">Medium</option>
+                            <option value="Low">Low</option>
+                        </select>
+                    </div>
+                    <div>
+                        <select id="alertType" aria-label="Filter by alert type">
+                            <option value="">All Alert Types</option>
+                            <option value="Late Notification">Late Notification</option>
+                            <option value="Missing Notification">Missing Notification</option>
+                            <option value="Review Required">Review Required</option>
+                        </select>
+                    </div>
+                </div>
+            </section>
 
-
-
-                    <p style="margin-top: 10px;">
-
+            <div class="alert-list" id="alertList">
+                <!-- Alerts will be rendered by JS or remain static for now -->
+                <!-- Keeping the existing static cards for prototype stability -->
+                <div class="alert-card" data-priority="High" data-type="Late Notification">
+                    <div class="alert-card-header">
+                        <div>
+                            <span class="priority-badge high">High Priority</span>
+                            <h3>Possible Late Notification</h3>
+                        </div>
+                        <span class="status-pill action">Action Required</span>
+                    </div>
+                    <p>
                         The system has identified a potential delay between
-
                         the suspected incident date and the date the
-
                         notification was received.
-
                     </p>
-
-
-
                     <div class="alert-meta">
-
-                        <span>
-
-                            <strong>Organisation:</strong>
-
-                            Gauteng Provincial Government
-
-                        </span>
-
-
-                        <span>
-
-                            <strong>Incident:</strong>
-
-                            25 Jul 2026
-
-                        </span>
-
-
-                        <span>
-
-                            <strong>Notification:</strong>
-
-                            28 Jul 2026
-
-                        </span>
-
+                        <span><strong>Organisation:</strong> Gauteng Provincial Government</span>
+                        <span><strong>Incident:</strong> 25 Jul 2026</span>
+                        <span><strong>Notification:</strong> 28 Jul 2026</span>
                     </div>
-
-
-
-                    <div>
-
-                        <a
-
-                            href="breach.html?id=BR-2026-004"
-
-                            class="btn btn-primary"
-
-                        >
-
-                            Investigate
-
-                        </a>
-
-
-                        <button
-
-                            class="btn btn-secondary"
-
-                            onclick="alert('Alert marked for later review.')"
-
-                        >
-
-                            Review Later
-
-                        </button>
-
+                    <div class="alert-actions">
+                        <a href="breach.html?id=BR-2026-004" class="btn-primary">Investigate</a>
+                        <button class="btn-secondary" onclick="alert('Alert marked for later review.')">Review Later</button>
                     </div>
-
-
                 </div>
 
-
-
-                <!-- HIGH PRIORITY ALERT -->
-
-                <div class="alert-card">
-
-
-                    <div style="
-                        display: flex;
-                        justify-content: space-between;
-                        align-items: flex-start;
-                    ">
-
-
+                <div class="alert-card" data-priority="High" data-type="Missing Notification">
+                    <div class="alert-card-header">
                         <div>
-
-                            <span class="priority high">
-
-                                🔴 HIGH PRIORITY
-
-                            </span>
-
-
-                            <h3 style="margin-top: 10px;">
-
-                                Possible Unreported Breach
-
-                            </h3>
-
+                            <span class="priority-badge high">High Priority</span>
+                            <h3>Possible Unreported Breach</h3>
                         </div>
-
-
-                        <span class="status alert">
-
-                            Action Required
-
-                        </span>
-
-
+                        <span class="status-pill action">Action Required</span>
                     </div>
-
-
-
-                    <p style="margin-top: 10px;">
-
+                    <p>
                         An incident has been identified but no corresponding
-
                         Section 22 notification has been located in the system.
-
                     </p>
-
-
-
                     <div class="alert-meta">
-
-                        <span>
-
-                            <strong>Organisation:</strong>
-
-                            Example Financial Services
-
-                        </span>
-
-
-                        <span>
-
-                            <strong>Incident:</strong>
-
-                            14 Aug 2026
-
-                        </span>
-
-
-                        <span>
-
-                            <strong>Notification:</strong>
-
-                            Not Received
-
-                        </span>
-
+                        <span><strong>Organisation:</strong> Example Financial Services</span>
+                        <span><strong>Incident:</strong> 14 Aug 2026</span>
+                        <span><strong>Notification:</strong> Not Received</span>
                     </div>
-
-
-
-                    <div>
-
-                        <a
-
-                            href="breach.html?id=BR-2026-007"
-
-                            class="btn btn-primary"
-
-                        >
-
-                            Investigate
-
-                        </a>
-
-
-                        <button
-
-                            class="btn btn-secondary"
-
-                            onclick="alert('Alert marked for later review.')"
-
-                        >
-
-                            Review Later
-
-                        </button>
-
+                    <div class="alert-actions">
+                        <a href="breach.html?id=BR-2026-007" class="btn-primary">Investigate</a>
+                        <button class="btn-secondary" onclick="alert('Alert marked for later review.')">Review Later</button>
                     </div>
-
-
                 </div>
 
-
-
-                <!-- MEDIUM PRIORITY ALERT -->
-
-                <div class="alert-card medium">
-
-
-                    <div style="
-                        display: flex;
-                        justify-content: space-between;
-                        align-items: flex-start;
-                    ">
-
-
+                <div class="alert-card" data-priority="Medium" data-type="Review Required">
+                    <div class="alert-card-header">
                         <div>
-
-                            <span class="priority medium">
-
-                                🟠 MEDIUM PRIORITY
-
-                            </span>
-
-
-                            <h3 style="margin-top: 10px;">
-
-                                Review Required
-
-                            </h3>
-
+                            <span class="priority-badge medium">Medium Priority</span>
+                            <h3>Review Required</h3>
                         </div>
-
-
-                        <span class="status pending">
-
-                            Pending Review
-
-                        </span>
-
-
+                        <span class="status-pill pending">Pending Review</span>
                     </div>
-
-
-
-                    <p style="margin-top: 10px;">
-
+                    <p>
                         The submitted notification contains information that
-
                         may require additional review by the regulator.
-
                     </p>
-
-
-
                     <div class="alert-meta">
-
-                        <span>
-
-                            <strong>Organisation:</strong>
-
-                            Standard Bank
-
-                        </span>
-
-
-                        <span>
-
-                            <strong>Incident:</strong>
-
-                            12 Aug 2026
-
-                        </span>
-
-
-                        <span>
-
-                            <strong>Notification:</strong>
-
-                            13 Aug 2026
-
-                        </span>
-
+                        <span><strong>Organisation:</strong> Standard Bank</span>
+                        <span><strong>Incident:</strong> 12 Aug 2026</span>
+                        <span><strong>Notification:</strong> 13 Aug 2026</span>
                     </div>
-
-
-
-                    <div>
-
-                        <a
-
-                            href="breach.html?id=BR-2026-001"
-
-                            class="btn btn-primary"
-
-                        >
-
-                            Investigate
-
-                        </a>
-
-
-                        <button
-
-                            class="btn btn-secondary"
-
-                            onclick="alert('Alert marked for later review.')"
-
-                        >
-
-                            Review Later
-
-                        </button>
-
+                    <div class="alert-actions">
+                        <a href="breach.html?id=BR-2026-001" class="btn-primary">Investigate</a>
+                        <button class="btn-secondary" onclick="alert('Alert marked for later review.')">Review Later</button>
                     </div>
-
-
                 </div>
 
-
-
-                <!-- MEDIUM PRIORITY ALERT -->
-
-                <div class="alert-card medium">
-
-
-                    <div style="
-                        display: flex;
-                        justify-content: space-between;
-                        align-items: flex-start;
-                    ">
-
-
+                <div class="alert-card" data-priority="Medium" data-type="Review Required">
+                    <div class="alert-card-header">
                         <div>
-
-                            <span class="priority medium">
-
-                                🟠 MEDIUM PRIORITY
-
-                            </span>
-
-
-                            <h3 style="margin-top: 10px;">
-
-                                Missing Supporting Information
-
-                            </h3>
-
+                            <span class="priority-badge medium">Medium Priority</span>
+                            <h3>Missing Supporting Information</h3>
                         </div>
-
-
-                        <span class="status pending">
-
-                            Pending Review
-
-                        </span>
-
+                        <span class="status-pill pending">Pending Review</span>
                     </div>
-
-
-
-                    <p style="margin-top: 10px;">
-
+                    <p>
                         The notification has been received, but additional
-
                         information may be required before the case can
-
                         be assessed.
-
                     </p>
-
-
-
                     <div class="alert-meta">
-
-                        <span>
-
-                            <strong>Organisation:</strong>
-
-                            Example Healthcare
-
-                        </span>
-
-
-                        <span>
-
-                            <strong>Incident:</strong>
-
-                            10 Aug 2026
-
-                        </span>
-
-
-                        <span>
-
-                            <strong>Notification:</strong>
-
-                            11 Aug 2026
-
-                        </span>
-
+                        <span><strong>Organisation:</strong> Example Healthcare</span>
+                        <span><strong>Incident:</strong> 10 Aug 2026</span>
+                        <span><strong>Notification:</strong> 11 Aug 2026</span>
                     </div>
-
-
-
-                    <div>
-
-                        <a
-
-                            href="breach.html?id=BR-2026-005"
-
-                            class="btn btn-primary"
-
-                        >
-
-                            Investigate
-
-                        </a>
-
-
-                        <button
-
-                            class="btn btn-secondary"
-
-                            onclick="alert('Alert marked for later review.')"
-
-                        >
-
-                            Review Later
-
-                        </button>
-
+                    <div class="alert-actions">
+                        <a href="breach.html?id=BR-2026-005" class="btn-primary">Investigate</a>
+                        <button class="btn-secondary" onclick="alert('Alert marked for later review.')">Review Later</button>
                     </div>
-
-
                 </div>
 
-
-
-                <!-- LOW PRIORITY ALERT -->
-
-                <div class="alert-card medium" style="border-left-color: #198754;">
-
-
-                    <div style="
-                        display: flex;
-                        justify-content: space-between;
-                        align-items: flex-start;
-                    ">
-
-
+                <div class="alert-card" data-priority="Low" data-type="Review Required">
+                    <div class="alert-card-header">
                         <div>
-
-                            <span class="priority low">
-
-                                🟢 LOW PRIORITY
-
-                            </span>
-
-
-                            <h3 style="margin-top: 10px;">
-
-                                Information Verification
-
-                            </h3>
-
+                            <span class="priority-badge low">Low Priority</span>
+                            <h3>Information Verification</h3>
                         </div>
-
-
-                        <span class="status review">
-
-                            Monitoring
-
-                        </span>
-
+                        <span class="status-pill monitoring">Monitoring</span>
                     </div>
-
-
-
-                    <p style="margin-top: 10px;">
-
+                    <p>
                         Information submitted by the organisation may require
-
                         verification before the notification can be closed.
-
                     </p>
-
-
-
                     <div class="alert-meta">
-
-                        <span>
-
-                            <strong>Organisation:</strong>
-
-                            Liberty Group
-
-                        </span>
-
-
-                        <span>
-
-                            <strong>Incident:</strong>
-
-                            08 Aug 2026
-
-                        </span>
-
-
-                        <span>
-
-                            <strong>Notification:</strong>
-
-                            08 Aug 2026
-
-                        </span>
-
+                        <span><strong>Organisation:</strong> Liberty Group</span>
+                        <span><strong>Incident:</strong> 08 Aug 2026</span>
+                        <span><strong>Notification:</strong> 08 Aug 2026</span>
                     </div>
-
-
-
-                    <div>
-
-                        <a
-
-                            href="breach.html?id=BR-2026-002"
-
-                            class="btn btn-primary"
-
-                        >
-
-                            Investigate
-
-                        </a>
-
-
-                        <button
-
-                            class="btn btn-secondary"
-
-                            onclick="alert('Alert marked for later review.')"
-
-                        >
-
-                            Review Later
-
-                        </button>
-
+                    <div class="alert-actions">
+                        <a href="breach.html?id=BR-2026-002" class="btn-primary">Investigate</a>
+                        <button class="btn-secondary" onclick="alert('Alert marked for later review.')">Review Later</button>
                     </div>
-
-
                 </div>
-
-
             </div>
 
-
+            <footer class="alerts-footer">
+                <span>
+                    <strong>CyberSerious</strong> · POPIA Section 22 monitoring prototype
+                </span>
+                <span>
+                    Illustrative data only · Not an official reporting system
+                </span>
+            </footer>
         </section>
-
     </main>
-
 </div>
 
-
+<script src="js/app.js"></script>
+<script>
+    // Simple count update to match actual visible cards
+    document.addEventListener("DOMContentLoaded", function () {
+        const cards = document.querySelectorAll(".alert-card");
+        const countEl = document.getElementById("activeAlertCount");
+        if (countEl) {
+            countEl.textContent = cards.length + " Active Alerts";
+        }
+    });
+</script>
 </body>
-
 </html>
