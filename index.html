@@ -685,8 +685,6 @@
 
         const isClosed = record =>
             String(record.status || "").toLowerCase() === "closed";
-        const isAlert = record =>
-            String(record.status || "").toLowerCase() === "alert";
 
         if (totalElement) {
             totalElement.textContent = breaches.length;
@@ -696,8 +694,10 @@
                 breaches.filter(record => !isClosed(record)).length;
         }
         if (alertsElement) {
-            alertsElement.textContent =
-                breaches.filter(isAlert).length;
+            const liveAlerts = Array.isArray(alerts)
+                ? alerts.filter(entry => entry.state !== "resolved")
+                : [];
+            alertsElement.textContent = liveAlerts.length;
         }
 
         if (!activityElement) return;
@@ -714,7 +714,6 @@
         const getStatusClass = status => {
             const normalized = String(status || "").toLowerCase();
             if (normalized === "closed") return "closed";
-            if (normalized === "alert") return "alert";
             if (normalized.includes("pending")) return "pending";
             return "review";
         };
