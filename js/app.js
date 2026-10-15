@@ -345,6 +345,31 @@ function getBreachIdFromURL() {
 
 
 /* =========================================
+   BADGE CLASSES
+   ========================================= */
+
+function getStatusClass(status) {
+
+    const normalized = String(status || "").toLowerCase();
+
+    if (normalized === "pending") {
+
+        return "pending";
+
+    }
+
+    if (normalized === "closed") {
+
+        return "closed";
+
+    }
+
+    return "review";
+
+}
+
+
+/* =========================================
    CASE NOT FOUND
    ========================================= */
 
@@ -456,6 +481,20 @@ function loadBreachDetails() {
 
         organisationName.textContent =
             breach.organisation;
+
+    }
+
+    const headerStatus =
+        document.getElementById("headerStatus");
+
+    if (headerStatus) {
+
+        headerStatus.textContent =
+            breach.status;
+
+        headerStatus.className =
+            "status-badge " +
+            getStatusClass(breach.status);
 
     }
 
@@ -740,6 +779,20 @@ function loadBreachDetails() {
 
         statusDropdown.value =
             breach.status;
+
+    }
+
+    const priorityDisplay =
+        document.getElementById("priorityDisplay");
+
+    if (priorityDisplay) {
+
+        priorityDisplay.textContent =
+            String(breach.priority || "unrated").toUpperCase();
+
+        priorityDisplay.className =
+            "priority-display p-" +
+            String(breach.priority || "").toLowerCase();
 
     }
 
@@ -1053,39 +1106,8 @@ function loadNotifications() {
                     for the status badge.
                 */
 
-                let statusClass =
-                    "review";
-
-
-                if (
-                    breach.status ===
-                    "Pending"
-                ) {
-
-                    statusClass =
-                        "pending";
-
-                }
-
-                else if (
-                    breach.status ===
-                    "Closed"
-                ) {
-
-                    statusClass =
-                        "closed";
-
-                }
-
-                else if (
-                    breach.status ===
-                    "Alert"
-                ) {
-
-                    statusClass =
-                        "alert";
-
-                }
+                const statusClass =
+                    getStatusClass(breach.status);
 
 
                 /*
