@@ -730,3 +730,14 @@ textarea:focus-visible {
         animation-duration: 0.01ms !important;
     }
 }
+
+/* shown on every page while the data is synthetic */
+
+.demo-banner {
+    padding: 8px 16px;
+    background: #7c5308;
+    color: #fff6e6;
+    font-size: 12px;
+    font-weight: 600;
+    text-align: center;
+}
