@@ -345,6 +345,57 @@ function getBreachIdFromURL() {
 
 
 /* =========================================
+   CASE NOT FOUND
+   ========================================= */
+
+function showCaseNotFound(caseId) {
+
+    const title =
+        document.getElementById("caseTitle");
+
+    const orgLine =
+        document.getElementById("organisationName");
+
+    const badge =
+        document.getElementById("headerStatus");
+
+    const grid =
+        document.querySelector(".detail-grid");
+
+
+    if (title) {
+
+        title.textContent = "Case not found";
+
+    }
+
+
+    if (orgLine) {
+
+        orgLine.textContent = caseId
+            ? "No case matches the reference " + caseId + "."
+            : "This page needs a case reference in the link.";
+
+    }
+
+
+    if (badge) {
+
+        badge.hidden = true;
+
+    }
+
+
+    if (grid) {
+
+        grid.hidden = true;
+
+    }
+
+}
+
+
+/* =========================================
    LOAD BREACH DETAILS
    ========================================= */
 
@@ -353,11 +404,13 @@ function loadBreachDetails() {
     const caseId = getBreachIdFromURL();
 
     /*
-        If there is no ID in the URL,
-        there is nothing to load.
+        No ID in the link means
+        there is no case to show.
     */
 
     if (!caseId) {
+
+        showCaseNotFound();
 
         return;
 
@@ -368,16 +421,13 @@ function loadBreachDetails() {
 
 
     /*
-        If the ID doesn't exist,
-        show an error in the console.
+        An unknown ID gets the not-found
+        state, not the previous case fields.
     */
 
     if (!breach) {
 
-        console.error(
-            "Breach not found:",
-            caseId
-        );
+        showCaseNotFound(caseId);
 
         return;
 
