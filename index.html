@@ -540,17 +540,17 @@
                 <div class="stats-grid">
                     <article class="stat-card">
                         <div class="stat-top">
-                            <span class="stat-label">Total notifications</span>
+                            <span class="stat-label">Notifications received</span>
                             <div class="stat-icon blue" aria-hidden="true">▤</div>
                         </div>
                         <span class="stat-number" id="totalNotifications">0</span>
                         <span class="stat-description">
-                            All breach records in the current dataset
+                            Records that carry a notification date
                         </span>
                     </article>
                     <article class="stat-card">
                         <div class="stat-top">
-                            <span class="stat-label">Pending cases</span>
+                            <span class="stat-label">Open cases</span>
                             <div class="stat-icon orange" aria-hidden="true">◷</div>
                         </div>
                         <span class="stat-number" id="pendingCases">0</span>
@@ -610,41 +610,7 @@
                             View alerts →
                         </a>
                     </header>
-                    <div class="alerts-list">
-                        <div class="alert-item">
-                            <div class="alert-symbol high" aria-hidden="true">!</div>
-                            <div class="alert-copy">
-                                <strong>Review cases marked as alerts</strong>
-                                <p>
-                                    Check the incident details and confirm whether
-                                    further assessment or notification is required.
-                                </p>
-                                <span class="alert-time">Priority review</span>
-                            </div>
-                        </div>
-                        <div class="alert-item">
-                            <div class="alert-symbol medium" aria-hidden="true">◷</div>
-                            <div class="alert-copy">
-                                <strong>Follow up on pending cases</strong>
-                                <p>
-                                    Review outstanding records and update their
-                                    status as the assessment progresses.
-                                </p>
-                                <span class="alert-time">Follow-up required</span>
-                            </div>
-                        </div>
-                        <div class="alert-item">
-                            <div class="alert-symbol info" aria-hidden="true">i</div>
-                            <div class="alert-copy">
-                                <strong>Maintain complete incident records</strong>
-                                <p>
-                                    Ensure that incident details, decisions and
-                                    follow-up actions are documented appropriately.
-                                </p>
-                                <span class="alert-time">Good practice</span>
-                            </div>
-                        </div>
-                    </div>
+                    <div class="alerts-list" id="priorityAlerts"></div>
                 </article>
             </section>
 
@@ -687,7 +653,9 @@
             String(record.status || "").toLowerCase() === "closed";
 
         if (totalElement) {
-            totalElement.textContent = breaches.length;
+            totalElement.textContent = breaches.filter(
+                record => Boolean(record.notificationDate)
+            ).length;
         }
         if (pendingElement) {
             pendingElement.textContent =
@@ -718,7 +686,12 @@
             return "review";
         };
 
-        const recentRecords = breaches.slice(0, 5);
+        const recentRecords = breaches
+            .slice()
+            .sort((left, right) =>
+                Date.parse(right.incidentDate) - Date.parse(left.incidentDate)
+            )
+            .slice(0, 5);
 
         if (recentRecords.length === 0) {
             activityElement.innerHTML = `
@@ -727,6 +700,46 @@
                 </tr>
             `;
             return;
+        }
+
+        const alertPanel = document.getElementById("priorityAlerts");
+
+        if (alertPanel && Array.isArray(alerts)) {
+
+            const tone = { High: "high", Medium: "medium", Low: "info" };
+            const openAlerts = alerts
+                .filter(entry => entry.state !== "resolved")
+                .slice(0, 3);
+
+            alertPanel.replaceChildren();
+
+            openAlerts.forEach(entry => {
+
+                const related = breaches.find(breach => breach.id === entry.caseId);
+                const item = document.createElement("div");
+                const symbol = document.createElement("div");
+                const copy = document.createElement("div");
+                const title = document.createElement("strong");
+                const why = document.createElement("p");
+                const when = document.createElement("span");
+
+                item.className = "alert-item";
+                symbol.className = "alert-symbol " + (tone[entry.priority] || "info");
+                symbol.setAttribute("aria-hidden", "true");
+                symbol.textContent = "!";
+
+                copy.className = "alert-copy";
+                title.textContent = entry.rule + (related ? " · " + related.id : "");
+                why.textContent = entry.reason;
+                when.className = "alert-time";
+                when.textContent = "Raised " + entry.raisedOn;
+
+                copy.append(title, why, when);
+                item.append(symbol, copy);
+                alertPanel.append(item);
+
+            });
+
         }
 
         activityElement.innerHTML = recentRecords.map(record => {
