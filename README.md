@@ -49,8 +49,7 @@ breach.html          case detail, opened with ?id=BR-2026-001
 js/app.js            shared data and the render functions
 css/style.css        the one stylesheet
 fixtures/            fictional names and the mapping to what they replace
-docs/                project notes: baseline, check logs
-.agent/              writing and code rules used while building this branch
+docs/                setup notes, tool list, progress and style logs
 ```
 
 ## Limits worth stating plainly
