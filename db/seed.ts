@@ -185,17 +185,19 @@ if (!labKey) {
 }
 
 const researchSources: Array<{ ref: string; title: string; outlet: string; on: string | null; confidence: string; note: string }> = [
-  { ref: "RES-GP-01", title: "Gauteng was lucky with latest 3.8TB data breach, but the luck will run out", outlet: "Daily Maverick", on: "2026-03-17", confidence: "high", note: "Primary incident report for the Gauteng case study." },
+  { ref: "RES-GP-01", title: "Gauteng was lucky with latest 3.8TB data breach, but the luck will run out", outlet: "Daily Maverick", on: "2026-03-17", confidence: "medium", note: "Single incident report for the Gauteng case study." },
   { ref: "RES-SSA-01", title: "Stats SA confirms data breach as hackers demand ransom", outlet: "ITWeb", on: "2026-03-30", confidence: "high", note: "Primary incident report for the Stats SA case study." },
   { ref: "RES-SB-01", title: "Standard Bank is discovering the extent of the cyberattack in the daily data dumps", outlet: "Daily Maverick", on: "2026-04-17", confidence: "high", note: "Rolling-disclosure pattern, informs supplement design." },
   { ref: "RES-SB-01", title: "An important data incident update", outlet: "Standard Bank", on: null, confidence: "high", note: "Organisation's own notice, informs the organisation-side workflow." },
   { ref: "RES-SB-01", title: "Full disclosure: watchdog wants answers on Standard Bank, Liberty data breach", outlet: "News24", on: "2026-04-09", confidence: "high", note: "Regulator interest covering both the bank and the insurer." },
   { ref: "RES-LG-01", title: "Liberty data breach underscores urgent need for corporate cybersecurity overhaul", outlet: "IOL", on: "2026-03-30", confidence: "medium", note: "Liberty incident coverage, exact figures need a second source." },
-  { ref: "RES-GP-01", title: "Guidance module: notification of personal data breaches in terms of section 22 of POPIA", outlet: "Information Regulator", on: "2022-01-01", confidence: "high", note: "Regulator guidance behind the obligation table." },
+  { ref: "RES-GP-01", title: "Step-by-step guide: notification of personal data breaches in terms of section 22 of POPIA", outlet: "Information Regulator", on: "2025-05-01", confidence: "high", note: "Regulator guide behind the obligation table." },
   { ref: "RES-SSA-01", title: "Protection of Personal Information Act 4 of 2013", outlet: "Republic of South Africa", on: "2013-11-26", confidence: "high", note: "Section 22 wording behind every duty in the obligations table." },
   { ref: "RES-LG-01", title: "The NIST Cybersecurity Framework (CSF) 2.0", outlet: "NIST", on: "2024-02-26", confidence: "high", note: "Functions behind the finding labels." },
-  { ref: "RES-SB-01", title: "The cyber threat landscape in South Africa: a 10-year review", outlet: "Pieterse, African Journal of Information and Communication", on: "2021-01-01", confidence: "medium", note: "Background on local incident patterns." },
-  { ref: "RES-GP-01", title: "An analysis of cyber-incidents in South Africa", outlet: "Van Niekerk, African Journal of Information and Communication", on: "2017-01-01", confidence: "medium", note: "Background on incident analysis method." },
+  { ref: "RES-SB-01", title: "The cyber threat landscape in South Africa: a 10-year review", outlet: "Pieterse, African Journal of Information and Communication", on: "2021-01-01", confidence: "low", note: "Background on local incident patterns." },
+  { ref: "RES-GP-01", title: "An analysis of cyber-incidents in South Africa", outlet: "Van Niekerk, African Journal of Information and Communication", on: "2017-01-01", confidence: "low", note: "Background on incident analysis method." },
+  { ref: "RES-GP-01", title: "Guidance module: notification of personal data breaches in terms of section 22 of POPIA", outlet: "Information Regulator", on: "2022-01-01", confidence: "high", note: "Earlier regulator module, source of the 72-hour guidance." },
+  { ref: "RES-GP-01", title: "Incident response communication and data breach notification practice", outlet: "Issues in Information Systems", on: "2017-01-01", confidence: "low", note: "Background reading that supports the communication finding." },
 ];
 for (const row of researchSources) {
   await conn.query(
