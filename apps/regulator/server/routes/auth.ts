@@ -21,6 +21,14 @@ function hashCode(code: string): string {
   return createHash("sha256").update(code).digest("hex");
 }
 
+export function simpleLogin(): boolean {
+  return process.env.LAB_SIMPLE_LOGIN === "1";
+}
+
+authRouter.get("/auth-mode", (req, res) => {
+  res.json({ otpRequired: !simpleLogin() });
+});
+
 authRouter.post("/login", async (req, res) => {
   const { username, password } = req.body ?? {};
   if (typeof username !== "string" || typeof password !== "string") {
@@ -41,6 +49,13 @@ authRouter.post("/login", async (req, res) => {
   }
   failures.delete(username);
   const sid = await createSession(row.id);
+  if (simpleLogin()) {
+    await query("update sessions set mfa_ok = true where id = $1", [sid]);
+    console.log(`[login] ${username} signed in without a code (lab simple sign-in)`);
+    res.setHeader("Set-Cookie", sessionCookieHeader(sid));
+    res.json({ ok: true, username });
+    return;
+  }
   const code = String(randomInt(0, 1000000)).padStart(6, "0");
   await query(
     "update sessions set mfa_ok = false, otp_hash = $1, otp_expires_at = now() + interval '5 minutes', otp_attempts = 0 where id = $2",

@@ -41,6 +41,17 @@ the one-time code from this same terminal. The portal runs with
 npm run dev:org on port 8200. The worker runs with npm run worker.
 Tests run with npm test, browser flows with npm run test:e2e.
 
+When the whole group tests together, start the servers with
+LAB_SIMPLE_LOGIN=1 in front of the commands. Passwords alone sign
+everyone in and the login pages skip the code step. The server log
+marks each simple sign-in. Switch it off for anything assessed.
+
+New accounts come from the administrator, never from a public form.
+Sign in as admin1, then POST /api/v1/users with a username, name,
+password, role and optional email, number and organisation. Every
+account carries an email address and a contact number, visible to
+its owner through GET /api/v1/me.
+
 ## Secrets and keys
 
 Copy .env.example to .env and fill nothing sensitive: local

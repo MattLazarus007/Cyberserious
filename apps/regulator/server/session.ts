@@ -10,6 +10,8 @@ export interface Actor {
   userId: string;
   username: string;
   displayName: string;
+  email: string | null;
+  phone: string | null;
   role: string;
   orgId: string | null;
   mfaOk: boolean;
@@ -48,7 +50,7 @@ export async function destroySession(sid: string): Promise<void> {
 export async function readSession(sid: string): Promise<Actor | null> {
   const found = await query(
     `select s.id, s.user_id, s.mfa_ok, s.created_at, s.last_seen_at,
-            u.username, u.display_name, u.enabled, m.role, m.org_id
+            u.username, u.display_name, u.email, u.phone, u.enabled, m.role, m.org_id
        from sessions s
        join users u on u.id = s.user_id
        left join memberships m on m.user_id = u.id
@@ -69,6 +71,8 @@ export async function readSession(sid: string): Promise<Actor | null> {
     userId: row.user_id,
     username: row.username,
     displayName: row.display_name,
+    email: row.email ?? null,
+    phone: row.phone ?? null,
     role: row.role,
     orgId: row.org_id,
     mfaOk: row.mfa_ok,

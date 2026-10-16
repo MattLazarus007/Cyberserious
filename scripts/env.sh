@@ -12,6 +12,9 @@ export ORG_DATABASE_URL="${ORG_DATABASE_URL:-postgres://cyberserious:cyberseriou
 export ORG_DATABASE_URL_TEST="${ORG_DATABASE_URL_TEST:-postgres://cyberserious:cyberserious_dev_only@localhost:5432/cyberserious_org_test}"
 export ORG_PORT="${ORG_PORT:-8200}"
 export REGULATOR_INTAKE_URL="${REGULATOR_INTAKE_URL:-http://localhost:8100/intake/v1/submissions}"
+# Lab simple sign-in. Set to 1 when the group demos together and the
+# console code slows everyone down. Lab only, never beyond it.
+export LAB_SIMPLE_LOGIN="${LAB_SIMPLE_LOGIN:-0}"
 # Key for sealed research notes. Lab only. One per shell, never committed.
 if [ -z "${RESEARCH_KEY:-}" ]; then
   export RESEARCH_KEY="$(openssl rand -hex 32)"

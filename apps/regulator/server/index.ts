@@ -12,6 +12,7 @@ import { importsRouter } from "./routes/imports.ts";
 import { researchRouter } from "./routes/research.ts";
 import { intakeRouter } from "./routes/intake.ts";
 import { evidenceRouter } from "./routes/evidence.ts";
+import { usersRouter } from "./routes/users.ts";
 import { verifyChain } from "./audit.ts";
 import { requireSession } from "./session.ts";
 import { can } from "./policy.ts";
@@ -53,6 +54,7 @@ app.use("/api/v1", importsRouter);
 app.use("/api/v1", researchRouter);
 app.use(intakeRouter);
 app.use("/api/v1", evidenceRouter);
+app.use("/api/v1", usersRouter);
 
 app.use((req, res, next) => {
   res.setHeader("X-Content-Type-Options", "nosniff");
