@@ -142,6 +142,7 @@ for (const seed of seedCases) {
     discoveredAt: seed.discovered,
     discoveredPrecision: seed.discoveredP,
     firstReceivedAt: received,
+    triagedAt: at(seed.days - 1),
     narrative: `Synthetic fixture for ${seed.ref}. No real persons are involved.`,
   });
   for (const hit of hits) {
