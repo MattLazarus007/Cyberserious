@@ -211,6 +211,18 @@ draftsRouter.post("/drafts/:id/send", async (req, res) => {
     res.status(409).json({ error: "same identity, different bytes" });
     return;
   }
+  if (answer.status === 422) {
+    let detail: unknown = { error: "intake refused the draft" };
+    try {
+      detail = await answer.json();
+    } catch {
+      detail = { error: "intake refused the draft" };
+    }
+    const message = (detail as { error?: unknown }).error;
+    await query("update drafts set status = 'Rejected', receipt = $1::jsonb where public_id = $2 and org_ref = (select reference from organisations where id = $3)", [JSON.stringify(detail), req.params.id, actor.orgId]);
+    res.status(422).json({ error: typeof message === "string" ? message : "intake refused the draft" });
+    return;
+  }
   await query("update drafts set status = 'RetryPending' where public_id = $1 and org_ref = (select reference from organisations where id = $2)", [req.params.id, actor.orgId]);
   res.status(502).json({ error: "intake refused the draft, retry later" });
 });
