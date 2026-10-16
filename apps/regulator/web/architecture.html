@@ -78,7 +78,7 @@
                 <div class="build-tags">
                     <span class="tag-built">Built: central permission gate, deny by default</span>
                     <span class="tag-built">Built: administrators read no case content</span>
-                    <span class="tag-pending">Pending: organisation-side roles (Phase 7)</span>
+                    <span class="tag-built">Built: organisation-side roles via orgActor()</span>
                 </div>
                 <img src="figures/figure-5-2-access-control.png" alt="Access control diagram">
                 <p>Analysts read cases and write notes. Supervisors move cases
@@ -91,7 +91,7 @@
                 <div class="build-tags">
                     <span class="tag-built">Built: immutable notification versions</span>
                     <span class="tag-built">Built: hash-chained audit rows</span>
-                    <span class="tag-pending">Pending: quarantine for uploads (Phase 9)</span>
+                    <span class="tag-built">Built: quarantine for uploads</span>
                 </div>
                 <img src="figures/figure-5-3-lifecycle.png" alt="Lifecycle diagram">
                 <p>Submitted versions are never edited. Every mutation leaves
@@ -102,9 +102,9 @@
             <div class="arch-figure">
                 <h2>Figure 6.4: Notification workflow</h2>
                 <div class="build-tags">
-                    <span class="tag-built">Built: draft discipline on the regulator side</span>
+                    <span class="tag-built">Built: draft discipline on the organisation side</span>
                     <span class="tag-built">Built: retry returns the original receipt</span>
-                    <span class="tag-pending">Pending: organisation draft and approval (Phase 7)</span>
+                    <span class="tag-built">Built: organisation draft and approval</span>
                 </div>
                 <img src="figures/figure-5-4-notification-workflow.png" alt="Notification workflow diagram">
                 <p>A report is drafted, approved at an exact revision, sent
@@ -112,6 +112,15 @@
                 the stored receipt. Changed bytes under a reused identity are
                 refused and logged.</p>
             </div>
+
+            <footer class="dashboard-footer">
+                <span>
+                    <strong>CyberSerious</strong> · POPIA Section 22 monitoring prototype
+                </span>
+                <span>
+                    Not an official reporting system. Real reports go through the Regulator's eServices Portal.
+                </span>
+            </footer>
         </section>
     </main>
 </div>
