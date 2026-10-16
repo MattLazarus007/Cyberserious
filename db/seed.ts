@@ -69,7 +69,7 @@ const seedCases = [
   { ref: "BR-2026-0001", org: "DEMO-ORG-01", state: "UnderReview", severity: "high", priority: "urgent", days: 161, notified: true, occurred: "2026-05-04T10:00:00Z", occurredP: "date", discovered: "2026-05-05T08:30:00Z", discoveredP: "exact", count: 2450, countP: "exact", category: "unauthorised access" },
   { ref: "BR-2026-0002", org: "DEMO-ORG-02", state: "Closed", severity: "medium", priority: "routine", days: 175, notified: true, occurred: "2026-04-21T09:00:00Z", occurredP: "date", discovered: "2026-04-21T14:00:00Z", discoveredP: "date", count: 830, countP: "exact", category: "unauthorised access" },
   { ref: "BR-2026-0003", org: "DEMO-ORG-03", state: "Pending", severity: "high", priority: "urgent", days: 183, notified: true, occurred: "2026-04-12T09:00:00Z", occurredP: "approximate", discovered: "2026-04-13T10:00:00Z", discoveredP: "date", count: 5100, countP: "estimate", category: "data exposure" },
-  { ref: "BR-2026-0004", org: "DEMO-ORG-01", state: "UnderReview", severity: "medium", priority: "urgent", days: 218, notified: true, occurred: "2026-03-08T09:00:00Z", occurredP: "date", discovered: "2026-03-09T11:00:00Z", discoveredP: "minute", count: 1120, countP: "estimate", category: "unauthorised access" },
+  { ref: "BR-2026-0004", org: "DEMO-ORG-01", state: "UnderReview", severity: "medium", priority: "urgent", days: 218, notified: true, occurred: "2026-03-08T09:00:00Z", occurredP: "date", discovered: "2026-03-01T09:00:00Z", discoveredP: "minute", count: 1120, countP: "estimate", category: "unauthorised access" },
   { ref: "BR-2026-0005", org: "DEMO-ORG-02", state: "Closed", severity: "medium", priority: "routine", days: 236, notified: true, occurred: "2026-02-18T09:00:00Z", occurredP: "date", discovered: "2026-02-19T08:00:00Z", discoveredP: "minute", count: 640, countP: "exact", category: "data exposure" },
   { ref: "BR-2026-0006", org: "DEMO-ORG-03", state: "UnderReview", severity: "high", priority: "urgent", days: 250, notified: true, occurred: "2026-02-04T09:00:00Z", occurredP: "approximate", discovered: "2026-02-05T15:00:00Z", discoveredP: "minute", count: null as number | null, countP: "unknown", category: "unauthorised access" },
   { ref: "BR-2026-0007", org: "DEMO-ORG-01", state: "AwaitingInformation", severity: "medium", priority: "routine", days: 258, notified: false, occurred: "2026-01-27T09:00:00Z", occurredP: "approximate", discovered: null as string | null, discoveredP: "unknown", count: 210, countP: "range", category: "data exposure" },
@@ -126,20 +126,30 @@ for (const seed of seedCases) {
   }
 }
 
-const seedAlerts = [
-  { ref: "BR-2026-0001", rule: "RULE-01", version: 1, priority: "high", reason: "High severity case opened within the review window." },
-  { ref: "BR-2026-0003", rule: "RULE-03", version: 1, priority: "medium", reason: "Affected count is an estimate. Exact scope still open." },
-  { ref: "BR-2026-0006", rule: "RULE-04", version: 1, priority: "high", reason: "Affected count unknown. Scope must be confirmed." },
-];
-for (const seed of seedAlerts) {
-  const input = `${seed.rule}:v${seed.version}:${seed.ref}`;
-  const hash = createHash("sha256").update(input).digest("hex");
-  await conn.query(
-    `insert into alerts (case_id, rule_id, rule_version, dedupe_key, priority, reason, input_hash, state)
-     values ($1, $2, $3, $4, $5, $6, $7, 'open')
-     on conflict (dedupe_key) do nothing`,
-    [caseIds[seed.ref], seed.rule, seed.version, input, seed.priority, seed.reason, hash]
-  );
+const { evaluateAll } = await import("../apps/regulator/server/rules/index.ts");
+for (const seed of seedCases) {
+  if (seed.state === "Closed") continue;
+  const received = seed.notified ? at(seed.days - 1) : null;
+  const hits = evaluateAll({
+    caseId: caseIds[seed.ref],
+    reference: seed.ref,
+    state: seed.state,
+    severity: seed.severity,
+    affectedCount: seed.count,
+    countPrecision: seed.countP,
+    discoveredAt: seed.discovered,
+    discoveredPrecision: seed.discoveredP,
+    firstReceivedAt: received,
+    narrative: `Synthetic fixture for ${seed.ref}. No real persons are involved.`,
+  });
+  for (const hit of hits) {
+    await conn.query(
+      `insert into alerts (case_id, rule_id, rule_version, dedupe_key, priority, reason, input_hash, state)
+       values ($1, $2, $3, $4, $5, $6, $7, 'open')
+       on conflict (dedupe_key) do nothing`,
+      [caseIds[seed.ref], hit.ruleId, hit.version, hit.dedupeKey, hit.priority, hit.reason, hit.inputHash]
+    );
+  }
 }
 
 const researchCases = [
