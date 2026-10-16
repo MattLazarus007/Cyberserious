@@ -8,6 +8,7 @@
     "db:migrate:org": "node apps/organisation/server/migrate.ts",
     "db:seed:org": "node db/seed_org.ts",
     "test": "node --test --test-concurrency=1 \"tests/**/*.test.ts\"",
+    "test:e2e": "playwright test",
     "dev": "node apps/regulator/server/index.ts",
     "dev:org": "node apps/organisation/server/index.ts",
     "worker": "node apps/regulator/server/worker.ts"
@@ -17,5 +18,8 @@
     "jose": "^6.2.12",
     "pg": "^8.23.1",
     "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.64.1"
   }
 }
