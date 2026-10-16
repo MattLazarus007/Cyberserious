@@ -50,6 +50,7 @@ async function loadRuleInput(client: pg.PoolClient, caseId: string): Promise<Rul
     `select c.id, c.reference, c.state, c.severity,
             f.affected_count as "affectedCount", f.count_precision as "countPrecision",
             f.discovered_at as "discoveredAt", f.discovered_precision as "discoveredPrecision",
+            f.triaged_at as "triagedAt",
             f.narrative,
             (select min(first_received_at) from notifications n where n.case_id = c.id) as "firstReceivedAt"
        from cases c left join case_facts f on f.case_id = c.id
@@ -68,6 +69,7 @@ async function loadRuleInput(client: pg.PoolClient, caseId: string): Promise<Rul
     discoveredAt: row.discoveredAt ? new Date(row.discoveredAt).toISOString() : null,
     discoveredPrecision: row.discoveredPrecision ?? "unknown",
     firstReceivedAt: row.firstReceivedAt ? new Date(row.firstReceivedAt).toISOString() : null,
+    triagedAt: row.triagedAt ? new Date(row.triagedAt).toISOString() : null,
     narrative: row.narrative,
   };
 }

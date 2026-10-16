@@ -10,6 +10,7 @@ export interface RuleInput {
   discoveredAt: string | null;
   discoveredPrecision: string;
   firstReceivedAt: string | null;
+  triagedAt: string | null;
   narrative: string | null;
 }
 
@@ -25,7 +26,8 @@ export interface RuleHit {
 function hashOf(input: RuleInput, ruleId: string, version: number): string {
   return createHash("sha256")
     .update([ruleId, version, input.caseId, input.severity ?? "", input.affectedCount ?? "",
-      input.countPrecision, input.discoveredAt ?? "", input.firstReceivedAt ?? ""].join("|"))
+      input.countPrecision, input.discoveredAt ?? "", input.firstReceivedAt ?? "",
+      input.triagedAt ?? ""].join("|"))
     .digest("hex");
 }
 
@@ -81,7 +83,26 @@ export function ruleNoSubmission(input: RuleInput): RuleHit | null {
     `An incident is on record for ${input.reference} with no linked notification.`);
 }
 
-export const RULES = [ruleHighSeverity, ruleLateSubmission, ruleHighCount, ruleLackOfInformation, ruleNoSubmission];
+// RULE-01..RULE-05 are the D3 five. RULE-06 instruments D3 section 6.5
+// timing from triage confirmation. It is an internal work queue timer,
+// not a sixth D3 rule.
+export function ruleTriageClock(input: RuleInput): RuleHit | null {
+  if (!input.triagedAt) return null;
+  if (input.firstReceivedAt) return null;
+  if (input.state === "Closed") return null;
+  const gap = Date.now() - new Date(input.triagedAt).getTime();
+  if (!(gap >= 48 * HOUR)) return null;
+  if (gap > 72 * HOUR) {
+    const days = Math.round(gap / (24 * HOUR));
+    return hit(input, "RULE-06", "high",
+      `No notification about ${days} days after triage confirmation on ${input.reference} (triage clock, 72h ${INTERNAL}).`);
+  }
+  const hours = Math.round(gap / HOUR);
+  return hit(input, "RULE-06", "medium",
+    `Triage confirmed about ${hours} hours ago on ${input.reference} with no notification linked. Information Officer follow-up due at 48 hours (${INTERNAL}).`);
+}
+
+export const RULES = [ruleHighSeverity, ruleLateSubmission, ruleHighCount, ruleLackOfInformation, ruleNoSubmission, ruleTriageClock];
 
 export function evaluateAll(input: RuleInput): RuleHit[] {
   const hits: RuleHit[] = [];
