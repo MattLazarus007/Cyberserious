@@ -35,7 +35,11 @@ transitionsRouter.get("/cases/:id/events", async (req, res) => {
   let scope = "";
   if (actor.orgId) {
     params.push(actor.orgId);
-    scope = "and c.org_id = $2";
+    scope += `and c.org_id = $${params.length} `;
+  }
+  if (actor.role === "regulator_analyst") {
+    params.push(actor.userId);
+    scope += `and (c.assigned_to IS NULL OR c.assigned_to = $${params.length}::uuid) `;
   }
   const rows = await query(
     `select e.id, e.event_type as "eventType", e.old_value as "oldValue",

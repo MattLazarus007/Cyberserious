@@ -18,7 +18,11 @@ async function visibleCase(actor: Actor, id: string): Promise<{ id: string } | n
   let scope = "";
   if (actor.orgId) {
     params.push(actor.orgId);
-    scope = "and org_id = $2";
+    scope += `and org_id = $${params.length} `;
+  }
+  if (actor.role === "regulator_analyst") {
+    params.push(actor.userId);
+    scope += `and (assigned_to IS NULL OR assigned_to = $${params.length}::uuid) `;
   }
   const rows = await query(
     `select id from cases where (id::text = $1 or reference = $1) ${scope}`,
