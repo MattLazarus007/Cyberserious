@@ -296,8 +296,7 @@ function fillDetail(theCase) {
         notesList.replaceChildren();
 
         const line = document.createElement("p");
-        line.textContent =
-            "No notes yet. Notes added here are kept once saving lands.";
+        line.textContent = "Loading notes…";
         notesList.append(line);
 
     }
@@ -390,6 +389,9 @@ async function loadBreachDetails() {
     }
 
     fillDetail(theCase);
+    currentRowVersion = theCase.rowVersion;
+    refreshNotes(caseId);
+    refreshHistory(caseId);
 
     try {
 
@@ -413,10 +415,139 @@ async function loadBreachDetails() {
 
 
 /* =========================================
-   NOTE AND STATUS (SAVING ARRIVES IN PHASE 4)
+   NOTE AND STATUS, KEPT ON THE SERVER
    ========================================= */
 
-function addNote() {
+let currentRowVersion = null;
+
+async function refreshNotes(caseId) {
+
+    const notesList =
+        document.getElementById("notesList");
+
+    if (!notesList) return;
+
+    let page;
+
+    try {
+
+        const res = await fetch(
+            "/api/v1/cases/" + encodeURIComponent(caseId) + "/notes");
+
+        if (!res.ok) throw new Error("locked");
+
+        page = await res.json();
+
+    } catch (err) {
+
+        notesList.replaceChildren();
+
+        const line = document.createElement("p");
+        line.textContent = "Sign in to read the notes on this case.";
+        notesList.append(line);
+        return;
+
+    }
+
+    notesList.replaceChildren();
+    notesList.dataset.ready = "yes";
+
+    if (page.items.length === 0) {
+
+        const line = document.createElement("p");
+        line.textContent = "No notes yet.";
+        notesList.append(line);
+        return;
+
+    }
+
+    page.items.forEach(function (note) {
+
+        const wrap = document.createElement("div");
+        wrap.className = "note-item";
+
+        const text = document.createElement("div");
+        text.textContent = note.body;
+
+        const meta = document.createElement("div");
+        meta.className = "note-meta";
+        meta.textContent =
+            note.author + " · " + Api.fmtDate(note.createdAt);
+
+        wrap.append(text, meta);
+        notesList.append(wrap);
+
+    });
+
+}
+
+
+async function refreshHistory(caseId) {
+
+    const history =
+        document.getElementById("activityHistory");
+
+    if (!history) return;
+
+    let page;
+
+    try {
+
+        const res = await fetch(
+            "/api/v1/cases/" + encodeURIComponent(caseId) + "/events");
+
+        if (!res.ok) throw new Error("locked");
+
+        page = await res.json();
+
+    } catch (err) {
+
+        return;
+
+    }
+
+    if (page.items.length === 0) return;
+
+    history.replaceChildren();
+
+    page.items.forEach(function (ev) {
+
+        const line = document.createElement("p");
+
+        const when = document.createElement("span");
+        when.textContent = Api.fmtDate(ev.createdAt) + " · ";
+
+        const what = document.createElement("span");
+
+        if (ev.eventType === "state") {
+
+            what.textContent =
+                (ev.actor || "Someone") + " moved the case from " +
+                Api.displayState(ev.oldValue) + " to " +
+                Api.displayState(ev.newValue) +
+                (ev.reason ? " (" + ev.reason + ")" : "");
+
+        } else if (ev.eventType === "assignment") {
+
+            what.textContent =
+                (ev.actor || "Someone") + " assigned the case to " +
+                (ev.newValue || "unassigned");
+
+        } else {
+
+            what.textContent = ev.eventType;
+
+        }
+
+        line.append(when, what);
+        history.append(line);
+
+    });
+
+}
+
+
+async function addNote() {
 
     const notes =
         document.getElementById("notes");
@@ -440,15 +571,57 @@ function addNote() {
 
     }
 
+    const caseId = getBreachIdFromURL();
 
-    message.style.color = "#6b7280";
-    message.textContent =
-        "Notes are kept once saving lands. For now the text stays in the box.";
+    let res;
+
+    try {
+
+        res = await fetch(
+            "/api/v1/cases/" + encodeURIComponent(caseId) + "/notes",
+            {
+                method: "POST",
+                headers: { "content-type": "application/json" },
+                body: JSON.stringify({
+                    body: notes.value.trim(),
+                    idempotencyKey: crypto.randomUUID()
+                })
+            });
+
+    } catch (err) {
+
+        message.style.color = "#b42323";
+        message.textContent = "The server is not answering.";
+        return;
+
+    }
+
+    if (res.status === 401 || res.status === 403) {
+
+        message.style.color = "#b42323";
+        message.textContent = "Sign in as an analyst to add notes.";
+        return;
+
+    }
+
+    if (!res.ok) {
+
+        message.style.color = "#b42323";
+        message.textContent = "The note was not kept. Try again.";
+        return;
+
+    }
+
+    notes.value = "";
+    message.style.color = "#13784f";
+    message.textContent = "Note kept.";
+
+    refreshNotes(caseId);
 
 }
 
 
-function updateStatus() {
+async function updateStatus() {
 
     const status =
         document.getElementById("caseStatus");
@@ -463,10 +636,84 @@ function updateStatus() {
 
     }
 
+    const caseId = getBreachIdFromURL();
 
-    message.style.color = "#6b7280";
+    let reason = null;
+
+    if (status.value === "Closed") {
+
+        reason = window.prompt("Closing needs a recorded reason. Enter it:");
+
+        if (!reason || !reason.trim()) {
+
+            message.style.color = "#b42323";
+            message.textContent = "Closing a case needs a recorded reason.";
+            return;
+
+        }
+
+    }
+
+    let res;
+
+    try {
+
+        res = await fetch(
+            "/api/v1/cases/" + encodeURIComponent(caseId) + "/transitions",
+            {
+                method: "POST",
+                headers: { "content-type": "application/json" },
+                body: JSON.stringify({
+                    toState: status.value,
+                    rowVersion: currentRowVersion,
+                    reason: reason
+                })
+            });
+
+    } catch (err) {
+
+        message.style.color = "#b42323";
+        message.textContent = "The server is not answering.";
+        return;
+
+    }
+
+    if (res.status === 409) {
+
+        message.style.color = "#b42323";
+        message.textContent =
+            "Someone else moved this case first. Reload the page.";
+        return;
+
+    }
+
+    if (res.status === 403) {
+
+        message.style.color = "#b42323";
+        message.textContent =
+            "Only supervisors move cases. Nothing was saved.";
+        return;
+
+    }
+
+    if (!res.ok) {
+
+        const errBody = await res.json().catch(function () { return {}; });
+
+        message.style.color = "#b42323";
+        message.textContent = errBody.error || "The move was refused.";
+        return;
+
+    }
+
+    const moved = await res.json();
+    currentRowVersion = moved.rowVersion;
+
+    message.style.color = "#13784f";
     message.textContent =
-        "Status changes are kept once transitions land. Nothing was saved.";
+        "Case is now " + Api.displayState(moved.state) + ".";
+
+    loadBreachDetails();
 
 }
 
@@ -919,7 +1166,6 @@ function alertCard(entry, orgName, occurred) {
 
     const actions = document.createElement("div");
     const openLink = document.createElement("a");
-    const note = document.createElement("span");
 
     actions.className = "alert-actions";
     openLink.className = "btn-primary";
@@ -936,14 +1182,74 @@ function alertCard(entry, orgName, occurred) {
 
     }
 
-    note.className = "alert-note";
-    note.textContent =
-        "Acknowledge and resolve actions arrive with the rules worker.";
+    actions.append(openLink);
 
-    actions.append(openLink, note);
+    if (entry.state !== "resolved") {
+
+        const reasonInput = document.createElement("input");
+        reasonInput.type = "text";
+        reasonInput.placeholder = "Reason for snooze or resolve";
+        reasonInput.setAttribute("aria-label", "Reason");
+
+        const ack = document.createElement("button");
+        ack.type = "button";
+        ack.className = "btn btn-secondary";
+        ack.textContent = "Acknowledge";
+        ack.addEventListener("click", async function () {
+            await act(entry.id, "acknowledge", {});
+        });
+
+        const snooze = document.createElement("button");
+        snooze.type = "button";
+        snooze.className = "btn btn-secondary";
+        snooze.textContent = "Snooze 7 days";
+        snooze.addEventListener("click", async function () {
+            if (!reasonInput.value.trim()) {
+                reasonInput.focus();
+                return;
+            }
+            await act(entry.id, "snooze", {
+                until: new Date(Date.now() + 7 * 86400000).toISOString(),
+                reason: reasonInput.value.trim()
+            });
+        });
+
+        const resolve = document.createElement("button");
+        resolve.type = "button";
+        resolve.className = "btn btn-secondary";
+        resolve.textContent = "Resolve";
+        resolve.addEventListener("click", async function () {
+            if (!reasonInput.value.trim()) {
+                reasonInput.focus();
+                return;
+            }
+            await act(entry.id, "resolve", { resolution: reasonInput.value.trim() });
+        });
+
+        actions.append(reasonInput, ack, snooze, resolve);
+
+    }
+
     card.append(header, why, meta, actions);
 
     return card;
+
+}
+
+
+async function act(id, action, body) {
+
+    try {
+
+        await Api.alertAction(id, action, body);
+
+    } catch (err) {
+
+        return;
+
+    }
+
+    loadAlerts();
 
 }
 
@@ -1073,9 +1379,9 @@ async function loadAlerts() {
 
     render(entries);
 
-    searchInput.addEventListener("input", applyFilters);
-    prioritySelect.addEventListener("change", applyFilters);
-    ruleSelect.addEventListener("change", applyFilters);
+    searchInput.oninput = applyFilters;
+    prioritySelect.onchange = applyFilters;
+    ruleSelect.onchange = applyFilters;
 
 }
 

@@ -100,6 +100,14 @@ var Api = (function () {
         return call("/api/v1/cases/" + encodeURIComponent(id) + "/obligations");
     }
 
+    function alertAction(id, action, body) {
+        return call("/api/v1/alerts/" + encodeURIComponent(id) + "/" + action, {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify(body || {})
+        });
+    }
+
     return {
         getMe: getMe,
         getDashboard: getDashboard,
@@ -108,6 +116,7 @@ var Api = (function () {
         getAlerts: getAlerts,
         getResearch: getResearch,
         getCaseDuties: getCaseDuties,
+        alertAction: alertAction,
         displayState: displayState,
         cap: cap,
         fmtDate: fmtDate
