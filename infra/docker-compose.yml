@@ -1,0 +1,74 @@
+# Lab deployment for CyberSerious. The daemon was down when this file
+# was written, so image digests are pinned on first pull by the person
+# who starts the lab: replace each tag with image@digest and record it
+# here. Until then tags stay explicit and minor-pinned.
+services:
+  db:
+    image: postgres:16.15
+    environment:
+      POSTGRES_USER: cyberserious
+      POSTGRES_PASSWORD_FILE: /run/secrets/db_password
+      POSTGRES_DB: cyberserious_dev
+    secrets:
+      - db_password
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cyberserious"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      store:
+  regulator:
+    build: ../.
+    command: ["node", "apps/regulator/server/index.ts"]
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://cyberserious@db:5432/cyberserious_dev
+      PORT: "8100"
+    networks:
+      public:
+      store:
+  organisation:
+    build: ../.
+    command: ["node", "apps/organisation/server/index.ts"]
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://cyberserious@db:5432/cyberserious_org_dev
+      ORG_PORT: "8200"
+      REGULATOR_INTAKE_URL: http://regulator:8100/intake/v1/submissions
+    networks:
+      public:
+      store:
+  worker:
+    build: ../.
+    command: ["node", "apps/regulator/server/worker.ts"]
+    depends_on:
+      regulator:
+        condition: service_started
+    environment:
+      DATABASE_URL: postgres://cyberserious@db:5432/cyberserious_dev
+    networks:
+      store:
+
+# One-way rule, enforced by topology: only the organisation side opens
+# submission connections to the regulator. The database network (store)
+# is unreachable from outside. The regulator never opens connections
+# outward. T-32 checks this from inside the lab (see TEST_LOG).
+
+networks:
+  public:
+  store:
+    internal: true
+
+volumes:
+  pgdata:
+
+secrets:
+  db_password:
+    file: ./secrets/db_password.txt
