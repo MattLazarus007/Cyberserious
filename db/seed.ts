@@ -40,22 +40,22 @@ for (const org of orgs) {
 }
 
 const seedUsers = [
-  { username: "analyst1", display: "Regulator Analyst", secret: "demo-analyst-pass", role: "regulator_analyst", org: null as string | null },
-  { username: "supervisor1", display: "Regulator Supervisor", secret: "demo-supervisor-pass", role: "regulator_supervisor", org: null },
-  { username: "admin1", display: "System Administrator", secret: "demo-admin-pass", role: "system_administrator", org: null },
-  { username: "io1", display: "Information Officer", secret: "demo-io-pass", role: "information_officer", org: "DEMO-ORG-01" },
-  { username: "steward1", display: "Data Steward", secret: "demo-steward-pass", role: "data_steward", org: "DEMO-ORG-01" },
-  { username: "reviewer1", display: "Audit Reviewer", secret: "demo-reviewer-pass", role: "audit_reviewer", org: null as string | null },
+  { username: "analyst1", display: "Regulator Analyst", secret: "demo-analyst-pass", role: "regulator_analyst", org: null as string | null, email: "analyst1@regulator.example", phone: "+27 82 555 0101" },
+  { username: "supervisor1", display: "Regulator Supervisor", secret: "demo-supervisor-pass", role: "regulator_supervisor", org: null, email: "supervisor1@regulator.example", phone: "+27 82 555 0102" },
+  { username: "admin1", display: "System Administrator", secret: "demo-admin-pass", role: "system_administrator", org: null, email: "admin1@regulator.example", phone: "+27 82 555 0103" },
+  { username: "io1", display: "Information Officer", secret: "demo-io-pass", role: "information_officer", org: "DEMO-ORG-01", email: "io1@karoo-retail.example", phone: "+27 82 555 0104" },
+  { username: "steward1", display: "Data Steward", secret: "demo-steward-pass", role: "data_steward", org: "DEMO-ORG-01", email: "steward1@karoo-retail.example", phone: "+27 82 555 0105" },
+  { username: "reviewer1", display: "Audit Reviewer", secret: "demo-reviewer-pass", role: "audit_reviewer", org: null as string | null, email: "reviewer1@regulator.example", phone: "+27 82 555 0106" },
 ];
 const userIds: Record<string, string> = {};
 for (const seed of seedUsers) {
   const stored = await hashPassword(seed.secret);
   const row = await conn.query(
-    `insert into users (username, display_name, password_hash)
-     values ($1, $2, $3)
-     on conflict (username) do update set password_hash = excluded.password_hash
+    `insert into users (username, display_name, password_hash, email, phone)
+     values ($1, $2, $3, $4, $5)
+     on conflict (username) do update set password_hash = excluded.password_hash, email = excluded.email, phone = excluded.phone
      returning id`,
-    [seed.username, seed.display, stored]
+    [seed.username, seed.display, stored, seed.email, seed.phone]
   );
   userIds[seed.username] = row.rows[0].id;
   await conn.query(
