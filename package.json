@@ -1,0 +1,11 @@
+{
+  "name": "cyberserious",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "db:migrate": "node apps/regulator/server/db/migrate.ts",
+    "db:seed": "node db/seed.ts",
+    "test": "node --test tests/",
+    "dev": "node apps/regulator/server/index.ts"
+  }
+}
