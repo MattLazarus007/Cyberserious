@@ -92,8 +92,8 @@ intakeRouter.post(
         );
         const caseId = kase.rows[0].id as string;
         await client.query(
-          `insert into case_facts (case_id, discovery_source, breach_status, category, affected_count, count_precision, narrative)
-           values ($1, 'org_portal', 'reported', $2, $3, $4, $5)`,
+          `insert into case_facts (case_id, discovery_source, breach_status, category, affected_count, count_precision, narrative, triaged_at)
+           values ($1, 'org_portal', 'reported', $2, $3, $4, $5, now())`,
           [caseId, parsed.data.category, parsed.data.affectedCount,
            parsed.data.affectedCount === null ? "unknown" : "exact", parsed.data.narrative]
         );
