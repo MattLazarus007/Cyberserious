@@ -92,12 +92,22 @@ var Api = (function () {
         return call("/api/v1/alerts");
     }
 
+    function getResearch() {
+        return call("/api/v1/research");
+    }
+
+    function getCaseDuties(id) {
+        return call("/api/v1/cases/" + encodeURIComponent(id) + "/obligations");
+    }
+
     return {
         getMe: getMe,
         getDashboard: getDashboard,
         getCases: getCases,
         getCase: getCase,
         getAlerts: getAlerts,
+        getResearch: getResearch,
+        getCaseDuties: getCaseDuties,
         displayState: displayState,
         cap: cap,
         fmtDate: fmtDate
