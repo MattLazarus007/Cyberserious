@@ -9,6 +9,7 @@ import { notesRouter } from "./routes/notes.ts";
 import { transitionsRouter } from "./routes/transitions.ts";
 import { assignmentsRouter } from "./routes/assignments.ts";
 import { importsRouter } from "./routes/imports.ts";
+import { researchRouter } from "./routes/research.ts";
 import { verifyChain } from "./audit.ts";
 import { requireSession } from "./session.ts";
 import { can } from "./policy.ts";
@@ -40,6 +41,7 @@ app.use("/api/v1", notesRouter);
 app.use("/api/v1", transitionsRouter);
 app.use("/api/v1", assignmentsRouter);
 app.use("/api/v1", importsRouter);
+app.use("/api/v1", researchRouter);
 
 app.get("/api/v1/audit/verify", requireSession, async (req, res) => {
   const actor = (req as unknown as { actor: Actor }).actor;

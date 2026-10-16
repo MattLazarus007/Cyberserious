@@ -142,9 +142,115 @@ for (const seed of seedAlerts) {
   );
 }
 
+const researchCases = [
+  { reference: "RES-GP-01", name: "Gauteng Provincial Government", sector: "public", period: "Jan-May 2026",
+    summary: "Provincial government data breach reported in March 2026, described in coverage as a multi-terabyte exposure. Studied for notification timing and public communication.",
+    confidence: "medium" },
+  { reference: "RES-SSA-01", name: "Statistics South Africa", sector: "public", period: "Jan-May 2026",
+    summary: "Stats SA confirmed a data breach at the end of March 2026 with a reported ransom demand. Studied for regulator notification and continuity of a national data agency.",
+    confidence: "medium" },
+  { reference: "RES-SB-01", name: "Standard Bank", sector: "finance", period: "Jan-May 2026",
+    summary: "Standard Bank incident with rolling data disclosures through April 2026 and regulator interest. Studied for supplement handling and customer notice at scale.",
+    confidence: "medium" },
+  { reference: "RES-LG-01", name: "Liberty Group", sector: "insurance", period: "Jan-May 2026",
+    summary: "Liberty data breach discussed alongside the Standard Bank matter in April 2026 coverage. Studied for parallel-incident handling and corporate communication.",
+    confidence: "medium" },
+];
+for (const row of researchCases) {
+  await conn.query(
+    `insert into research_cases (reference, name, sector, period, summary, confidence)
+     values ($1, $2, $3, $4, $5, $6)
+     on conflict (reference) do update set summary = excluded.summary`,
+    [row.reference, row.name, row.sector, row.period, row.summary, row.confidence]
+  );
+}
+
+const { seal: sealDetail } = await import("../apps/regulator/server/encrypt.ts");
+let labKey = process.env.RESEARCH_KEY ?? null;
+if (!labKey) {
+  const { randomBytes: randBytes } = await import("node:crypto");
+  labKey = randBytes(32).toString("hex");
+  console.log("note: RESEARCH_KEY unset, sealed source notes use an ephemeral key for this run");
+}
+
+const researchSources: Array<{ ref: string; title: string; outlet: string; on: string | null; confidence: string; note: string }> = [
+  { ref: "RES-GP-01", title: "Gauteng was lucky with latest 3.8TB data breach, but the luck will run out", outlet: "Daily Maverick", on: "2026-03-17", confidence: "high", note: "Primary incident report for the Gauteng case study." },
+  { ref: "RES-SSA-01", title: "Stats SA confirms data breach as hackers demand ransom", outlet: "ITWeb", on: "2026-03-30", confidence: "high", note: "Primary incident report for the Stats SA case study." },
+  { ref: "RES-SB-01", title: "Standard Bank is discovering the extent of the cyberattack in the daily data dumps", outlet: "Daily Maverick", on: "2026-04-17", confidence: "high", note: "Rolling-disclosure pattern, informs supplement design." },
+  { ref: "RES-SB-01", title: "An important data incident update", outlet: "Standard Bank", on: null, confidence: "high", note: "Organisation's own notice, informs the organisation-side workflow." },
+  { ref: "RES-SB-01", title: "Full disclosure: watchdog wants answers on Standard Bank, Liberty data breach", outlet: "News24", on: "2026-04-09", confidence: "high", note: "Regulator interest covering both the bank and the insurer." },
+  { ref: "RES-LG-01", title: "Liberty data breach underscores urgent need for corporate cybersecurity overhaul", outlet: "IOL", on: "2026-03-30", confidence: "medium", note: "Liberty incident coverage, exact figures need a second source." },
+  { ref: "RES-GP-01", title: "Guidance module: notification of personal data breaches in terms of section 22 of POPIA", outlet: "Information Regulator", on: "2022-01-01", confidence: "high", note: "Regulator guidance behind the obligation table." },
+  { ref: "RES-SSA-01", title: "Protection of Personal Information Act 4 of 2013", outlet: "Republic of South Africa", on: "2013-11-26", confidence: "high", note: "Section 22 wording behind every duty in the obligations table." },
+  { ref: "RES-LG-01", title: "The NIST Cybersecurity Framework (CSF) 2.0", outlet: "NIST", on: "2024-02-26", confidence: "high", note: "Functions behind the finding labels." },
+  { ref: "RES-SB-01", title: "The cyber threat landscape in South Africa: a 10-year review", outlet: "Pieterse, African Journal of Information and Communication", on: "2021-01-01", confidence: "medium", note: "Background on local incident patterns." },
+  { ref: "RES-GP-01", title: "An analysis of cyber-incidents in South Africa", outlet: "Van Niekerk, African Journal of Information and Communication", on: "2017-01-01", confidence: "medium", note: "Background on incident analysis method." },
+];
+for (const row of researchSources) {
+  await conn.query(
+    `insert into research_sources (case_ref, title, outlet, published_on, confidence, detail_sealed)
+     values ($1, $2, $3, $4, $5, $6)
+     on conflict (case_ref, title) do nothing`,
+    [row.ref, row.title, row.outlet, row.on, row.confidence, sealDetail(row.note, labKey as string)]
+  );
+}
+
+const researchFindings: Array<{ ref: string; fn: string; finding: string; confidence: string }> = [
+  { ref: "RES-GP-01", fn: "Detect", finding: "Exposure volume became clear through external reporting rather than a single internal announcement.", confidence: "medium" },
+  { ref: "RES-GP-01", fn: "Respond", finding: "Public communication shaped the response narrative as much as the technical containment.", confidence: "medium" },
+  { ref: "RES-SSA-01", fn: "Respond", finding: "Confirmation came with continuity pressure: a statistics agency must keep publishing while investigating.", confidence: "medium" },
+  { ref: "RES-SSA-01", fn: "Recover", finding: "Ransom demands add a second decision track beside notification duties.", confidence: "low" },
+  { ref: "RES-SB-01", fn: "Respond", finding: "Rolling disclosures fit the supplement model: each drop is a new immutable version, not an edit.", confidence: "high" },
+  { ref: "RES-SB-01", fn: "Govern", finding: "Regulator questions followed within weeks, which sets the pace for analyst review.", confidence: "medium" },
+  { ref: "RES-LG-01", fn: "Govern", finding: "Parallel incidents at two firms drew a joint regulatory response, not two separate ones.", confidence: "medium" },
+  { ref: "RES-LG-01", fn: "Protect", finding: "Coverage points at corporate controls rather than a single missing patch.", confidence: "low" },
+];
+for (const row of researchFindings) {
+  await conn.query(
+    "insert into research_findings (case_ref, csf_function, finding, confidence) values ($1, $2, $3, $4) on conflict do nothing",
+    [row.ref, row.fn, row.finding, row.confidence]
+  );
+}
+
+await conn.query(
+  `insert into policy_versions (version, body, effective_from)
+   values (1, $1, '2026-05-01') on conflict (version) do nothing`,
+  [`Incident notification policy v1. Any suspected compromise of personal information is reported internally within one working day. The information officer decides on regulator notification. Supplements go out as new versions with their own timestamps. Timings here pace our own work and state no legal deadline.`]
+);
+
+const duties = [
+  { code: "S22-01", duty: "Notify the Information Regulator of a personal information breach", trigger: "reasonable grounds to believe personal information was accessed or acquired by an unauthorised person", timing: "as soon as reasonably possible. No fixed hour count in the Act." },
+  { code: "S22-02", duty: "Notify the affected data subjects", trigger: "breach confirmed with identifiable affected persons", timing: "as soon as reasonably possible. Direct notice, or public notice where direct notice is impractical." },
+  { code: "S22-03", duty: "Describe consequences, measures taken and recommendations in the notice", trigger: "any notification under S22-01 or S22-02", timing: "with the notice itself, updated by supplement where facts change." },
+  { code: "S22-04", duty: "Preserve evidence for investigation", trigger: "any suspected breach from discovery onward", timing: "continuous until the case closes." },
+];
+for (const row of duties) {
+  await conn.query(
+    "insert into obligations (code, duty, trigger, timing_note) values ($1, $2, $3, $4) on conflict (code) do nothing",
+    [row.code, row.duty, row.trigger, row.timing]
+  );
+}
+
+for (const seed of seedCases) {
+  const caseId = caseIds[seed.ref];
+  const links: Array<{ code: string; status: string; note: string }> = [
+    { code: "S22-01", status: seed.notified ? "attended" : "open", note: seed.notified ? "Notification on record." : "No notification linked yet." },
+    { code: "S22-02", status: seed.state === "Closed" ? "attended" : "pending", note: "Subject notice tracked per case." },
+    { code: "S22-03", status: seed.notified ? "attended" : "open", note: seed.notified ? "Content held in version 1." : "Content outstanding." },
+    { code: "S22-04", status: "attended", note: "Evidence handling assumed from triage." },
+  ];
+  for (const link of links) {
+    await conn.query(
+      "insert into case_obligations (case_id, obligation_code, status, note) values ($1, $2, $3, $4) on conflict do nothing",
+      [caseId, link.code, link.status, link.note]
+    );
+  }
+}
+
 const counts = await conn.query(
   `select (select count(*) from cases) as cases,
           (select count(*) from notifications) as notes,
-          (select count(*) from alerts where state = 'open') as alerts`);
-console.log(`seeded cases=${counts.rows[0].cases} notifications=${counts.rows[0].notes} alerts=${counts.rows[0].alerts}`);
+          (select count(*) from alerts where state = 'open') as alerts,
+          (select count(*) from research_sources) as sources`);
+console.log(`seeded cases=${counts.rows[0].cases} notifications=${counts.rows[0].notes} alerts=${counts.rows[0].alerts} sources=${counts.rows[0].sources}`);
 await conn.end();

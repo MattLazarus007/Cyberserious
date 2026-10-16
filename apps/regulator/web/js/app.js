@@ -302,6 +302,8 @@ function fillDetail(theCase) {
 
     }
 
+    loadDuties(theCase.reference || theCase.id);
+
     const dropdown =
         document.getElementById("caseStatus");
 
@@ -321,6 +323,42 @@ function fillDetail(theCase) {
         dropdown.value = theCase.state;
 
     }
+
+}
+
+
+async function loadDuties(caseId) {
+
+    const box = document.getElementById("dutyList");
+
+    if (!box) return;
+
+    let duties;
+
+    try {
+
+        duties = await Api.getCaseDuties(caseId);
+
+    } catch (err) {
+
+        box.textContent = "Sign in to read the duties for this case.";
+        return;
+
+    }
+
+    box.replaceChildren();
+
+    duties.items.forEach(function (duty) {
+
+        const line = document.createElement("p");
+
+        const code = document.createElement("strong");
+        code.textContent = duty.code + " · " + duty.status + ": ";
+
+        line.append(code, document.createTextNode(duty.duty + " "));
+        box.append(line);
+
+    });
 
 }
 

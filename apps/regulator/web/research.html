@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Research register behind CyberSerious: cases, sources and method.">
+    <title>Research register | CyberSerious</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .research-card {
+            background: #fff;
+            border: 1px solid #e4eaf2;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+        .source-row, .finding-row {
+            padding: 10px 0;
+            border-top: 1px solid #edf1f7;
+            font-size: 14px;
+        }
+        .confidence {
+            font-size: 12px;
+            padding: 2px 10px;
+            border-radius: 20px;
+            background: #edf4ff;
+            color: #2455a4;
+        }
+    </style>
+</head>
+<body data-page="research">
+<div class="demo-banner">Academic demonstration. All records are synthetic.</div>
+<div class="app">
+    <aside class="sidebar">
+        <div class="logo">
+            <h1>CYBERSERIOUS</h1>
+            <p>Information Regulator</p>
+        </div>
+                <nav class="nav" aria-label="Main navigation">
+            <a href="index.html">
+                <span class="nav-icon" aria-hidden="true">▦</span>
+                Dashboard
+            </a>
+            <a href="notifications.html">
+                <span class="nav-icon" aria-hidden="true">▤</span>
+                Notifications
+            </a>
+            <a href="alerts.html">
+                <span class="nav-icon" aria-hidden="true">⚠</span>
+                Alerts
+            </a>
+            <a href="research.html" class="active" aria-current="page">
+                <span class="nav-icon" aria-hidden="true">▤</span>
+                Research
+            </a>
+            <a href="architecture.html">
+                <span class="nav-icon" aria-hidden="true">▣</span>
+                Architecture
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            POPIA Section 22<br>
+            Breach Monitoring System
+        </div>
+    </aside>
+
+    <main class="main">
+        <header class="topbar">
+            <div class="topbar-title">
+                Information Regulator / Research register
+            </div>
+            <div class="user">
+                <div class="user-avatar">IR</div>
+                <span>Regulator Admin</span>
+            </div>
+        </header>
+
+        <section class="content">
+            <p class="page-eyebrow">Evidence behind the build</p>
+            <h1>Research register</h1>
+
+            <div class="research-card">
+                <h2>How the material was gathered</h2>
+                <p id="methodSummary">Loading the method…</p>
+                <p>The full account, with dates and limits, sits in
+                docs/RESEARCH_METHOD.md in the repository. Every claim
+                below carries the source it came from and a confidence
+                label. High means two independent reports agree. Medium
+                means one solid report. Low means background reading, not
+                a finding.</p>
+            </div>
+
+            <div class="research-card">
+                <h2>Case studies</h2>
+                <div id="researchCases"><p>Loading cases…</p></div>
+            </div>
+
+            <div class="research-card">
+                <h2>Sources</h2>
+                <div id="researchSources"><p>Loading sources…</p></div>
+            </div>
+
+            <div class="research-card">
+                <h2>Findings by framework function</h2>
+                <div id="researchFindings"><p>Loading findings…</p></div>
+            </div>
+
+            <div class="research-card">
+                <h2>Notification policy, version 1</h2>
+                <div id="policyVersion"><p>Loading policy…</p></div>
+            </div>
+        </section>
+    </main>
+</div>
+<script src="js/api.js"></script>
+<script src="js/research.js"></script>
+</body>
+</html>
