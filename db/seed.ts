@@ -45,6 +45,7 @@ const seedUsers = [
   { username: "admin1", display: "System Administrator", secret: "demo-admin-pass", role: "system_administrator", org: null, email: "admin1@regulator.example", phone: "+27 82 555 0103" },
   { username: "io1", display: "Information Officer", secret: "demo-io-pass", role: "information_officer", org: "DEMO-ORG-01", email: "io1@karoo-retail.example", phone: "+27 82 555 0104" },
   { username: "steward1", display: "Data Steward", secret: "demo-steward-pass", role: "data_steward", org: "DEMO-ORG-01", email: "steward1@karoo-retail.example", phone: "+27 82 555 0105" },
+  { username: "so1", display: "Security Officer", secret: "demo-so-pass", role: "security_officer", org: "DEMO-ORG-01", email: "so1@karoo-retail.example", phone: "+27 82 555 0107" },
   { username: "reviewer1", display: "Audit Reviewer", secret: "demo-reviewer-pass", role: "audit_reviewer", org: null as string | null, email: "reviewer1@regulator.example", phone: "+27 82 555 0106" },
 ];
 const userIds: Record<string, string> = {};
