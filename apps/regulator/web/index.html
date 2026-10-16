@@ -464,7 +464,7 @@
         }
     </style>
 </head>
-<body>
+<body data-page="dashboard">
 <div class="demo-banner">Academic demonstration. All records are synthetic.</div>
 <div class="app">
     <aside class="sidebar">
@@ -626,145 +626,8 @@
     </main>
 </div>
 
+<script src="js/api.js"></script>
 <script src="js/app.js"></script>
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        if (typeof breaches === "undefined" || !Array.isArray(breaches)) {
-            const activity = document.getElementById("recentActivity");
-            if (activity) {
-                activity.innerHTML = `
-                    <tr>
-                        <td colspan="3">
-                            Demonstration records could not be loaded.
-                            Check that js/app.js is available.
-                        </td>
-                    </tr>
-                `;
-            }
-            return;
-        }
 
-        const totalElement = document.getElementById("totalNotifications");
-        const pendingElement = document.getElementById("pendingCases");
-        const alertsElement = document.getElementById("activeAlerts");
-        const activityElement = document.getElementById("recentActivity");
-
-        const isClosed = record =>
-            String(record.status || "").toLowerCase() === "closed";
-
-        if (totalElement) {
-            totalElement.textContent = breaches.filter(
-                record => Boolean(record.notificationDate)
-            ).length;
-        }
-        if (pendingElement) {
-            pendingElement.textContent =
-                breaches.filter(record => !isClosed(record)).length;
-        }
-        if (alertsElement) {
-            const liveAlerts = Array.isArray(alerts)
-                ? alerts.filter(entry => entry.state !== "resolved")
-                : [];
-            alertsElement.textContent = liveAlerts.length;
-        }
-
-        if (!activityElement) return;
-
-        const escapeHTML = value =>
-            String(value ?? "").replace(/[&<>"']/g, character => ({
-                "&": "&amp;",
-                "<": "&lt;",
-                ">": "&gt;",
-                '"': "&quot;",
-                "'": "&#39;"
-            })[character]);
-
-        const getStatusClass = status => {
-            const normalized = String(status || "").toLowerCase();
-            if (normalized === "closed") return "closed";
-            if (normalized.includes("pending")) return "pending";
-            return "review";
-        };
-
-        const recentRecords = breaches
-            .slice()
-            .sort((left, right) =>
-                Date.parse(right.incidentDate) - Date.parse(left.incidentDate)
-            )
-            .slice(0, 5);
-
-        if (recentRecords.length === 0) {
-            activityElement.innerHTML = `
-                <tr>
-                    <td colspan="3">No demonstration records available.</td>
-                </tr>
-            `;
-            return;
-        }
-
-        const alertPanel = document.getElementById("priorityAlerts");
-
-        if (alertPanel && Array.isArray(alerts)) {
-
-            const tone = { High: "high", Medium: "medium", Low: "info" };
-            const openAlerts = alerts
-                .filter(entry => entry.state !== "resolved")
-                .slice(0, 3);
-
-            alertPanel.replaceChildren();
-
-            openAlerts.forEach(entry => {
-
-                const related = breaches.find(breach => breach.id === entry.caseId);
-                const item = document.createElement("div");
-                const symbol = document.createElement("div");
-                const copy = document.createElement("div");
-                const title = document.createElement("strong");
-                const why = document.createElement("p");
-                const when = document.createElement("span");
-
-                item.className = "alert-item";
-                symbol.className = "alert-symbol " + (tone[entry.priority] || "info");
-                symbol.setAttribute("aria-hidden", "true");
-                symbol.textContent = "!";
-
-                copy.className = "alert-copy";
-                title.textContent = entry.rule + (related ? " · " + related.id : "");
-                why.textContent = entry.reason;
-                when.className = "alert-time";
-                when.textContent = "Raised " + entry.raisedOn;
-
-                copy.append(title, why, when);
-                item.append(symbol, copy);
-                alertPanel.append(item);
-
-            });
-
-        }
-
-        activityElement.innerHTML = recentRecords.map(record => {
-            const caseId = record.id ?? record.caseId ?? "Unassigned";
-            const incident =
-                record.title ??
-                record.incident ??
-                record.description ??
-                record.type ??
-                "Breach record";
-            const status = record.status || "Under review";
-
-            return `
-                <tr>
-                    <td><span class="case-id">${escapeHTML(caseId)}</span></td>
-                    <td>${escapeHTML(incident)}</td>
-                    <td>
-                        <span class="status-badge ${getStatusClass(status)}">
-                            ${escapeHTML(status)}
-                        </span>
-                    </td>
-                </tr>
-            `;
-        }).join("");
-    });
-</script>
 </body>
 </html>
