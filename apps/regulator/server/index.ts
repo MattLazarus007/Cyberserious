@@ -5,6 +5,14 @@ import { query } from "./db.ts";
 import { authRouter } from "./routes/auth.ts";
 import { casesRouter } from "./routes/cases.ts";
 import { alertsRouter } from "./routes/alerts.ts";
+import { notesRouter } from "./routes/notes.ts";
+import { transitionsRouter } from "./routes/transitions.ts";
+import { assignmentsRouter } from "./routes/assignments.ts";
+import { importsRouter } from "./routes/imports.ts";
+import { verifyChain } from "./audit.ts";
+import { requireSession } from "./session.ts";
+import { can } from "./policy.ts";
+import type { Actor } from "./session.ts";
 
 const here = dirname(fileURLToPath(import.meta.url));
 
@@ -28,6 +36,19 @@ app.get("/health/ready", async (_req, res) => {
 app.use("/api/v1", authRouter);
 app.use("/api/v1", casesRouter);
 app.use("/api/v1", alertsRouter);
+app.use("/api/v1", notesRouter);
+app.use("/api/v1", transitionsRouter);
+app.use("/api/v1", assignmentsRouter);
+app.use("/api/v1", importsRouter);
+
+app.get("/api/v1/audit/verify", requireSession, async (req, res) => {
+  const actor = (req as unknown as { actor: Actor }).actor;
+  if (!actor.mfaOk || !can(actor.role, "read_audit")) {
+    res.status(403).json({ error: "forbidden" });
+    return;
+  }
+  res.json(await verifyChain());
+});
 
 app.use(express.static(join(here, "..", "web")));
 
