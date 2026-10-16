@@ -18,7 +18,7 @@ Seeded baseline for every automated run: 7 cases, 6 notifications,
 | T-06 | Valid and invalid transitions | Pass | casework.test.ts: illegal move 422, closure needs reason |
 | T-07 | Concurrent edits | Pass | casework.test.ts: stale version 409 with both numbers |
 | T-08 | Cross-organisation access | Pass | cases.test.ts: org identity denied on six surfaces |
-| T-09 | Assignment scope | Open | Assignments record, but reads are not yet limited by assignee. Scoped reads by assignee are booked as follow-up work. |
+| T-09 | Assignment scope | Pass | cases.test.ts T-09: analyst sees own plus unassigned, other 404 on detail notes events export obligations, supervisor sees 7 |
 | T-10 | Administrator reads content | Pass | cases.test.ts: admin signs in, cases answer 403/404 |
 | T-11 | MFA, timeout, revocation | Pass | auth.test.ts plus disabled-account test in hardening.test.ts |
 | T-12 | CSRF and unauthorised write | Pass by control | SameSite=Lax cookies, no token needed for same-origin forms. Negative write tests across suites. |
@@ -47,6 +47,5 @@ Seeded baseline for every automated run: 7 cases, 6 notifications,
 | T-35 | Backend error and retry | Pass by control | Idempotency keys on notes, receipts on intake. Double-submit tests prove no duplication. |
 | T-36 | Workload | Pass manual | 100 authed dashboard reads: 100 ok in 773ms. 200 anonymous: rejected at 0.3ms each. |
 
-Two items stay open by choice. T-09 needs assignment-scoped reads,
-which the group booked as follow-up. Keycloak-backed sign-in (the
+One item stays open by choice. Keycloak-backed sign-in (the
 full T-11 story) waits in Phase 12.
