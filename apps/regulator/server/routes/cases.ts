@@ -45,6 +45,10 @@ casesRouter.get("/cases", async (req, res) => {
     params.push(actor.orgId);
     where.push(`c.org_id = $${params.length}`);
   }
+  if (actor.role === "regulator_analyst") {
+    params.push(actor.userId);
+    where.push(`(c.assigned_to IS NULL OR c.assigned_to = $${params.length}::uuid)`);
+  }
   if (state) {
     params.push(state);
     where.push(`c.state = $${params.length}`);
@@ -84,7 +88,11 @@ casesRouter.get("/cases/:id", async (req, res) => {
   let scope = "";
   if (actor.orgId) {
     params.push(actor.orgId);
-    scope = "and c.org_id = $2";
+    scope += `and c.org_id = $${params.length} `;
+  }
+  if (actor.role === "regulator_analyst") {
+    params.push(actor.userId);
+    scope += `and (c.assigned_to IS NULL OR c.assigned_to = $${params.length}::uuid) `;
   }
   const rows = await query(
     `select c.id, c.reference, o.display_name as "orgName", o.reference as "orgRef",
