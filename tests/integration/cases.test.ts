@@ -78,7 +78,29 @@ test("T-04 unknown ids stay not found with no leakage", async () => {
   }
 });
 
-test("T-08 alerts list carries reason and rule on each row", async () => {
+test("T-08 an organisation identity is denied on every regulator surface", async () => {
+  resetDb();
+  const srv = await startApp();
+  try {
+    const cookie = await loginFull(srv.base, "io1", "demo-io-pass");
+    const list = await fetch(`${srv.base}/api/v1/cases`, { headers: { cookie } });
+    assert.equal(list.status, 403);
+    const detail = await fetch(`${srv.base}/api/v1/cases/BR-2026-0002`, { headers: { cookie } });
+    assert.equal(detail.status, 404);
+    const dashboard = await fetch(`${srv.base}/api/v1/dashboard`, { headers: { cookie } });
+    assert.equal(dashboard.status, 403);
+    const notes = await fetch(`${srv.base}/api/v1/cases/BR-2026-0001/notes`, { headers: { cookie } });
+    assert.equal(notes.status, 404);
+    const alerts = await fetch(`${srv.base}/api/v1/alerts`, { headers: { cookie } });
+    assert.equal(alerts.status, 403);
+    const exported = await fetch(`${srv.base}/api/v1/cases/BR-2026-0001/export`, { headers: { cookie } });
+    assert.equal(exported.status, 404);
+  } finally {
+    await srv.close();
+  }
+});
+
+test("alerts list carries reason and rule on each row", async () => {
   resetDb();
   const srv = await startApp();
   try {

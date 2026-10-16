@@ -45,6 +45,7 @@ const seedUsers = [
   { username: "admin1", display: "System Administrator", secret: "demo-admin-pass", role: "system_administrator", org: null },
   { username: "io1", display: "Information Officer", secret: "demo-io-pass", role: "information_officer", org: "DEMO-ORG-01" },
   { username: "steward1", display: "Data Steward", secret: "demo-steward-pass", role: "data_steward", org: "DEMO-ORG-01" },
+  { username: "reviewer1", display: "Audit Reviewer", secret: "demo-reviewer-pass", role: "audit_reviewer", org: null as string | null },
 ];
 const userIds: Record<string, string> = {};
 for (const seed of seedUsers) {
