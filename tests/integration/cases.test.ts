@@ -15,7 +15,7 @@ test("T-01 dashboard numbers match the seeded fixtures", async () => {
       casesWithNotification: 6,
       openCases: 5,
       pendingReview: 1,
-      activeAlerts: 10,
+      activeAlerts: 11,
       snoozedAlerts: 0,
     });
   } finally {
@@ -108,9 +108,9 @@ test("alerts list carries reason and rule on each row", async () => {
     const res = await fetch(`${srv.base}/api/v1/alerts`, { headers: { cookie } });
     assert.equal(res.status, 200);
     const body = await res.json();
-    assert.equal(body.items.length, 10);
+    assert.equal(body.items.length, 11);
     const rules = new Set(body.items.map((a: { ruleId: string }) => a.ruleId));
-    assert.deepEqual([...rules].sort(), ["RULE-01", "RULE-02", "RULE-03", "RULE-04", "RULE-05"]);
+    assert.deepEqual([...rules].sort(), ["RULE-01", "RULE-02", "RULE-03", "RULE-04", "RULE-05", "RULE-06"]);
     for (const alert of body.items) {
       assert.ok(alert.ruleId);
       assert.ok(alert.reason);
