@@ -7,14 +7,14 @@ server terminal visible: the one-time codes appear there.
 
 `npm run db:migrate && npm run db:seed && npm run db:migrate:org && npm run db:seed:org`
 
-Expect 7 cases, 6 notifications, 10 alerts and 11 sources.
+Expect 7 cases, 6 notifications, 11 alerts and 13 sources.
 
 ## The six steps across both systems
 
 **1. Sign in as the analyst.** Open the regulator login page.
 Enter analyst1 with the lab password, read the code from the
 terminal, enter it. The dashboard shows 7 cases, 6 notifications,
-5 open and 10 alerts.
+5 open and 11 alerts.
 
 **2. Walk the register to a case.** Open notifications, filter to
 Closed, count 2. Search Karoo, see only Karoo rows. Open
