@@ -5,7 +5,7 @@
   "scripts": {
     "db:migrate": "node apps/regulator/server/db/migrate.ts",
     "db:seed": "node db/seed.ts",
-    "test": "node --test \"tests/**/*.test.ts\"",
+    "test": "node --test --test-concurrency=1 \"tests/**/*.test.ts\"",
     "dev": "node apps/regulator/server/index.ts"
   },
   "dependencies": {
