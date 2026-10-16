@@ -14,11 +14,12 @@ const roles = [
 const actions: Action[] = [
   "read_cases", "read_case", "write_note", "transition_case",
   "assign_case", "read_audit", "manage_users", "import_record",
+  "update_alert",
 ];
 
 const expected: Record<string, Action[]> = {
-  regulator_analyst: ["read_cases", "read_case", "write_note", "import_record"],
-  regulator_supervisor: ["read_cases", "read_case", "write_note", "transition_case", "assign_case", "import_record"],
+  regulator_analyst: ["read_cases", "read_case", "write_note", "import_record", "update_alert"],
+  regulator_supervisor: ["read_cases", "read_case", "write_note", "transition_case", "assign_case", "import_record", "update_alert"],
   system_administrator: ["manage_users"],
   audit_reviewer: ["read_audit"],
   data_steward: [],
