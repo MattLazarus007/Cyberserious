@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { caseStateSchema, noteInputSchema } from "../../apps/regulator/server/contracts.ts";
+import { caseStateSchema, noteInputSchema } from "../../packages/contracts/contracts.ts";
 
 test("case states reject the legacy Alert value", () => {
   assert.equal(caseStateSchema.safeParse("Alert").success, false);
