@@ -69,7 +69,11 @@ researchRouter.get("/cases/:id/obligations", async (req, res) => {
   let scope = "";
   if (actor.orgId) {
     params.push(actor.orgId);
-    scope = "and c.org_id = $2";
+    scope += `and c.org_id = $${params.length} `;
+  }
+  if (actor.role === "regulator_analyst") {
+    params.push(actor.userId);
+    scope += `and (c.assigned_to IS NULL OR c.assigned_to = $${params.length}::uuid) `;
   }
   const rows = await query(
     `select o.code, o.duty, o.trigger, o.timing_note as "timingNote",

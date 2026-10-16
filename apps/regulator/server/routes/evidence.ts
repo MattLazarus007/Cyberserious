@@ -63,7 +63,11 @@ evidenceRouter.post("/cases/:id/evidence", async (req, res) => {
   let scope = "";
   if (actor.orgId) {
     params.push(actor.orgId);
-    scope = "and org_id = $2";
+    scope += `and org_id = $${params.length} `;
+  }
+  if (actor.role === "regulator_analyst") {
+    params.push(actor.userId);
+    scope += `and (assigned_to IS NULL OR assigned_to = $${params.length}::uuid) `;
   }
   const found = await query(`select id from cases where (id::text = $1 or reference = $1) ${scope}`, params);
   if (found.rows.length === 0) {
@@ -97,7 +101,11 @@ evidenceRouter.get("/evidence/:id", async (req, res) => {
   let scope = "";
   if (actor.orgId) {
     params.push(actor.orgId);
-    scope = "and c.org_id = $2";
+    scope += `and c.org_id = $${params.length} `;
+  }
+  if (actor.role === "regulator_analyst") {
+    params.push(actor.userId);
+    scope += `and (c.assigned_to IS NULL OR c.assigned_to = $${params.length}::uuid) `;
   }
   const rows = await query(
     `select e.id, e.case_id as "caseId", e.filename, e.mime, e.size_bytes as "sizeBytes",
@@ -159,7 +167,11 @@ evidenceRouter.get("/cases/:id/export", async (req, res) => {
   let scope = "";
   if (actor.orgId) {
     params.push(actor.orgId);
-    scope = "and c.org_id = $2";
+    scope += `and c.org_id = $${params.length} `;
+  }
+  if (actor.role === "regulator_analyst") {
+    params.push(actor.userId);
+    scope += `and (c.assigned_to IS NULL OR c.assigned_to = $${params.length}::uuid) `;
   }
   const rows = await query(
     `select c.reference, o.display_name as "orgName", c.state, c.severity,
