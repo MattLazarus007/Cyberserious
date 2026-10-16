@@ -20,6 +20,7 @@ await conn.query(
 const people = [
   { username: "steward1", display: "Data Steward", secret: "demo-steward-pass", role: "data_steward", email: "steward1@karoo-retail.example", phone: "+27 82 555 0105" },
   { username: "io1", display: "Information Officer", secret: "demo-io-pass", role: "information_officer", email: "io1@karoo-retail.example", phone: "+27 82 555 0104" },
+  { username: "so1", display: "Security Officer", secret: "demo-so-pass", role: "security_officer", email: "so1@karoo-retail.example", phone: "+27 82 555 0107" },
 ];
 for (const person of people) {
   const stored = await hashPassword(person.secret);
