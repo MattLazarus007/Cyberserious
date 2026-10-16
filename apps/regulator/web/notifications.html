@@ -373,7 +373,7 @@
     </style>
 </head>
 
-<body>
+<body data-page="notifications">
 <div class="demo-banner">Academic demonstration. All records are synthetic.</div>
 <div class="app">
 
@@ -469,9 +469,9 @@
                     <div>
                         <select id="priorityFilter" aria-label="Filter by priority">
                             <option value="">All priorities</option>
-                            <option value="High">High</option>
-                            <option value="Medium">Medium</option>
-                            <option value="Low">Low</option>
+                            <option value="urgent">Urgent</option>
+                            <option value="routine">Routine</option>
+                            <option value="immediate">Immediate</option>
                         </select>
                     </div>
                 </div>
@@ -526,6 +526,7 @@
     </main>
 </div>
 
+<script src="js/api.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>
