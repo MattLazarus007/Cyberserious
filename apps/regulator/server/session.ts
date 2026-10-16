@@ -1,6 +1,7 @@
 import { randomBytes, timingSafeEqual } from "node:crypto";
 import type { Request, Response, NextFunction } from "express";
 import { query } from "./db.ts";
+import { open, researchKey } from "./encrypt.ts";
 
 export const SESSION_COOKIE = "cs_sid";
 const IDLE_MS = 15 * 60 * 1000;
@@ -50,7 +51,9 @@ export async function destroySession(sid: string): Promise<void> {
 export async function readSession(sid: string): Promise<Actor | null> {
   const found = await query(
     `select s.id, s.user_id, s.mfa_ok, s.created_at, s.last_seen_at,
-            u.username, u.display_name, u.email, u.phone, u.enabled, m.role, m.org_id
+            u.username, u.display_name, u.email_sealed, u.phone_sealed,
+            u.email as legacy_email, u.phone as legacy_phone,
+            u.enabled, m.role, m.org_id
        from sessions s
        join users u on u.id = s.user_id
        left join memberships m on m.user_id = u.id
@@ -71,12 +74,25 @@ export async function readSession(sid: string): Promise<Actor | null> {
     userId: row.user_id,
     username: row.username,
     displayName: row.display_name,
-    email: row.email ?? null,
-    phone: row.phone ?? null,
+    email: openContact(row.email_sealed, row.legacy_email),
+    phone: openContact(row.phone_sealed, row.legacy_phone),
     role: row.role,
     orgId: row.org_id,
     mfaOk: row.mfa_ok,
   };
+}
+
+export function openContact(sealed: unknown, fallback: unknown): string | null {
+  // Contact detail reuses RESEARCH_KEY so no new secret is needed.
+  if (typeof sealed === "string" && sealed.length > 0) {
+    try {
+      const key = researchKey();
+      if (key) return open(sealed, key);
+    } catch {
+      return null;
+    }
+  }
+  return typeof fallback === "string" ? fallback : null;
 }
 
 export function sameCode(given: string, storedHex: string): boolean {
