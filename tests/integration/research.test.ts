@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { resetDb, startApp, loginFull } from "./help.ts";
 
-test("5b.3 research seed holds four cases and nine or more sources", async () => {
+test("5b.3 research seed holds four cases and thirteen sources", async () => {
   resetDb();
   const srv = await startApp();
   try {
@@ -16,7 +16,11 @@ test("5b.3 research seed holds four cases and nine or more sources", async () =>
       policy: { version: number } | null;
     };
     assert.equal(body.cases.length, 4);
-    assert.ok(body.sources.length >= 9, `expected 9+ sources, got ${body.sources.length}`);
+    assert.ok(body.sources.length >= 13, `expected 13+ sources, got ${body.sources.length}`);
+    const outlets = new Set(body.sources.map((s) => s.outlet));
+    for (const want of ["News24", "IOL", "ITWeb", "Daily Maverick", "NIST"]) {
+      assert.ok(outlets.has(want), `expected outlet ${want} in ${[...outlets].join(", ")}`);
+    }
     assert.ok(body.findings.length >= 4);
     assert.equal(body.policy?.version, 1);
     const funcs = new Set(body.findings.map((f) => f.csf));
