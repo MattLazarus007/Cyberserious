@@ -140,6 +140,71 @@ test("security officer drafts, edits, lists own drafts, cannot approve", async (
   }
 });
 
+test("foreign drafts stay hidden across orgs", async () => {
+  resetOrgDb();
+  const conn = new pg.Client({ connectionString: orgDbUrl });
+  await conn.connect();
+  await conn.query(
+    `insert into organisations (reference, display_name, sector)
+     values ('DEMO-ORG-02', 'Vaal Logistics', 'logistics')
+     on conflict (reference) do nothing`
+  );
+  const other = await conn.query(
+    `insert into users (username, display_name, password_hash, email, phone)
+     values ('other1', 'Other One', 'locked', 'other1@example.com', '+27 82 555 0199')
+     on conflict (username) do update set display_name = excluded.display_name returning id`
+  );
+  const otherId = other.rows[0].id;
+  await conn.query(
+    `insert into memberships (user_id, org_id, role)
+     values ($1, (select id from organisations where reference = 'DEMO-ORG-02'), 'data_steward')
+     on conflict (user_id, org_id, role) do nothing`,
+    [otherId]
+  );
+  await conn.query(
+    `insert into drafts (public_id, org_ref, category, narrative, status, created_by)
+     values
+       ('SUB-2026-9101', 'DEMO-ORG-02', 'data exposure', 'foreign draft one', 'Draft', $1),
+       ('SUB-2026-9102', 'DEMO-ORG-02', 'data exposure', 'foreign draft two', 'ReadyForApproval', $1),
+       ('SUB-2026-9103', 'DEMO-ORG-02', 'data exposure', 'foreign draft three', 'Approved', $1)
+     on conflict (public_id) do nothing`,
+    [otherId]
+  );
+  await conn.query(
+    `update drafts set approved_revision = 1, approved_hash = 'dead'
+      where public_id = 'SUB-2026-9103'`
+  );
+  await conn.end();
+  const srv = await startOrgApp();
+  try {
+    const steward = await orgLogin(srv.base, "steward1", "demo-steward-pass");
+    const io = await orgLogin(srv.base, "io1", "demo-io-pass");
+    const put = await fetch(`${srv.base}/api/v1/drafts/SUB-2026-9101`, {
+      method: "PUT",
+      headers: { "content-type": "application/json", cookie: steward },
+      body: JSON.stringify({ category: "data exposure", narrative: "try edit foreign" }),
+    });
+    assert.equal(put.status, 404);
+    const submit = await fetch(`${srv.base}/api/v1/drafts/SUB-2026-9101/submit`, {
+      method: "POST",
+      headers: { cookie: steward },
+    });
+    assert.equal(submit.status, 404);
+    const approve = await fetch(`${srv.base}/api/v1/drafts/SUB-2026-9102/approve`, {
+      method: "POST",
+      headers: { cookie: io },
+    });
+    assert.equal(approve.status, 404);
+    const send = await fetch(`${srv.base}/api/v1/drafts/SUB-2026-9103/send`, {
+      method: "POST",
+      headers: { cookie: steward },
+    });
+    assert.equal(send.status, 404);
+  } finally {
+    await srv.close();
+  }
+});
+
 test("strangers cannot draft on the organisation side", async () => {
   resetOrgDb();
   const srv = await startOrgApp();
