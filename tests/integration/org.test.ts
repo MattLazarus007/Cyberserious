@@ -108,6 +108,38 @@ test("T-15 draft, approval binds revision, edit invalidates, send receipts", asy
   }
 });
 
+test("security officer drafts, edits, lists own drafts, cannot approve", async () => {
+  resetOrgDb();
+  const srv = await startOrgApp();
+  try {
+    const so = await orgLogin(srv.base, "so1", "demo-so-pass");
+    const created = await fetch(`${srv.base}/api/v1/drafts`, {
+      method: "POST",
+      headers: { "content-type": "application/json", cookie: so },
+      body: JSON.stringify({ category: "data exposure", narrative: "A laptop went missing on a site visit." }),
+    });
+    assert.equal(created.status, 201);
+    const draft = (await created.json()) as { publicId: string };
+    const edited = await fetch(`${srv.base}/api/v1/drafts/${draft.publicId}`, {
+      method: "PUT",
+      headers: { "content-type": "application/json", cookie: so },
+      body: JSON.stringify({ category: "data exposure", narrative: "A laptop went missing on a site visit. Scope updated." }),
+    });
+    assert.equal(edited.status, 200);
+    const list = (await (await fetch(`${srv.base}/api/v1/drafts`, { headers: { cookie: so } })).json()) as {
+      items: { publicId: string }[];
+    };
+    assert.ok(list.items.some((d) => d.publicId === draft.publicId));
+    const denied = await fetch(`${srv.base}/api/v1/drafts/${draft.publicId}/approve`, {
+      method: "POST",
+      headers: { cookie: so },
+    });
+    assert.equal(denied.status, 403);
+  } finally {
+    await srv.close();
+  }
+});
+
 test("strangers cannot draft on the organisation side", async () => {
   resetOrgDb();
   const srv = await startOrgApp();
