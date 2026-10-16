@@ -100,6 +100,72 @@ test("T-08 an organisation identity is denied on every regulator surface", async
   }
 });
 
+test("T-09 analysts see own plus unassigned, others stay not found", async () => {
+  resetDb();
+  const srv = await startApp();
+  try {
+    const boss = await loginFull(srv.base, "supervisor1", "demo-supervisor-pass");
+    async function assign(ref: string, to: string): Promise<void> {
+      const res = await fetch(`${srv.base}/api/v1/cases/${ref}/assignment`, {
+        method: "POST",
+        headers: { "content-type": "application/json", cookie: boss },
+        body: JSON.stringify({ assignee: to }),
+      });
+      assert.equal(res.status, 200, `assign ${ref} to ${to}`);
+    }
+    await assign("BR-2026-0001", "analyst1");
+    await assign("BR-2026-0002", "supervisor1");
+    const analyst = await loginFull(srv.base, "analyst1", "demo-analyst-pass");
+    const list = (await (
+      await fetch(`${srv.base}/api/v1/cases?pageSize=50`, { headers: { cookie: analyst } })
+    ).json()) as { total: number; items: { reference: string }[] };
+    const refs = new Set(list.items.map((i) => i.reference));
+    assert.ok(refs.has("BR-2026-0001"), "own case is listed");
+    assert.ok(refs.has("BR-2026-0003"), "unassigned case is listed");
+    assert.ok(!refs.has("BR-2026-0002"), "case owned by another is not listed");
+    assert.equal(list.total, 6);
+    const mine = await fetch(`${srv.base}/api/v1/cases/BR-2026-0001`, { headers: { cookie: analyst } });
+    assert.equal(mine.status, 200);
+    const other = await fetch(`${srv.base}/api/v1/cases/BR-2026-0002`, { headers: { cookie: analyst } });
+    assert.equal(other.status, 404);
+    assert.deepEqual(await other.json(), { error: "not found" });
+    const open = await fetch(`${srv.base}/api/v1/cases/BR-2026-0003`, { headers: { cookie: analyst } });
+    assert.equal(open.status, 200);
+    const closed = (await (
+      await fetch(`${srv.base}/api/v1/cases?state=Closed&pageSize=50`, { headers: { cookie: analyst } })
+    ).json()) as { total: number; items: { reference: string }[] };
+    assert.equal(closed.total, 1);
+    assert.equal(closed.items[0].reference, "BR-2026-0005");
+    for (const path of [
+      "/api/v1/cases/BR-2026-0002/notes",
+      "/api/v1/cases/BR-2026-0002/events",
+      "/api/v1/cases/BR-2026-0002/export",
+      "/api/v1/cases/BR-2026-0002/obligations",
+    ]) {
+      const denied = await fetch(`${srv.base}${path}`, { headers: { cookie: analyst } });
+      assert.equal(denied.status, 404, path);
+      assert.deepEqual(await denied.json(), { error: "not found" });
+    }
+    for (const path of [
+      "/api/v1/cases/BR-2026-0001/notes",
+      "/api/v1/cases/BR-2026-0001/events",
+      "/api/v1/cases/BR-2026-0001/export",
+      "/api/v1/cases/BR-2026-0001/obligations",
+    ]) {
+      const allowed = await fetch(`${srv.base}${path}`, { headers: { cookie: analyst } });
+      assert.equal(allowed.status, 200, path);
+    }
+    const all = (await (
+      await fetch(`${srv.base}/api/v1/cases?pageSize=50`, { headers: { cookie: boss } })
+    ).json()) as { total: number };
+    assert.equal(all.total, 7);
+    const bossSeesOther = await fetch(`${srv.base}/api/v1/cases/BR-2026-0002`, { headers: { cookie: boss } });
+    assert.equal(bossSeesOther.status, 200);
+  } finally {
+    await srv.close();
+  }
+});
+
 test("alerts list carries reason and rule on each row", async () => {
   resetDb();
   const srv = await startApp();
