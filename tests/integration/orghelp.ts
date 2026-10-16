@@ -4,6 +4,7 @@ import { orgApp } from "../../apps/organisation/server/index.ts";
 export const orgDbUrl = process.env.ORG_DATABASE_URL_TEST as string;
 
 process.env.DATABASE_URL = orgDbUrl;
+process.env.ORG_DATABASE_URL = orgDbUrl;
 
 export function resetOrgDb(): void {
   execFileSync("psql", [orgDbUrl, "-c", "drop schema public cascade; create schema public;"], { stdio: "pipe" });
