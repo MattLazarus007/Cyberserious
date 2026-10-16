@@ -10,9 +10,14 @@ export const draftsRouter = Router();
 draftsRouter.use(requireSession);
 
 const ORG_ROLES = ["data_steward", "information_officer"];
+const DRAFT_ROLES = ["data_steward", "information_officer", "security_officer"];
 
 function orgActor(actor: Actor): boolean {
   return Boolean(actor.mfaOk && actor.orgId && ORG_ROLES.includes(actor.role));
+}
+
+function draftActor(actor: Actor): boolean {
+  return Boolean(actor.mfaOk && actor.orgId && DRAFT_ROLES.includes(actor.role));
 }
 
 const draftInput = z.object({
@@ -45,7 +50,7 @@ export function draftHash(body: string): string {
 
 draftsRouter.get("/drafts", async (req, res) => {
   const actor = (req as unknown as { actor: Actor }).actor;
-  if (!orgActor(actor)) {
+  if (!draftActor(actor)) {
     res.status(403).json({ error: "forbidden" });
     return;
   }
@@ -62,7 +67,7 @@ draftsRouter.get("/drafts", async (req, res) => {
 
 draftsRouter.post("/drafts", async (req, res) => {
   const actor = (req as unknown as { actor: Actor }).actor;
-  if (!orgActor(actor)) {
+  if (!draftActor(actor)) {
     res.status(403).json({ error: "forbidden" });
     return;
   }
@@ -85,7 +90,7 @@ draftsRouter.post("/drafts", async (req, res) => {
 
 draftsRouter.put("/drafts/:id", async (req, res) => {
   const actor = (req as unknown as { actor: Actor }).actor;
-  if (!orgActor(actor)) {
+  if (!draftActor(actor)) {
     res.status(403).json({ error: "forbidden" });
     return;
   }
