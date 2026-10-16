@@ -12,9 +12,9 @@ the evidence, add notes, move cases through review, and work alerts
 raised by named rules. Every step is attributed and every important
 write is audited.
 
-Nothing here is real data. All records are synthetic, every page
-says so, and test receipts carry the test label. This is coursework,
-not an official reporting channel.
+Nothing here is real data. Fixtures use invented organisations and
+test receipts carry the test label. This is coursework, not an
+official reporting channel.
 
 ## Where things stand
 
