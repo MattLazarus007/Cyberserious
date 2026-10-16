@@ -37,6 +37,13 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
+        const body = await res.json();
+
+        if (body.ok) {
+            window.location.href = "drafts.html";
+            return;
+        }
+
         passwordForm.hidden = true;
         otpForm.hidden = false;
         otpMessage.textContent =

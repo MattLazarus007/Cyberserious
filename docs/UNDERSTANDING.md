@@ -73,9 +73,11 @@ content and strangers out of drafts. Missing and forbidden detail
 requests both answer 404 so identifiers cannot be probed. Passwords
 use scrypt with per-secret salts. Sessions expire twice, idle and
 absolute, and the console code dies after three tries or five
-minutes. Every query is parameterised. Every record renders through
-text nodes. Uploads quarantine by allowlist until a supervisor
-clears them. Intake verifies signatures before parsing and answers
+minutes. Group demo nights can switch on LAB_SIMPLE_LOGIN, which
+skips the code step with a warning line in the server log. Lab only,
+never beyond it. Every query is parameterised. Every record renders
+through text nodes. Uploads quarantine by allowlist until a
+supervisor clears them. Intake verifies signatures before parsing and answers
 retries from the stored receipt. Each control maps to a risk in
 docs/RISKS.md, which names the test that proves it.
 
@@ -92,8 +94,12 @@ presented as proof of non-reporting.
 
 How do you collect data? Secondary-source analysis, method and
 limits in docs/RESEARCH_METHOD.md. Where is multi-factor sign-in?
-Console code for the lab, Keycloak path recorded in ADR-0003. Is
-this the regulator portal? No, and every page and receipt says so.
+Console code for the lab, Keycloak path recorded in ADR-0003. How
+do teammates sign in without the code dance? LAB_SIMPLE_LOGIN=1 for
+group sessions, documented in docs/SETUP.md. Where are emails and
+numbers? On every account, returned by GET /api/v1/me, and new
+accounts come from the administrator endpoint. Is
+this the regulator portal? No, and every receipt says so.
 How do you know the counts are right? T-01 with one definition per
 metric, plus the dashboard aggregates. What happens on duplicate
 submit? T-17 and T-18: same bytes return the receipt, changed bytes
