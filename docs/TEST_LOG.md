@@ -6,11 +6,11 @@ tests live in tests/ and run with npm test or npm run test:e2e.
 Manual evidence names the command and what it printed.
 
 Seeded baseline for every automated run: 7 cases, 6 notifications,
-10 open alerts, 1 pending case, 5 open cases, 11 research sources.
+11 open alerts, 1 pending case, 5 open cases, 13 research sources.
 
 | ID | Name | Result 16 Oct 2026 | Evidence |
 | --- | --- | --- | --- |
-| T-01 | Dashboard seed consistency | Pass | cases.test.ts: 7 / 6 / 5 / 1 / 10 / 0 |
+| T-01 | Dashboard seed consistency | Pass | cases.test.ts: 7 / 6 / 5 / 1 / 11 / 0 |
 | T-02 | Search, filter, empty results | Pass | cases.test.ts: 7 total, 2 closed, Karoo-only on q=Karoo |
 | T-03 | Open each valid case | Pass | cases.test.ts: every reference opens with its own badges |
 | T-04 | Missing and invalid case id | Pass | cases.test.ts: random uuid answers 404 with no leak |
@@ -43,7 +43,7 @@ Seeded baseline for every automated run: 7 cases, 6 notifications,
 | T-31 | Audit tamper in a copy | Pass | hardening.test.ts: verify reports the altered row |
 | T-32 | Network reachability, plain HTTP | Pass manual | curl 16 Oct over plain HTTP: live 200, ready 200, cases 401, unknown 404. Reachability only. TLS undemonstrated and booked as Phase 12 work. |
 | T-33 | Backup restoration | Pass manual | exercises/restore-2026-10-16.md: 7/6/10 match, checksums clean |
-| T-34 | Mobile, labels, zoom, flows | Pass | test:e2e: 4 browser flows green on Chromium |
+| T-34 | Mobile, labels, zoom, flows | Pass | test:e2e: 5 browser flows green on Chromium |
 | T-35 | Backend error and retry | Pass by control | Idempotency keys on notes, receipts on intake. Double-submit tests prove no duplication. |
 | T-36 | Workload | Pass manual | 100 authed dashboard reads: 100 ok in 773ms. 200 anonymous: rejected at 0.3ms each. |
 
