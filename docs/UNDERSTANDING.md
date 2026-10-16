@@ -40,6 +40,12 @@ writer gets a 409 with both numbers. The audit chain hashes each row
 into the previous one, so tampering breaks the chain at exactly the
 altered point. None of this proves honesty by itself. It proves
 tampering afterwards, which is a narrower and a truthful claim.
+Lifecycle words map to D3 as follows. Draft is draft,
+ReadyForApproval and Approved are approved steps, Acknowledged after
+send matches submitted, Sending and RetryPending are transit, and
+Rejected is terminal. Pending, UnderReview and AwaitingInformation
+mean under investigation, Closed means closed. The receipt path also
+uses the word submitted.
 
 ## 4. Three journeys through the files
 
