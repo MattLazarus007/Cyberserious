@@ -2,9 +2,10 @@ import { Router } from "express";
 import { z } from "zod";
 import { query } from "../db.ts";
 import { can } from "../policy.ts";
-import { requireSession, type Actor } from "../session.ts";
+import { openContact, requireSession, type Actor } from "../session.ts";
 import { hashPassword } from "../passwords.ts";
 import { recordAudit } from "../audit.ts";
+import { researchKey, seal } from "../encrypt.ts";
 
 export const usersRouter = Router();
 usersRouter.use(requireSession);
@@ -30,13 +31,25 @@ usersRouter.get("/users", async (req, res) => {
     return;
   }
   const rows = await query(
-    `select u.username, u.display_name as "displayName", u.email, u.phone,
+    `select u.username, u.display_name as "displayName",
+            u.email_sealed, u.phone_sealed,
+            u.email as legacy_email, u.phone as legacy_phone,
             u.enabled, m.role, o.reference as "orgRef"
        from users u left join memberships m on m.user_id = u.id
        left join organisations o on o.id = m.org_id
        order by u.username asc`
   );
-  res.json({ items: rows.rows });
+  res.json({
+    items: rows.rows.map((row) => ({
+      username: row.username,
+      displayName: row.displayName,
+      email: openContact(row.email_sealed, row.legacy_email),
+      phone: openContact(row.phone_sealed, row.legacy_phone),
+      enabled: row.enabled,
+      role: row.role,
+      orgRef: row.orgRef,
+    })),
+  });
 });
 
 usersRouter.post("/users", async (req, res) => {
@@ -65,9 +78,23 @@ usersRouter.post("/users", async (req, res) => {
     orgId = org.rows[0].id;
   }
   const stored = await hashPassword(parsed.data.password);
+  // Contact detail reuses RESEARCH_KEY so no new secret is needed.
+  // Payloads, narratives and notes stay in plain text in this task.
+  let emailSealed: string | null = null;
+  let phoneSealed: string | null = null;
+  try {
+    const key = researchKey();
+    if (key) {
+      if (parsed.data.email) emailSealed = seal(parsed.data.email, key);
+      if (parsed.data.phone) phoneSealed = seal(parsed.data.phone, key);
+    }
+  } catch {
+    emailSealed = null;
+    phoneSealed = null;
+  }
   const user = await query(
-    "insert into users (username, display_name, password_hash, email, phone) values ($1, $2, $3, $4, $5) returning username",
-    [parsed.data.username, parsed.data.displayName, stored, parsed.data.email ?? null, parsed.data.phone ?? null]
+    "insert into users (username, display_name, password_hash, email, phone, email_sealed, phone_sealed) values ($1, $2, $3, null, null, $4, $5) returning username",
+    [parsed.data.username, parsed.data.displayName, stored, emailSealed, phoneSealed]
   );
   const person = await query("select id from users where username = $1", [parsed.data.username]);
   await query("insert into memberships (user_id, org_id, role) values ($1, $2, $3)", [
