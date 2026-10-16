@@ -1,13 +1,18 @@
 import pg from "pg";
 
-const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL });
+let pool: pg.Pool | null = null;
+
+function getPool(): pg.Pool {
+  if (!pool) pool = new pg.Pool({ connectionString: process.env.DATABASE_URL });
+  return pool;
+}
 
 export function query(text: string, params: unknown[] = []): Promise<pg.QueryResult> {
-  return pool.query(text, params as unknown[]);
+  return getPool().query(text, params as unknown[]);
 }
 
 export async function withTransaction<T>(work: (client: pg.PoolClient) => Promise<T>): Promise<T> {
-  const client = await pool.connect();
+  const client = await getPool().connect();
   try {
     await client.query("begin");
     const out = await work(client);
@@ -22,5 +27,8 @@ export async function withTransaction<T>(work: (client: pg.PoolClient) => Promis
 }
 
 export function closePool(): Promise<void> {
-  return pool.end();
+  if (!pool) return Promise.resolve();
+  const ending = pool.end();
+  pool = null;
+  return ending;
 }
