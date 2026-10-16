@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Draft and submit breach notifications to the regulator test intake.">
+    <title>Notification drafts | CyberSerious organisation portal</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .portal-wrap { max-width: 860px; margin: 0 auto; padding: 28px 16px; }
+        .draft-card { background: #fff; border: 1px solid #e4eaf2; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+        .draft-card label { display: block; font-size: 13px; margin: 10px 0 4px; color: #33445f; }
+        .draft-card input, .draft-card textarea, .draft-card select { width: 100%; padding: 9px 11px; border: 1px solid #d6e3fb; border-radius: 8px; font-size: 14px; }
+        .draft-card textarea { min-height: 90px; }
+        .draft-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+        .draft-status { font-size: 12px; padding: 2px 10px; border-radius: 20px; background: #edf4ff; color: #2455a4; }
+        #portalMessage { min-height: 20px; font-size: 13px; margin: 12px 0; }
+    </style>
+</head>
+<body data-page="drafts">
+<div class="demo-banner">Academic demonstration. All records are synthetic. Submissions go to the test receiver only.</div>
+<div class="portal-wrap">
+    <p class="page-eyebrow">Organisation portal · Karoo Retail Holdings</p>
+    <h1>Notification drafts</h1>
+    <p>Drafts move from writing to approval to sending. Only the
+    information officer approves. Sending signs the exact approved
+    revision and delivers it to the regulator test intake.</p>
+    <p><a href="login.html">Sign in</a> as steward1 or io1 to work here.</p>
+    <div id="portalMessage" role="status" aria-live="polite"></div>
+
+    <div class="draft-card">
+        <h2>New draft</h2>
+        <label for="newCategory">Category</label>
+        <input id="newCategory" placeholder="unauthorised access">
+        <label for="newNarrative">What happened</label>
+        <textarea id="newNarrative" placeholder="Describe the suspected breach in plain words."></textarea>
+        <div class="draft-actions">
+            <button class="btn-primary" id="createDraft" type="button">Save draft</button>
+        </div>
+    </div>
+
+    <div id="draftList"><p>Loading drafts…</p></div>
+</div>
+<script src="js/portal.js"></script>
+</body>
+</html>

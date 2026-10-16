@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Sign in to the CyberSerious regulator workspace.">
+    <title>Sign in | CyberSerious</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .login-wrap {
+            max-width: 460px;
+            margin: 60px auto;
+            padding: 0 16px;
+        }
+        .login-card {
+            background: #fff;
+            border: 1px solid #e4eaf2;
+            border-radius: 12px;
+            padding: 28px;
+        }
+        .login-card label {
+            display: block;
+            font-size: 13px;
+            margin: 14px 0 6px;
+            color: #33445f;
+        }
+        .login-card input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #d6e3fb;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        .login-card button {
+            margin-top: 18px;
+        }
+        #loginMessage, #otpMessage {
+            min-height: 20px;
+            font-size: 13px;
+            margin-top: 12px;
+        }
+    </style>
+</head>
+<body data-page="login">
+<div class="demo-banner">Academic demonstration. All records are synthetic.</div>
+<div class="login-wrap">
+    <div class="login-card">
+        <p class="page-eyebrow">Regulator workspace</p>
+        <h1>Sign in</h1>
+        <p>Use your organisation username and password. The second step asks for
+        the one-time code shown in the organisation server terminal.</p>
+
+        <form id="passwordForm">
+            <label for="username">Username</label>
+            <input id="username" name="username" autocomplete="username" value="steward1">
+            <label for="password">Password</label>
+            <input id="password" name="password" type="password" autocomplete="current-password">
+            <button class="btn-primary" type="submit">Continue</button>
+            <div id="loginMessage" role="status" aria-live="polite"></div>
+        </form>
+
+        <form id="otpForm" hidden>
+            <label for="otp">One-time code from the server terminal</label>
+            <input id="otp" name="otp" inputmode="numeric" autocomplete="one-time-code"
+                placeholder="6 digits" maxlength="6">
+            <button class="btn-primary" type="submit">Verify code</button>
+            <div id="otpMessage" role="status" aria-live="polite"></div>
+        </form>
+    </div>
+</div>
+<script src="js/orglogin.js"></script>
+</body>
+</html>
