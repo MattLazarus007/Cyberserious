@@ -22,12 +22,20 @@ const people = [
   { username: "io1", display: "Information Officer", secret: "demo-io-pass", role: "information_officer", email: "io1@karoo-retail.example", phone: "+27 82 555 0104" },
   { username: "so1", display: "Security Officer", secret: "demo-so-pass", role: "security_officer", email: "so1@karoo-retail.example", phone: "+27 82 555 0107" },
 ];
+const { seal: sealContact } = await import("../apps/regulator/server/encrypt.ts");
+// Contact detail reuses RESEARCH_KEY so no new secret is needed.
+let orgKey = process.env.RESEARCH_KEY ?? null;
+if (!orgKey) {
+  const { randomBytes: randBytes } = await import("node:crypto");
+  orgKey = randBytes(32).toString("hex");
+  console.log("note: RESEARCH_KEY unset, sealed contact detail uses an ephemeral key for this run");
+}
 for (const person of people) {
   const stored = await hashPassword(person.secret);
   const row = await conn.query(
-    `insert into users (username, display_name, password_hash, email, phone)
-     values ($1, $2, $3, $4, $5) on conflict (username) do update set password_hash = excluded.password_hash, email = excluded.email, phone = excluded.phone returning id`,
-    [person.username, person.display, stored, person.email, person.phone]
+    `insert into users (username, display_name, password_hash, email, phone, email_sealed, phone_sealed)
+     values ($1, $2, $3, null, null, $4, $5) on conflict (username) do update set password_hash = excluded.password_hash, email = null, phone = null, email_sealed = excluded.email_sealed, phone_sealed = excluded.phone_sealed returning id`,
+    [person.username, person.display, stored, sealContact(person.email, orgKey as string), sealContact(person.phone, orgKey as string)]
   );
   await conn.query(
     `insert into memberships (user_id, org_id, role)
