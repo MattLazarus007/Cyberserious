@@ -157,3 +157,75 @@ test("T-25 expired leases recover and snooze expiry reopens", async () => {
     await srv.close();
   }
 });
+
+test("T-26 triage clock opens RULE-06 only for unnotified overdue cases", async () => {
+  resetDb();
+  const srv = await startApp();
+  try {
+    const cookie = await loginFull(srv.base, "analyst1", "demo-analyst-pass");
+    const conn = new pg.Client({ connectionString: dbUrl });
+    await conn.connect();
+    const org = await conn.query("select id from organisations where reference = 'DEMO-ORG-01'");
+    const orgId = org.rows[0].id as string;
+    async function makeCase(ref: string, triagedHoursAgo: number, withNote: boolean): Promise<string> {
+      const kase = await conn.query(
+        "insert into cases (reference, org_id, state, severity, priority) values ($1, $2, 'UnderReview', 'medium', 'routine') returning id",
+        [ref, orgId]
+      );
+      const caseId = kase.rows[0].id as string;
+      await conn.query(
+        `insert into case_facts (case_id, incident_occurred_at, occurred_precision,
+           discovered_at, discovered_precision, discovery_source, triaged_at,
+           breach_status, category, affected_count, count_precision, narrative)
+         values ($1, now() - interval '10 days', 'date', now() - interval '9 days', 'date',
+           'organisation report', now() - ($2 || ' hours')::interval,
+           'reported', 'unauthorised access', 10, 'exact', $3)`,
+        [caseId, String(triagedHoursAgo), `Synthetic clock fixture for ${ref}.`]
+      );
+      if (withNote) {
+        const note = await conn.query(
+          "insert into notifications (case_id, sender_org_id, channel, first_received_at) values ($1, $2, 'manual_import', now() - interval '1 hour') returning id",
+          [caseId, orgId]
+        );
+        await conn.query(
+          "insert into notification_versions (notification_id, revision, payload, payload_hash, received_at) values ($1, 1, $2::jsonb, 't26hash', now() - interval '1 hour')",
+          [note.rows[0].id, JSON.stringify({ reference: ref })]
+        );
+      }
+      await conn.query(
+        "insert into outbox_jobs (job_type, resource_id, dedupe_key) values ('evaluate_case', $1, $2)",
+        [caseId, `eval:t26:${ref}:` + Date.now()]
+      );
+      return caseId;
+    }
+    const overdue = await makeCase("BR-2026-0901", 80, false);
+    const nudge = await makeCase("BR-2026-0902", 50, false);
+    const told = await makeCase("BR-2026-0903", 80, true);
+    await conn.end();
+    await runOnce();
+    const conn2 = new pg.Client({ connectionString: dbUrl });
+    await conn2.connect();
+    async function alertsFor(caseId: string): Promise<{ rule_id: string; priority: string; reason: string }[]> {
+      const rows = await conn2.query("select rule_id, priority, reason from alerts where case_id = $1", [caseId]);
+      return rows.rows as { rule_id: string; priority: string; reason: string }[];
+    }
+    const over = await alertsFor(overdue);
+    const overSix = over.filter((a) => a.rule_id === "RULE-06");
+    assert.equal(overSix.length, 1);
+    assert.equal(overSix[0].priority, "high");
+    assert.match(overSix[0].reason, /internal timer/);
+    const mid = await alertsFor(nudge);
+    const midSix = mid.filter((a) => a.rule_id === "RULE-06");
+    assert.equal(midSix.length, 1);
+    assert.equal(midSix[0].priority, "medium");
+    assert.match(midSix[0].reason, /48 hours/);
+    assert.match(midSix[0].reason, /Information Officer/);
+    assert.match(midSix[0].reason, /internal timer/);
+    const done = await alertsFor(told);
+    assert.ok(!done.some((a) => a.rule_id === "RULE-06"), "notified cases stay quiet on RULE-06");
+    await conn2.end();
+    void cookie;
+  } finally {
+    await srv.close();
+  }
+});
