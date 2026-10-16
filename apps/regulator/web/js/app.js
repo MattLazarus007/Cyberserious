@@ -383,7 +383,7 @@ async function loadBreachDetails() {
 
     } catch (err) {
 
-        if (err.status === 404) showCaseNotFound(caseId);
+        showCaseNotFound(caseId);
         return;
 
     }
