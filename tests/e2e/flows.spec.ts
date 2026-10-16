@@ -80,6 +80,13 @@ test("T-34 an analyst saves a note but cannot move the case", async ({ page }) =
   await expect(page.locator("#statusMessage")).toContainText("Only supervisors");
 });
 
+test("1.4 unknown and missing case ids render the not-found state", async ({ page }) => {
+  await page.goto(`${BASE}/breach.html?id=BR-9999-0000`);
+  await expect(page.locator("#caseTitle")).toContainText("Case not found");
+  await page.goto(`${BASE}/breach.html`);
+  await expect(page.locator("#caseTitle")).toContainText("Case not found");
+});
+
 test("T-34 small screen keeps navigation, large text keeps content", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto(`${BASE}/index.html`);
