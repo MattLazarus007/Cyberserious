@@ -13,7 +13,11 @@ function actorOf(req: unknown): Actor {
 
 casesRouter.get("/me", (req, res) => {
   const actor = actorOf(req);
-  res.json({ username: actor.username, displayName: actor.displayName, role: actor.role, mfaOk: actor.mfaOk });
+  res.json({
+    username: actor.username, displayName: actor.displayName,
+    email: actor.email, phone: actor.phone,
+    role: actor.role, mfaOk: actor.mfaOk,
+  });
 });
 
 const listInput = z.object({

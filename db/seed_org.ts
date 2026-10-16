@@ -18,15 +18,15 @@ await conn.query(
 );
 
 const people = [
-  { username: "steward1", display: "Data Steward", secret: "demo-steward-pass", role: "data_steward" },
-  { username: "io1", display: "Information Officer", secret: "demo-io-pass", role: "information_officer" },
+  { username: "steward1", display: "Data Steward", secret: "demo-steward-pass", role: "data_steward", email: "steward1@karoo-retail.example", phone: "+27 82 555 0105" },
+  { username: "io1", display: "Information Officer", secret: "demo-io-pass", role: "information_officer", email: "io1@karoo-retail.example", phone: "+27 82 555 0104" },
 ];
 for (const person of people) {
   const stored = await hashPassword(person.secret);
   const row = await conn.query(
-    `insert into users (username, display_name, password_hash)
-     values ($1, $2, $3) on conflict (username) do update set password_hash = excluded.password_hash returning id`,
-    [person.username, person.display, stored]
+    `insert into users (username, display_name, password_hash, email, phone)
+     values ($1, $2, $3, $4, $5) on conflict (username) do update set password_hash = excluded.password_hash, email = excluded.email, phone = excluded.phone returning id`,
+    [person.username, person.display, stored, person.email, person.phone]
   );
   await conn.query(
     `insert into memberships (user_id, org_id, role)

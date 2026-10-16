@@ -31,8 +31,11 @@ Then the hardening. Evidence quarantine with review and redacted
 exports. Security headers with a strict content policy. Queue-aware
 health checks. Nightly checksummed backups with a timed restore
 rehearsal. Runbooks with dated exercise notes. Four green browser
-flows. That leaves the build at 63 automated tests passing with two
+flows. That leaves the build at 66 automated tests passing with two
 honest gaps: assignment-scoped reads and managed identity sign-in.
+Accounts carry email addresses and numbers, administrators create
+accounts through the API, and group sessions can switch on simple
+sign-in to skip the code step.
 
 ## What remains
 

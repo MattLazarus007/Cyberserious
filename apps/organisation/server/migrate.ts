@@ -8,6 +8,7 @@ const root = join(here, "..", "..", "..");
 const sources = [
   join(root, "db", "migrations", "001_core.sql"),
   join(root, "db", "migrations", "005_session_mfa.sql"),
+  join(root, "db", "migrations", "011_user_contact.sql"),
   ...readdirSync(join(root, "db", "org-migrations"))
     .filter((f) => f.endsWith(".sql"))
     .sort()
