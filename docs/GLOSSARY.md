@@ -43,3 +43,12 @@ chain at exactly the altered point.
 **Dedupe key.** The identity a rule uses to recognise it has seen an
 input before. Matching inputs refresh the existing alert instead of
 opening a duplicate.
+
+**Lifecycle.** The words D3 uses for progress, mapped to the states
+in the code. On the organisation side Draft means draft,
+ReadyForApproval and Approved are approved steps on the way to send,
+Acknowledged after send is the submitted equivalent, Sending and
+RetryPending are transit states, and Rejected is terminal. On the
+regulator side Pending, UnderReview and AwaitingInformation all mean
+under investigation, and Closed means closed. The word submitted
+appears on the intake receipt path.
