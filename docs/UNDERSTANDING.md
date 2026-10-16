@@ -94,7 +94,8 @@ recorded human findings. Internal timers say internal wherever they
 appear. Test receipts say test_receiver. The four seeded case
 studies are research rows with sources, while the seven operational
 cases use invented organisations. Absence of a report is never
-presented as proof of non-reporting.
+presented as proof of non-reporting. The official channel is the
+Regulator's eServices Portal.
 
 ## 7. Questions the marker may ask
 
@@ -105,7 +106,8 @@ do teammates sign in without the code dance? LAB_SIMPLE_LOGIN=1 for
 group sessions, documented in docs/SETUP.md. Where are emails and
 numbers? On every account, returned by GET /api/v1/me, and new
 accounts come from the administrator endpoint. Is
-this the regulator portal? No, and every receipt says so.
+this the regulator portal? No, and every receipt says so. Real
+reports go through the Regulator's eServices Portal.
 How do you know the counts are right? T-01 with one definition per
 metric, plus the dashboard aggregates. What happens on duplicate
 submit? T-17 and T-18: same bytes return the receipt, changed bytes
