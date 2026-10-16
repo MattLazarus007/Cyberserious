@@ -1,8 +1,9 @@
 import { Router } from "express";
-import { createHash, randomInt } from "node:crypto";
+import { createHash, randomInt, timingSafeEqual } from "node:crypto";
 import { query } from "../db.ts";
 import { verifyPassword } from "../passwords.ts";
 import { createSession, destroySession, readCookie, sameCode, sessionCookieHeader, clearCookieHeader, SESSION_COOKIE } from "../session.ts";
+import { recordAudit } from "../audit.ts";
 
 export const authRouter = Router();
 
@@ -19,6 +20,16 @@ function recentFailures(name: string): number[] {
 
 function hashCode(code: string): string {
   return createHash("sha256").update(code).digest("hex");
+}
+
+function groupMatches(given: unknown): boolean {
+  if (typeof given !== "string") return false;
+  const expected = process.env.GROUP_PASSPHRASE;
+  if (!expected) return false;
+  const a = Buffer.from(given);
+  const b = Buffer.from(expected);
+  if (a.length !== b.length) return false;
+  return timingSafeEqual(a, b);
 }
 
 export function simpleLogin(): boolean {
@@ -64,6 +75,41 @@ authRouter.post("/login", async (req, res) => {
   console.log(`[otp] code for ${username}: ${code} (5 min)`);
   res.setHeader("Set-Cookie", sessionCookieHeader(sid));
   res.json({ mfaRequired: true });
+});
+
+authRouter.post("/login/group", async (req, res) => {
+  if (process.env.GROUP_LOGIN !== "1") {
+    res.status(404).json({ error: "not found" });
+    return;
+  }
+  if (recentFailures("group").length >= 5) {
+    await recordAudit({ actor: "group", action: "auth.group", resource: "group", result: "denied" });
+    res.status(429).json({ error: "too many attempts, try again later" });
+    return;
+  }
+  const { passphrase } = req.body ?? {};
+  if (!groupMatches(passphrase)) {
+    recentFailures("group").push(Date.now());
+    await recordAudit({ actor: "group", action: "auth.group", resource: "group", result: "denied" });
+    res.status(401).json({ error: "invalid credentials" });
+    return;
+  }
+  failures.delete("group");
+  await query(
+    "insert into users (username, display_name, password_hash) values ('group', 'Group Sign-in', 'disabled-group-login') on conflict (username) do nothing"
+  );
+  const found = await query("select id from users where username = 'group'");
+  const userId = found.rows[0].id;
+  await query(
+    "insert into memberships (user_id, org_id, role) values ($1, null, 'regulator_analyst') on conflict (user_id, org_id, role) do nothing",
+    [userId]
+  );
+  const sid = await createSession(userId);
+  await query("update sessions set mfa_ok = true where id = $1", [sid]);
+  await recordAudit({ actor: "group", action: "auth.group", resource: "group", result: "ok" });
+  console.log("[login] group sign-in used (shared credential)");
+  res.setHeader("Set-Cookie", sessionCookieHeader(sid));
+  res.json({ ok: true, username: "group" });
 });
 
 authRouter.post("/login/otp", async (req, res) => {
