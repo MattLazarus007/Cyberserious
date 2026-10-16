@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { spawn, type ChildProcess } from "node:child_process";
+import { createServer, type Server } from "node:http";
 import { writeFileSync } from "node:fs";
 import * as jose from "jose";
 import pg from "pg";
@@ -219,6 +220,116 @@ test("strangers cannot draft on the organisation side", async () => {
     assert.equal(anon.status, 401);
     void orgDbUrl;
   } finally {
+    await srv.close();
+  }
+});
+
+function startStub(status: number, body: unknown): Promise<{ url: string; close: () => Promise<void> }> {
+  const srv: Server = createServer((_req, res) => {
+    res.writeHead(status, { "content-type": "application/json" });
+    res.end(JSON.stringify(body));
+  });
+  return new Promise((resolve) => {
+    srv.listen(0, () => {
+      const addr = srv.address();
+      const port = typeof addr === "object" && addr ? addr.port : 0;
+      resolve({
+        url: `http://localhost:${port}/intake/v1/submissions`,
+        close: () => new Promise<void>((done) => srv.close(() => done())),
+      });
+    });
+  });
+}
+
+test("intake 422 marks draft Rejected, 5xx and network stay RetryPending", async () => {
+  resetOrgDb();
+  const { privateKey } = await jose.generateKeyPair("ES256", { extractable: true });
+  writeFileSync("/tmp/org-test-key-e8.json", JSON.stringify(await jose.exportJWK(privateKey)));
+  const prevKey = process.env.ORG_SENDER_KEY;
+  const prevId = process.env.ORG_SENDER_ID;
+  const prevUrl = process.env.REGULATOR_INTAKE_URL;
+  process.env.ORG_SENDER_KEY = "/tmp/org-test-key-e8.json";
+  process.env.ORG_SENDER_ID = "org-karoo-01";
+  const srv = await startOrgApp();
+  try {
+    const steward = await orgLogin(srv.base, "steward1", "demo-steward-pass");
+    const io = await orgLogin(srv.base, "io1", "demo-io-pass");
+    async function approvedDraft(narrative: string): Promise<string> {
+      const created = await fetch(`${srv.base}/api/v1/drafts`, {
+        method: "POST",
+        headers: { "content-type": "application/json", cookie: steward },
+        body: JSON.stringify({ category: "data exposure", narrative }),
+      });
+      assert.equal(created.status, 201);
+      const draft = (await created.json()) as { publicId: string };
+      const submit = await fetch(`${srv.base}/api/v1/drafts/${draft.publicId}/submit`, {
+        method: "POST",
+        headers: { cookie: steward },
+      });
+      assert.equal(submit.status, 200);
+      const approved = await fetch(`${srv.base}/api/v1/drafts/${draft.publicId}/approve`, {
+        method: "POST",
+        headers: { cookie: io },
+      });
+      assert.equal(approved.status, 200);
+      return draft.publicId;
+    }
+    async function draftStatus(publicId: string, cookie: string): Promise<{ status: string; receipt: unknown }> {
+      const list = (await (await fetch(`${srv.base}/api/v1/drafts`, { headers: { cookie } })).json()) as {
+        items: { publicId: string; status: string; receipt: unknown }[];
+      };
+      const found = list.items.find((d) => d.publicId === publicId);
+      assert.ok(found);
+      return { status: found.status, receipt: found.receipt };
+    }
+
+    const bad = await startStub(422, { error: "unknown organisation" });
+    try {
+      process.env.REGULATOR_INTAKE_URL = bad.url;
+      const publicId = await approvedDraft("A drive link went to the wrong inbox.");
+      const sent = await fetch(`${srv.base}/api/v1/drafts/${publicId}/send`, {
+        method: "POST",
+        headers: { cookie: steward },
+      });
+      assert.equal(sent.status, 422);
+      const seen = await draftStatus(publicId, steward);
+      assert.equal(seen.status, "Rejected");
+      assert.ok(seen.receipt);
+    } finally {
+      await bad.close();
+    }
+
+    const broken = await startStub(500, { error: "intake is down" });
+    try {
+      process.env.REGULATOR_INTAKE_URL = broken.url;
+      const publicId = await approvedDraft("A laptop went missing on a site visit.");
+      const sent = await fetch(`${srv.base}/api/v1/drafts/${publicId}/send`, {
+        method: "POST",
+        headers: { cookie: steward },
+      });
+      assert.equal(sent.status, 502);
+      const seen = await draftStatus(publicId, steward);
+      assert.equal(seen.status, "RetryPending");
+    } finally {
+      await broken.close();
+    }
+
+    process.env.REGULATOR_INTAKE_URL = "http://localhost:1/intake/v1/submissions";
+    const offlineId = await approvedDraft("A backup tape never came back.");
+    const offline = await fetch(`${srv.base}/api/v1/drafts/${offlineId}/send`, {
+      method: "POST",
+      headers: { cookie: steward },
+    });
+    assert.equal(offline.status, 502);
+    const offlineSeen = await draftStatus(offlineId, steward);
+    assert.equal(offlineSeen.status, "RetryPending");
+  } finally {
+    if (prevKey === undefined) delete process.env.ORG_SENDER_KEY;
+    else process.env.ORG_SENDER_KEY = prevKey;
+    if (prevId === undefined) delete process.env.ORG_SENDER_ID;
+    else process.env.ORG_SENDER_ID = prevId;
+    if (prevUrl === undefined) delete process.env.REGULATOR_INTAKE_URL;
+    else process.env.REGULATOR_INTAKE_URL = prevUrl;
     await srv.close();
   }
 });
