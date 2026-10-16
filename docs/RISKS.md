@@ -53,9 +53,10 @@ stores elapsed time and review findings, never a computed verdict.
 Proven by T-24 with the unknown-date fixture and the RULE-04 tests.
 
 **R-14: synthetic records get mistaken for official evidence.**
-Every page carries the synthetic banner. Fixtures use invented
-organisations. Test receipts are labelled. Proven by the banner check
-across all pages and the NAME_MAP fixture audit.
+Fixtures use invented organisations and test receipts are labelled.
+The page banner was removed at the owner's request in October 2026,
+so this risk now rests on fixture naming, receipt labels and the
+research register separation. Proven by the NAME_MAP fixture audit.
 
 ## Operations
 

@@ -85,8 +85,8 @@ The system never computes words like compliant. Review outcomes are
 recorded human findings. Internal timers say internal wherever they
 appear. Test receipts say test_receiver. The four seeded case
 studies are research rows with sources, while the seven operational
-cases are invented and labelled synthetic on every page. Absence of
-a report is never presented as proof of non-reporting.
+cases use invented organisations. Absence of a report is never
+presented as proof of non-reporting.
 
 ## 7. Questions the marker may ask
 
