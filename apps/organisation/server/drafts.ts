@@ -104,9 +104,10 @@ draftsRouter.put("/drafts/:id", async (req, res) => {
             affected_count = $5, revision = revision + 1, status = 'Draft',
             approved_revision = null, approved_hash = null, updated_at = now()
        where public_id = $6 and status in ('Draft','ReadyForApproval','Approved')
+         and org_ref = (select reference from organisations where id = $7)
        returning public_id as "publicId", revision, status`,
     [parsed.data.category, parsed.data.narrative, parsed.data.severity,
-     parsed.data.priority, parsed.data.affectedCount, req.params.id]
+     parsed.data.priority, parsed.data.affectedCount, req.params.id, actor.orgId]
   );
   if (row.rows.length === 0) {
     res.status(404).json({ error: "not found" });
@@ -122,8 +123,8 @@ draftsRouter.post("/drafts/:id/submit", async (req, res) => {
     return;
   }
   const row = await query(
-    "update drafts set status = 'ReadyForApproval', updated_at = now() where public_id = $1 and status = 'Draft' returning public_id as \"publicId\", status",
-    [req.params.id]
+    "update drafts set status = 'ReadyForApproval', updated_at = now() where public_id = $1 and status = 'Draft' and org_ref = (select reference from organisations where id = $2) returning public_id as \"publicId\", status",
+    [req.params.id, actor.orgId]
   );
   if (row.rows.length === 0) {
     res.status(404).json({ error: "not found" });
@@ -138,7 +139,7 @@ draftsRouter.post("/drafts/:id/approve", async (req, res) => {
     res.status(403).json({ error: "only the information officer approves" });
     return;
   }
-  const found = await query("select * from drafts where public_id = $1 and status = 'ReadyForApproval'", [req.params.id]);
+  const found = await query("select * from drafts where public_id = $1 and status = 'ReadyForApproval' and org_ref = (select reference from organisations where id = $2)", [req.params.id, actor.orgId]);
   if (found.rows.length === 0) {
     res.status(404).json({ error: "not found" });
     return;
@@ -151,8 +152,8 @@ draftsRouter.post("/drafts/:id/approve", async (req, res) => {
   });
   const saved = await query(
     `update drafts set status = 'Approved', approved_revision = revision, approved_hash = $1, updated_at = now()
-      where public_id = $2 returning public_id as "publicId", revision, status, approved_hash as "approvedHash"`,
-    [draftHash(body), req.params.id]
+      where public_id = $2 and org_ref = (select reference from organisations where id = $3) returning public_id as "publicId", revision, status, approved_hash as "approvedHash"`,
+    [draftHash(body), req.params.id, actor.orgId]
   );
   res.json(saved.rows[0]);
 });
@@ -163,7 +164,7 @@ draftsRouter.post("/drafts/:id/send", async (req, res) => {
     res.status(403).json({ error: "forbidden" });
     return;
   }
-  const found = await query("select * from drafts where public_id = $1 and status = 'Approved'", [req.params.id]);
+  const found = await query("select * from drafts where public_id = $1 and status = 'Approved' and org_ref = (select reference from organisations where id = $2)", [req.params.id, actor.orgId]);
   if (found.rows.length === 0) {
     res.status(404).json({ error: "only approved drafts are sent" });
     return;
@@ -175,7 +176,7 @@ draftsRouter.post("/drafts/:id/send", async (req, res) => {
     affectedCount: row.affected_count, revision: row.revision,
   });
   if (row.approved_revision !== row.revision || row.approved_hash !== draftHash(body)) {
-    await query("update drafts set status = 'Draft', approved_revision = null, approved_hash = null where public_id = $1", [req.params.id]);
+    await query("update drafts set status = 'Draft', approved_revision = null, approved_hash = null where public_id = $1 and org_ref = (select reference from organisations where id = $2)", [req.params.id, actor.orgId]);
     res.status(422).json({ error: "the draft changed after approval, approval no longer binds" });
     return;
   }
@@ -186,7 +187,7 @@ draftsRouter.post("/drafts/:id/send", async (req, res) => {
     res.status(500).json({ error: "no sender key configured" });
     return;
   }
-  await query("update drafts set status = 'Sending' where public_id = $1", [req.params.id]);
+  await query("update drafts set status = 'Sending' where public_id = $1 and org_ref = (select reference from organisations where id = $2)", [req.params.id, actor.orgId]);
   let answer: Response;
   try {
     const privateKey = await jose.importJWK(JSON.parse(readFileSync(keyPath, "utf8") as unknown as string), "ES256");
@@ -195,21 +196,21 @@ draftsRouter.post("/drafts/:id/send", async (req, res) => {
       .sign(privateKey);
     answer = await fetch(intakeUrl, { method: "POST", headers: { "content-type": "application/jose" }, body: jws });
   } catch {
-    await query("update drafts set status = 'RetryPending' where public_id = $1", [req.params.id]);
+    await query("update drafts set status = 'RetryPending' where public_id = $1 and org_ref = (select reference from organisations where id = $2)", [req.params.id, actor.orgId]);
     res.status(502).json({ error: "the regulator intake is not answering, retry later" });
     return;
   }
   if (answer.status === 201 || answer.status === 200) {
     const receipt = await answer.json();
-    await query("update drafts set status = 'Acknowledged', receipt = $1::jsonb where public_id = $2", [JSON.stringify(receipt), req.params.id]);
+    await query("update drafts set status = 'Acknowledged', receipt = $1::jsonb where public_id = $2 and org_ref = (select reference from organisations where id = $3)", [JSON.stringify(receipt), req.params.id, actor.orgId]);
     res.json({ ok: true, receipt });
     return;
   }
   if (answer.status === 409) {
-    await query("update drafts set status = 'RetryPending', receipt = $1::jsonb where public_id = $2", [JSON.stringify(await answer.json()), req.params.id]);
+    await query("update drafts set status = 'RetryPending', receipt = $1::jsonb where public_id = $2 and org_ref = (select reference from organisations where id = $3)", [JSON.stringify(await answer.json()), req.params.id, actor.orgId]);
     res.status(409).json({ error: "same identity, different bytes" });
     return;
   }
-  await query("update drafts set status = 'RetryPending' where public_id = $1", [req.params.id]);
+  await query("update drafts set status = 'RetryPending' where public_id = $1 and org_ref = (select reference from organisations where id = $2)", [req.params.id, actor.orgId]);
   res.status(502).json({ error: "intake refused the draft, retry later" });
 });
