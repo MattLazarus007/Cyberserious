@@ -41,7 +41,7 @@ Seeded baseline for every automated run: 7 cases, 6 notifications,
 | T-29 | Export authorised and not | Pass | evidence.test.ts: redacted export audited, admin denied |
 | T-30 | Audit failure behaviour | Pass | hardening.test.ts: mutation fails closed, zero silent rows |
 | T-31 | Audit tamper in a copy | Pass | hardening.test.ts: verify reports the altered row |
-| T-32 | Network and TLS reachability | Pass manual | curl 16 Oct: live 200, ready 200, cases 401, unknown 404. TLS and compose isolation land with the Phase 10 deployment. |
+| T-32 | Network reachability, plain HTTP | Pass manual | curl 16 Oct over plain HTTP: live 200, ready 200, cases 401, unknown 404. Reachability only. TLS undemonstrated and booked as Phase 12 work. |
 | T-33 | Backup restoration | Pass manual | exercises/restore-2026-10-16.md: 7/6/10 match, checksums clean |
 | T-34 | Mobile, labels, zoom, flows | Pass | test:e2e: 4 browser flows green on Chromium |
 | T-35 | Backend error and retry | Pass by control | Idempotency keys on notes, receipts on intake. Double-submit tests prove no duplication. |
