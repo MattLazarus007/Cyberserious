@@ -14,7 +14,8 @@ write is audited.
 
 Nothing here is real data. Fixtures use invented organisations and
 test receipts carry the test label. This is coursework, not an
-official reporting channel.
+official reporting channel. The official channel is the
+Regulator's eServices Portal.
 
 ## Where things stand
 
