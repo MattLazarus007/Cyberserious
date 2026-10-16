@@ -39,6 +39,16 @@ for (const org of orgs) {
   orgIds[org.reference] = row.rows[0].id;
 }
 
+const { seal: sealContact } = await import("../apps/regulator/server/encrypt.ts");
+// Contact detail reuses RESEARCH_KEY so no new secret is needed.
+// Payloads, narratives and notes stay in plain text in this task.
+let labKey = process.env.RESEARCH_KEY ?? null;
+if (!labKey) {
+  const { randomBytes: randBytes } = await import("node:crypto");
+  labKey = randBytes(32).toString("hex");
+  console.log("note: RESEARCH_KEY unset, sealed contact detail uses an ephemeral key for this run");
+}
+
 const seedUsers = [
   { username: "analyst1", display: "Regulator Analyst", secret: "demo-analyst-pass", role: "regulator_analyst", org: null as string | null, email: "analyst1@regulator.example", phone: "+27 82 555 0101" },
   { username: "supervisor1", display: "Regulator Supervisor", secret: "demo-supervisor-pass", role: "regulator_supervisor", org: null, email: "supervisor1@regulator.example", phone: "+27 82 555 0102" },
@@ -52,11 +62,11 @@ const userIds: Record<string, string> = {};
 for (const seed of seedUsers) {
   const stored = await hashPassword(seed.secret);
   const row = await conn.query(
-    `insert into users (username, display_name, password_hash, email, phone)
-     values ($1, $2, $3, $4, $5)
-     on conflict (username) do update set password_hash = excluded.password_hash, email = excluded.email, phone = excluded.phone
+    `insert into users (username, display_name, password_hash, email, phone, email_sealed, phone_sealed)
+     values ($1, $2, $3, null, null, $4, $5)
+     on conflict (username) do update set password_hash = excluded.password_hash, email = null, phone = null, email_sealed = excluded.email_sealed, phone_sealed = excluded.phone_sealed
      returning id`,
-    [seed.username, seed.display, stored, seed.email, seed.phone]
+    [seed.username, seed.display, stored, sealContact(seed.email, labKey as string), sealContact(seed.phone, labKey as string)]
   );
   userIds[seed.username] = row.rows[0].id;
   await conn.query(
@@ -178,14 +188,6 @@ for (const row of researchCases) {
   );
 }
 
-const { seal: sealDetail } = await import("../apps/regulator/server/encrypt.ts");
-let labKey = process.env.RESEARCH_KEY ?? null;
-if (!labKey) {
-  const { randomBytes: randBytes } = await import("node:crypto");
-  labKey = randBytes(32).toString("hex");
-  console.log("note: RESEARCH_KEY unset, sealed source notes use an ephemeral key for this run");
-}
-
 const researchSources: Array<{ ref: string; title: string; outlet: string; on: string | null; confidence: string; note: string }> = [
   { ref: "RES-GP-01", title: "Gauteng was lucky with latest 3.8TB data breach, but the luck will run out", outlet: "Daily Maverick", on: "2026-03-17", confidence: "medium", note: "Single incident report for the Gauteng case study." },
   { ref: "RES-SSA-01", title: "Stats SA confirms data breach as hackers demand ransom", outlet: "ITWeb", on: "2026-03-30", confidence: "high", note: "Primary incident report for the Stats SA case study." },
@@ -206,7 +208,7 @@ for (const row of researchSources) {
     `insert into research_sources (case_ref, title, outlet, published_on, confidence, detail_sealed)
      values ($1, $2, $3, $4, $5, $6)
      on conflict (case_ref, title) do nothing`,
-    [row.ref, row.title, row.outlet, row.on, row.confidence, sealDetail(row.note, labKey as string)]
+    [row.ref, row.title, row.outlet, row.on, row.confidence, sealContact(row.note, labKey as string)]
   );
 }
 
