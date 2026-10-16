@@ -56,8 +56,11 @@ casesRouter.get("/cases", async (req, res) => {
   );
   const offset = (page - 1) * pageSize;
   const rows = await query(
-    `select c.id, c.reference, o.display_name as "orgName", c.state, c.priority, c.opened_at as "openedAt"
+    `select c.id, c.reference, o.display_name as "orgName", c.state, c.priority, c.opened_at as "openedAt",
+            f.incident_occurred_at as "occurredAt",
+            exists (select 1 from notifications n where n.case_id = c.id) as "notified"
        from cases c join organisations o on o.id = c.org_id
+       left join case_facts f on f.case_id = c.id
        ${whereSql}
        order by c.opened_at desc, c.id desc
        limit $${params.length + 1} offset $${params.length + 2}`,

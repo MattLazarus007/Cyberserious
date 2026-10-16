@@ -265,7 +265,7 @@
         }
     </style>
 </head>
-<body>
+<body data-page="alerts">
 <div class="demo-banner">Academic demonstration. All records are synthetic.</div>
 <div class="app">
     <aside class="sidebar">
@@ -330,20 +330,14 @@
                     <div>
                         <select id="alertPriority" aria-label="Filter by priority">
                             <option value="">All Priorities</option>
-                            <option value="High">High</option>
-                            <option value="Medium">Medium</option>
-                            <option value="Low">Low</option>
+                            <option value="high">High</option>
+                            <option value="medium">Medium</option>
+                            <option value="low">Low</option>
                         </select>
                     </div>
                     <div>
                         <select id="alertType" aria-label="Filter by alert rule">
-                            <option value="">All alert rules</option>
-                            <option value="Possibly late submission">Possibly late submission</option>
-                            <option value="No submission on record">No submission on record</option>
-                            <option value="High severity incident">High severity incident</option>
-                            <option value="High number of people affected">High number of people affected</option>
-                            <option value="Lack of information">Lack of information</option>
-                        </select>
+                            <option value="">All alert rules</option></select>
                     </div>
                 </div>
             </section>
@@ -360,172 +354,8 @@
     </main>
 </div>
 
+<script src="js/api.js"></script>
 <script src="js/app.js"></script>
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-    const listEl = document.getElementById("alertList");
-    const countEl = document.getElementById("activeAlertCount");
-    const searchInput = document.getElementById("alertSearch");
-    const prioritySelect = document.getElementById("alertPriority");
-    const ruleSelect = document.getElementById("alertType");
 
-    if (typeof alerts === "undefined" || !Array.isArray(alerts)) {
-        listEl.innerHTML = '<div class="empty-state">Alert records could not be loaded. Check js/app.js</div>';
-        return;
-    }
-
-    const liveAlerts = alerts.filter(function (entry) {
-
-        return entry.state !== "resolved";
-
-    });
-
-    function caseFor(caseId) {
-
-        return breaches.find(function (breach) {
-
-            return breach.id === caseId;
-
-        }) || null;
-
-    }
-
-    function metaRow(label, value) {
-
-        const wrap = document.createElement("span");
-        const key = document.createElement("strong");
-
-        key.textContent = label + ":";
-        wrap.append(key, document.createTextNode(" " + value));
-
-        return wrap;
-
-    }
-
-    function cardFor(entry) {
-
-        const related = caseFor(entry.caseId);
-        const card = document.createElement("div");
-
-        card.className = "alert-card";
-        card.dataset.priority = entry.priority;
-        card.dataset.rule = entry.rule;
-
-        const header = document.createElement("div");
-        header.className = "alert-card-header";
-
-        const titleBox = document.createElement("div");
-        const priority = document.createElement("span");
-
-        priority.className = "priority-badge " + entry.priority.toLowerCase();
-        priority.textContent = entry.priority + " priority";
-
-        const heading = document.createElement("h3");
-
-        heading.textContent = entry.rule;
-        titleBox.append(priority, heading);
-
-        const pill = document.createElement("span");
-
-        pill.className = "status-pill " + (entry.state === "open" ? "action" : "monitoring");
-        pill.textContent = entry.state === "open" ? "Needs review" : entry.state;
-
-        header.append(titleBox, pill);
-
-        const why = document.createElement("p");
-
-        why.textContent = entry.reason;
-
-        const meta = document.createElement("div");
-
-        meta.className = "alert-meta";
-        meta.append(
-            metaRow("Alert", entry.id),
-            metaRow("Organisation", related ? related.organisation : "Not in this dataset"),
-            metaRow("Incident", related ? related.incidentDate : "Unknown"),
-            metaRow("Raised", entry.raisedOn)
-        );
-
-        const actions = document.createElement("div");
-        const openLink = document.createElement("a");
-        const note = document.createElement("span");
-
-        actions.className = "alert-actions";
-        openLink.className = "btn-primary";
-        openLink.href = "breach.html?id=" + entry.caseId;
-        openLink.textContent = "Investigate";
-
-        note.className = "alert-note";
-        note.textContent = "Acknowledge and resolve actions arrive with the case backend.";
-
-        actions.append(openLink, note);
-        card.append(header, why, meta, actions);
-
-        return card;
-
-    }
-
-    function render(entries) {
-
-        listEl.replaceChildren();
-
-        if (entries.length === 0) {
-
-            const empty = document.createElement("div");
-
-            empty.className = "empty-state";
-            empty.textContent = "No alerts match the current filters.";
-            listEl.append(empty);
-            countEl.textContent = "0 active alerts";
-
-            return;
-
-        }
-
-        entries.forEach(function (entry) {
-
-            listEl.append(cardFor(entry));
-
-        });
-
-        countEl.textContent =
-            entries.length +
-            " active alert" +
-            (entries.length === 1 ? "" : "s");
-
-    }
-
-    function applyFilters() {
-
-        const term = (searchInput.value || "").toLowerCase().trim();
-        const priority = prioritySelect.value;
-        const rule = ruleSelect.value;
-
-        const shown = liveAlerts.filter(function (entry) {
-
-            const related = caseFor(entry.caseId);
-            const haystack = [
-                entry.id,
-                entry.rule,
-                entry.reason,
-                related ? related.organisation : ""
-            ].join(" ").toLowerCase();
-
-            return (!term || haystack.includes(term)) &&
-                (!priority || entry.priority === priority) &&
-                (!rule || entry.rule === rule);
-
-        });
-
-        render(shown);
-
-    }
-
-    render(liveAlerts);
-
-    searchInput.addEventListener("input", applyFilters);
-    prioritySelect.addEventListener("change", applyFilters);
-    ruleSelect.addEventListener("change", applyFilters);
-});</script>
 </body>
 </html>

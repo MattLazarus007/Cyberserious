@@ -1,383 +1,25 @@
 /* =========================================
    CYBERSERIOUS
-   Application Data & Functions
-   Phase 1 Prototype
+   Regulator pages, served data edition
+   Phase 3: the browser renders what the
+   server returns. Nothing lives here.
    ========================================= */
 
 
 /* =========================================
-   MOCK BREACH DATA
+   SHARED VOCABULARY
    ========================================= */
 
-const breaches = [
-
-    {
-        id: "BR-2026-001",
-        organisation: "Bosmont Financial",
-        incidentDate: "04 May 2026",
-        notificationDate: "05 May 2026",
-        breachType: "Unauthorised Access",
-        severity: "High",
-        affectedSubjects: 2450,
-        status: "Under Review",
-        priority: "High",
-
-        description:
-            "The organisation reported unauthorised access to an internal system. The incident may have resulted in unauthorised access to personal information belonging to customers. The organisation is currently investigating the extent of the incident.",
-
-        informationAffected: [
-            "Names",
-            "Contact Information",
-            "Account Information",
-            "Identification Information"
-        ],
-
-        organisationResponse:
-            "The organisation has confirmed that an investigation is underway and has indicated that affected systems have been secured. Further information has been requested.",
-
-        notificationReceived: "Yes",
-        notificationTiming: "Within expected timeframe",
-        assessment: "Under Assessment",
-
-        activity: [
-            {
-                event: "Notification submitted",
-                date: "05 May 2026"
-            },
-            {
-                event: "Case assigned for review",
-                date: "06 May 2026"
-            },
-            {
-                event: "Regulator review started",
-                date: "07 May 2026"
-            }
-        ]
-    },
-
-
-    {
-        id: "BR-2026-002",
-        organisation: "Langeberg Insurance",
-        incidentDate: "21 April 2026",
-        notificationDate: "21 April 2026",
-        breachType: "Unauthorised Access",
-        severity: "Medium",
-        affectedSubjects: 830,
-        status: "Closed",
-        priority: "Medium",
-
-        description:
-            "The organisation reported an incident involving unauthorised access to an internal application. The organisation investigated the incident and implemented additional security controls.",
-
-        informationAffected: [
-            "Names",
-            "Contact Information"
-        ],
-
-        organisationResponse:
-            "The organisation has completed its investigation and implemented additional security controls.",
-
-        notificationReceived: "Yes",
-        notificationTiming: "Within expected timeframe",
-        assessment: "Compliant",
-
-        activity: [
-            {
-                event: "Notification submitted",
-                date: "21 Apr 2026"
-            },
-            {
-                event: "Case assigned for review",
-                date: "22 Apr 2026"
-            },
-            {
-                event: "Case closed",
-                date: "28 Apr 2026"
-            }
-        ]
-    },
-
-
-    {
-        id: "BR-2026-003",
-        organisation: "Highveld Municipal Services",
-        incidentDate: "12 April 2026",
-        notificationDate: "13 April 2026",
-        breachType: "Data Exposure",
-        severity: "High",
-        affectedSubjects: 5100,
-        status: "Pending",
-        priority: "High",
-
-        description:
-            "A potential data exposure incident was identified involving information stored within an organisational system. The extent of the exposure remains under investigation.",
-
-        informationAffected: [
-            "Names",
-            "Contact Information",
-            "Demographic Information"
-        ],
-
-        organisationResponse:
-            "The organisation has initiated an investigation and is assessing the potential impact on affected data subjects.",
-
-        notificationReceived: "Yes",
-        notificationTiming: "Within expected timeframe",
-        assessment: "Under Assessment",
-
-        activity: [
-            {
-                event: "Incident identified",
-                date: "12 Apr 2026"
-            },
-            {
-                event: "Notification submitted",
-                date: "13 Apr 2026"
-            },
-            {
-                event: "Case pending regulator review",
-                date: "14 Apr 2026"
-            }
-        ]
-    },
-
-
-    {
-        id: "BR-2026-004",
-        organisation: "Bushveld Provincial Services",
-        incidentDate: "06 March 2026",
-        notificationDate: "09 March 2026",
-        breachType: "Cyberattack",
-        severity: "High",
-        affectedSubjects: 12000,
-        status: "Under Review",
-        priority: "High",
-
-        description:
-            "A cyberattack affected systems operated by the organisation. The incident resulted in disruption to systems and raised concerns regarding potential exposure of personal information.",
-
-        informationAffected: [
-            "Names",
-            "Identification Information",
-            "Contact Information",
-            "Government Service Information"
-        ],
-
-        organisationResponse:
-            "The organisation has reported that affected systems were secured and that an investigation into the incident is ongoing.",
-
-        notificationReceived: "Yes",
-        notificationTiming: "Potentially delayed",
-        assessment: "Requires Review",
-
-        activity: [
-            {
-                event: "Incident identified",
-                date: "06 Mar 2026"
-            },
-            {
-                event: "Notification received",
-                date: "09 Mar 2026"
-            },
-            {
-                event: "Potential compliance alert created",
-                date: "10 Mar 2026"
-            }
-        ]
-    },
-
-
-    {
-        id: "BR-2026-005",
-        organisation: "Thabazimbi Health Group",
-        incidentDate: "18 February 2026",
-        notificationDate: "19 February 2026",
-        breachType: "Personal Information Exposure",
-        severity: "Low",
-        affectedSubjects: 340,
-        status: "Closed",
-        priority: "Low",
-
-        description:
-            "A limited exposure of personal information was identified within an internal system. The organisation investigated the incident and confirmed that the exposure was contained.",
-
-        informationAffected: [
-            "Names",
-            "Contact Information"
-        ],
-
-        organisationResponse:
-            "The organisation confirmed that the incident was contained and corrective measures were implemented.",
-
-        notificationReceived: "Yes",
-        notificationTiming: "Within expected timeframe",
-        assessment: "Compliant",
-
-        activity: [
-            {
-                event: "Notification submitted",
-                date: "19 Feb 2026"
-            },
-            {
-                event: "Investigation completed",
-                date: "23 Feb 2026"
-            },
-            {
-                event: "Case closed",
-                date: "26 Feb 2026"
-            }
-        ]
-    },
-
-
-    {
-        id: "BR-2026-006",
-        organisation: "Swartland Financial Services",
-        incidentDate: "03 February 2026",
-        notificationDate: "05 February 2026",
-        breachType: "Unauthorised Access",
-        severity: "Medium",
-        affectedSubjects: 1700,
-        status: "Under Review",
-        priority: "Medium",
-
-        description:
-            "An unauthorised access incident was identified affecting an internal financial services application.",
-
-        informationAffected: [
-            "Names",
-            "Contact Information",
-            "Financial Information"
-        ],
-
-        organisationResponse:
-            "The organisation has provided an initial response and additional information has been requested.",
-
-        notificationReceived: "Yes",
-        notificationTiming: "Requires verification",
-        assessment: "Under Assessment",
-
-        activity: [
-            {
-                event: "Incident identified",
-                date: "03 Feb 2026"
-            },
-            {
-                event: "Notification submitted",
-                date: "05 Feb 2026"
-            },
-            {
-                event: "Additional information requested",
-                date: "07 Feb 2026"
-            }
-        ]
-    },
-
-
-    {
-        id: "BR-2026-007",
-        organisation: "Swartland Financial Services",
-        incidentDate: "27 January 2026",
-        notificationDate: null,
-        breachType: "Potential Data Breach",
-        severity: "High",
-        affectedSubjects: 3200,
-        status: "Awaiting Information",
-        priority: "High",
-
-        description:
-            "A potential data breach has been identified. No corresponding Section 22 notification has currently been located in the prototype system.",
-
-        informationAffected: [
-            "Unknown"
-        ],
-
-        organisationResponse:
-            "No notification has been received at this stage.",
-
-        notificationReceived: "No",
-        notificationTiming: "Not Received",
-        assessment: "Potential Non-Compliance",
-
-        activity: [
-            {
-                event: "Potential incident identified",
-                date: "27 Jan 2026"
-            },
-            {
-                event: "Compliance alert created",
-                date: "28 Jan 2026"
-            }
-        ]
-    }
-
-];
-
-/*
-    The only case states the interface offers.
-    Every page reads this list, no page keeps its own.
-*/
 const CASE_STATES = [
     "Pending",
-    "Under Review",
-    "Awaiting Information",
+    "UnderReview",
+    "AwaitingInformation",
     "Closed"
 ];
 
 
-/*
-    Alert records are separate from cases.
-    A case keeps its own state while alerts come and go.
-*/
-const alerts = [
-    {
-        id: "AL-2026-001",
-        caseId: "BR-2026-003",
-        rule: "High severity incident",
-        priority: "High",
-        reason: "Severity is recorded as high, and 5,100 data subjects are in scope.",
-        state: "open",
-        raisedOn: "13 Apr 2026"
-    },
-    {
-        id: "AL-2026-002",
-        caseId: "BR-2026-004",
-        rule: "Possibly late submission",
-        priority: "High",
-        reason: "Notification arrived three days after the incident was identified.",
-        state: "open",
-        raisedOn: "10 Mar 2026"
-    },
-    {
-        id: "AL-2026-003",
-        caseId: "BR-2026-007",
-        rule: "No submission on record",
-        priority: "High",
-        reason: "An incident was identified and no notification is linked to it.",
-        state: "open",
-        raisedOn: "28 Jan 2026"
-    }
-];
-
-
 /* =========================================
-   FIND A BREACH
-   ========================================= */
-
-function getBreachById(id) {
-
-    return breaches.find(function (breach) {
-
-        return breach.id === id;
-
-    });
-
-}
-
-
-/* =========================================
-   GET ID FROM URL
+   SMALL HELPERS
    ========================================= */
 
 function getBreachIdFromURL() {
@@ -390,10 +32,6 @@ function getBreachIdFromURL() {
 }
 
 
-/* =========================================
-   COUNT FORMATTING
-   ========================================= */
-
 function formatCount(value) {
 
     const digits = String(Number(value) || 0);
@@ -403,13 +41,10 @@ function formatCount(value) {
 }
 
 
-/* =========================================
-   BADGE CLASSES
-   ========================================= */
-
 function getStatusClass(status) {
 
-    const normalized = String(status || "").toLowerCase();
+    const normalized =
+        String(status || "").toLowerCase().replace(/[\s_]/g, "");
 
     if (normalized === "pending") {
 
@@ -424,6 +59,55 @@ function getStatusClass(status) {
     }
 
     return "review";
+
+}
+
+
+function setText(id, value) {
+
+    const el = document.getElementById(id);
+
+    if (el) el.textContent = value;
+
+    return el;
+
+}
+
+
+function flagError(message) {
+
+    const count =
+        document.getElementById("notificationCount");
+
+    if (count) count.textContent = message;
+
+}
+
+
+/* =========================================
+   SIGNED-IN NAME IN THE TOP BAR
+   ========================================= */
+
+async function bindUser() {
+
+    try {
+
+        const me = await Api.getMe();
+
+        const bars =
+            document.querySelectorAll(".user span");
+
+        bars.forEach(function (bar) {
+
+            bar.textContent = me.displayName;
+
+        });
+
+    } catch (err) {
+
+        return;
+
+    }
 
 }
 
@@ -480,389 +164,91 @@ function showCaseNotFound(caseId) {
 
 
 /* =========================================
-   LOAD BREACH DETAILS
+   BREACH DETAIL PAGE
    ========================================= */
 
-function loadBreachDetails() {
+function fillDetail(theCase) {
 
-    const caseId = getBreachIdFromURL();
-
-    /*
-        No ID in the link means
-        there is no case to show.
-    */
-
-    if (!caseId) {
-
-        showCaseNotFound();
-
-        return;
-
-    }
-
-
-    const breach = getBreachById(caseId);
-
-
-    /*
-        An unknown ID gets the not-found
-        state, not the previous case fields.
-    */
-
-    if (!breach) {
-
-        showCaseNotFound(caseId);
-
-        return;
-
-    }
-
-
-    /* -----------------------------------------
-       HEADER
-       ----------------------------------------- */
-
-    const caseTitle =
-        document.getElementById("caseTitle");
-
-    if (caseTitle) {
-
-        caseTitle.textContent =
-            "Breach Case #" + breach.id;
-
-    }
-
-
-    const organisationName =
-        document.getElementById("organisationName");
-
-    if (organisationName) {
-
-        organisationName.textContent =
-            breach.organisation;
-
-    }
+    setText("caseTitle", "Breach Case #" + theCase.reference);
+    setText("organisationName", theCase.orgName);
 
     const headerStatus =
         document.getElementById("headerStatus");
 
     if (headerStatus) {
 
+        headerStatus.hidden = false;
         headerStatus.textContent =
-            breach.status;
+            Api.displayState(theCase.state);
 
         headerStatus.className =
             "status-badge " +
-            getStatusClass(breach.status);
+            getStatusClass(theCase.state);
 
     }
 
+    setText("detailCaseId", theCase.reference);
+    setText("detailOrganisation",
+        theCase.orgName + " (" + theCase.orgRef + ")");
 
-    /* -----------------------------------------
-       INCIDENT INFORMATION
-       ----------------------------------------- */
+    const occurred = Api.fmtDate(theCase.occurredAt);
+    setText("detailIncidentDate",
+        theCase.occurredPrecision &&
+        theCase.occurredPrecision !== "exact"
+            ? occurred + " (" + theCase.occurredPrecision + " date)"
+            : occurred);
 
-    const detailCaseId =
-        document.getElementById("detailCaseId");
+    setText("detailNotificationDate",
+        "Held in the notification register. Version history ships with the intake work.");
 
-    if (detailCaseId) {
+    setText("detailBreachType",
+        theCase.category || "Not recorded");
 
-        detailCaseId.textContent =
-            breach.id;
+    const severity = setText("detailSeverity",
+        theCase.severity ? Api.cap(theCase.severity) : "Not rated");
 
-    }
+    if (severity) severity.className = "priority";
 
+    const affected = theCase.affectedCount;
+    setText("detailAffectedSubjects",
+        affected === null || affected === undefined
+            ? "Unknown (" + (theCase.countPrecision || "unconfirmed") + ")"
+            : formatCount(affected) +
+              (theCase.countPrecision && theCase.countPrecision !== "exact"
+                ? " (" + theCase.countPrecision + ")"
+                : ""));
 
-    const detailOrganisation =
-        document.getElementById("detailOrganisation");
+    setText("detailDescription",
+        theCase.narrative || "No narrative recorded.");
 
-    if (detailOrganisation) {
+    const infoBox =
+        document.getElementById("informationAffected");
 
-        detailOrganisation.textContent =
-            breach.organisation;
+    if (infoBox) {
 
-    }
+        infoBox.replaceChildren();
 
+        const cats = theCase.dataCategories || [];
 
-    const detailIncidentDate =
-        document.getElementById("detailIncidentDate");
+        if (cats.length === 0) {
 
-    if (detailIncidentDate) {
+            infoBox.textContent = "No categories recorded.";
 
-        detailIncidentDate.textContent =
-            breach.incidentDate;
+        }
 
-    }
+        cats.forEach(function (cat) {
 
-
-    const detailNotificationDate =
-        document.getElementById("detailNotificationDate");
-
-    if (detailNotificationDate) {
-
-        detailNotificationDate.textContent =
-            breach.notificationDate ||
-            "Not Received";
-
-    }
-
-
-    const detailBreachType =
-        document.getElementById("detailBreachType");
-
-    if (detailBreachType) {
-
-        detailBreachType.textContent =
-            breach.breachType;
-
-    }
-
-
-    const detailSeverity =
-        document.getElementById("detailSeverity");
-
-    if (detailSeverity) {
-
-        detailSeverity.textContent =
-            breach.severity;
-
-        detailSeverity.className =
-            "priority " +
-            breach.severity.toLowerCase();
-
-    }
-
-
-    const detailAffectedSubjects =
-        document.getElementById(
-            "detailAffectedSubjects"
-        );
-
-    if (detailAffectedSubjects) {
-
-        detailAffectedSubjects.textContent =
-            formatCount(breach.affectedSubjects);
-
-    }
-
-
-    /* -----------------------------------------
-       DESCRIPTION
-       ----------------------------------------- */
-
-    const description =
-        document.getElementById(
-            "detailDescription"
-        );
-
-    if (description) {
-
-        description.textContent =
-            breach.description;
-
-    }
-
-
-    /* -----------------------------------------
-       INFORMATION AFFECTED
-       ----------------------------------------- */
-
-    const information =
-        document.getElementById(
-            "informationAffected"
-        );
-
-    if (information) {
-
-        information.innerHTML = "";
-
-
-        breach.informationAffected.forEach(
-            function (item) {
-
-                const badge =
-                    document.createElement("span");
-
-                badge.className =
-                    "status review";
-
-                badge.textContent =
-                    item;
-
-                information.appendChild(
-                    badge
-                );
-
-            }
-        );
-
-    }
-
-
-    /* -----------------------------------------
-       ORGANISATION RESPONSE
-       ----------------------------------------- */
-
-    const response =
-        document.getElementById(
-            "detailOrganisationResponse"
-        );
-
-    if (response) {
-
-        response.textContent =
-            breach.organisationResponse;
-
-    }
-
-
-    /* -----------------------------------------
-       SECTION 22 ASSESSMENT
-       ----------------------------------------- */
-
-    const notificationReceived =
-        document.getElementById(
-            "notificationReceived"
-        );
-
-    if (notificationReceived) {
-
-        notificationReceived.textContent =
-            breach.notificationReceived;
-
-    }
-
-
-    const notificationTiming =
-        document.getElementById(
-            "notificationTiming"
-        );
-
-    if (notificationTiming) {
-
-        notificationTiming.textContent =
-            breach.notificationTiming;
-
-    }
-
-
-    const assessment =
-        document.getElementById(
-            "assessment"
-        );
-
-    if (assessment) {
-
-        assessment.textContent =
-            breach.assessment;
-
-    }
-
-
-    /* -----------------------------------------
-       ACTIVITY HISTORY
-       ----------------------------------------- */
-
-    const activityHistory =
-        document.getElementById(
-            "activityHistory"
-        );
-
-    if (activityHistory) {
-
-        activityHistory.innerHTML = "";
-
-
-        breach.activity.forEach(
-            function (activity, index) {
-
-                const activityItem =
-                    document.createElement("div");
-
-
-                activityItem.style.paddingBottom =
-                    "15px";
-
-                activityItem.style.marginBottom =
-                    "15px";
-
-
-                if (
-                    index <
-                    breach.activity.length - 1
-                ) {
-
-                    activityItem.style.borderBottom =
-                        "1px solid #dfe4ea";
-
-                }
-
-
-                const eventName =
-                    document.createElement("strong");
-
-                eventName.style.fontSize = "13px";
-
-                eventName.textContent =
-                    activity.event;
-
-
-                const eventDate =
-                    document.createElement("p");
-
-                eventDate.style.fontSize = "12px";
-                eventDate.style.color = "#6b7280";
-                eventDate.style.marginTop = "4px";
-
-                eventDate.textContent =
-                    activity.date;
-
-
-                activityItem.append(
-                    eventName,
-                    eventDate
-                );
-
-
-                activityHistory.appendChild(
-                    activityItem
-                );
-
-            }
-        );
-
-    }
-
-
-    /* -----------------------------------------
-       STATUS
-       ----------------------------------------- */
-
-    const statusDropdown =
-        document.getElementById(
-            "caseStatus"
-        );
-
-    if (statusDropdown) {
-
-        statusDropdown.replaceChildren();
-
-        CASE_STATES.forEach(function (state) {
-
-            const option =
-                document.createElement("option");
-
-            option.value = state;
-            option.textContent = state;
-
-            statusDropdown.append(option);
+            const chip = document.createElement("span");
+            chip.className = "chip";
+            chip.textContent = cat;
+            infoBox.append(chip);
 
         });
 
-        statusDropdown.value =
-            breach.status;
-
     }
+
+    setText("detailOrganisationResponse",
+        "The organisation's own account arrives with its notification versions.");
 
     const priorityDisplay =
         document.getElementById("priorityDisplay");
@@ -870,11 +256,118 @@ function loadBreachDetails() {
     if (priorityDisplay) {
 
         priorityDisplay.textContent =
-            String(breach.priority || "unrated").toUpperCase();
+            Api.cap(theCase.priority);
 
         priorityDisplay.className =
             "priority-display p-" +
-            String(breach.priority || "").toLowerCase();
+            String(theCase.priority || "").toLowerCase();
+
+    }
+
+    setText("notificationReceived",
+        "Checked against the register when intake history lands.");
+
+    setText("notificationTiming",
+        "Measured from evidence, never assumed.");
+
+    setText("assessment",
+        "A recorded human finding, not a computed value.");
+
+    const history =
+        document.getElementById("activityHistory");
+
+    if (history) {
+
+        history.replaceChildren();
+
+        const line = document.createElement("p");
+        line.textContent =
+            "Opened " + Api.fmtDate(theCase.openedAt) +
+            ". Full history appears here once case work is durable.";
+        history.append(line);
+
+    }
+
+    const notesList =
+        document.getElementById("notesList");
+
+    if (notesList && !notesList.dataset.ready) {
+
+        notesList.replaceChildren();
+
+        const line = document.createElement("p");
+        line.textContent =
+            "No notes yet. Notes added here are kept once saving lands.";
+        notesList.append(line);
+
+    }
+
+    const dropdown =
+        document.getElementById("caseStatus");
+
+    if (dropdown) {
+
+        dropdown.replaceChildren();
+
+        CASE_STATES.forEach(function (state) {
+
+            const option = document.createElement("option");
+            option.value = state;
+            option.textContent = Api.displayState(state);
+            dropdown.append(option);
+
+        });
+
+        dropdown.value = theCase.state;
+
+    }
+
+}
+
+
+async function loadBreachDetails() {
+
+    if (!document.getElementById("caseTitle")) return;
+
+    const caseId = getBreachIdFromURL();
+
+    if (!caseId) {
+
+        showCaseNotFound();
+        return;
+
+    }
+
+    let theCase;
+
+    try {
+
+        theCase = await Api.getCase(caseId);
+
+    } catch (err) {
+
+        if (err.status === 404) showCaseNotFound(caseId);
+        return;
+
+    }
+
+    fillDetail(theCase);
+
+    try {
+
+        await Api.getMe();
+
+    } catch (err) {
+
+        const noteMessage =
+            document.getElementById("noteMessage");
+
+        if (noteMessage) {
+
+            noteMessage.textContent =
+                "Sign in to add notes. Saving arrives with durable case work.";
+
+        }
 
     }
 
@@ -882,7 +375,7 @@ function loadBreachDetails() {
 
 
 /* =========================================
-   ADD INTERNAL NOTE
+   NOTE AND STATUS (SAVING ARRIVES IN PHASE 4)
    ========================================= */
 
 function addNote() {
@@ -891,9 +384,7 @@ function addNote() {
         document.getElementById("notes");
 
     const message =
-        document.getElementById(
-            "noteMessage"
-        );
+        document.getElementById("noteMessage");
 
 
     if (!notes || !message) {
@@ -905,44 +396,27 @@ function addNote() {
 
     if (notes.value.trim() === "") {
 
-        message.style.color =
-            "#dc3545";
-
-        message.textContent =
-            "Please enter a note first.";
-
+        message.style.color = "#b42323";
+        message.textContent = "Please enter a note first.";
         return;
 
     }
 
 
-    message.style.color =
-        "#198754";
-
+    message.style.color = "#6b7280";
     message.textContent =
-        "Note added successfully (prototype only).";
-
-
-    notes.value = "";
+        "Notes are kept once saving lands. For now the text stays in the box.";
 
 }
 
 
-/* =========================================
-   UPDATE STATUS
-   ========================================= */
-
 function updateStatus() {
 
     const status =
-        document.getElementById(
-            "caseStatus"
-        );
+        document.getElementById("caseStatus");
 
     const message =
-        document.getElementById(
-            "statusMessage"
-        );
+        document.getElementById("statusMessage");
 
 
     if (!status || !message) {
@@ -952,13 +426,9 @@ function updateStatus() {
     }
 
 
-    message.style.color =
-        "#198754";
-
+    message.style.color = "#6b7280";
     message.textContent =
-        "Case status updated to: " +
-        status.value +
-        " (prototype only).";
+        "Status changes are kept once transitions land. Nothing was saved.";
 
 }
 
@@ -967,46 +437,155 @@ function updateStatus() {
    NOTIFICATIONS PAGE
    ========================================= */
 
-function loadNotifications() {
+const PAGE_SIZE = 20;
 
-    const tableBody =
-        document.getElementById(
-            "notificationsTableBody"
-        );
+function readListParams() {
+
+    const params =
+        new URLSearchParams(window.location.search);
+
+    return {
+        q: params.get("q") || "",
+        state: params.get("state") || "",
+        priority: params.get("priority") || "",
+        page: Math.max(1, Number(params.get("page")) || 1)
+    };
+
+}
 
 
-    /*
-        If this element doesn't exist,
-        we're not on the Notifications page.
-    */
+function writeListParams(params) {
 
-    if (!tableBody) {
+    const out = new URLSearchParams();
 
-        return;
+    if (params.q) out.set("q", params.q);
+    if (params.state) out.set("state", params.state);
+    if (params.priority) out.set("priority", params.priority);
+    if (params.page > 1) out.set("page", String(params.page));
+
+    const suffix = out.toString();
+
+    history.replaceState(null, "",
+        window.location.pathname + (suffix ? "?" + suffix : ""));
+
+}
+
+
+function rowFor(tableBody, item) {
+
+    const row = document.createElement("tr");
+
+    const idCell = document.createElement("td");
+    idCell.textContent = item.reference;
+
+    const orgCell = document.createElement("td");
+    orgCell.textContent = item.orgName;
+
+    const incidentCell = document.createElement("td");
+    incidentCell.textContent = Api.fmtDate(item.occurredAt);
+
+    const submittedCell = document.createElement("td");
+    submittedCell.textContent =
+        item.notified ? "On record" : "Not received";
+
+    const priorityCell = document.createElement("td");
+    const priorityBadge = document.createElement("span");
+    priorityBadge.className =
+        "priority " + String(item.priority || "").toLowerCase();
+    priorityBadge.textContent = Api.cap(item.priority);
+    priorityCell.append(priorityBadge);
+
+    const statusCell = document.createElement("td");
+    const statusBadge = document.createElement("span");
+    statusBadge.className =
+        "status " + getStatusClass(item.state);
+    statusBadge.textContent = Api.displayState(item.state);
+    statusCell.append(statusBadge);
+
+    const actionCell = document.createElement("td");
+    const viewLink = document.createElement("a");
+    viewLink.className = "btn btn-secondary";
+    viewLink.href =
+        "breach.html?id=" + encodeURIComponent(item.reference);
+    viewLink.textContent = "View";
+    actionCell.append(viewLink);
+
+    row.append(
+        idCell,
+        orgCell,
+        incidentCell,
+        submittedCell,
+        priorityCell,
+        statusCell,
+        actionCell
+    );
+
+    tableBody.append(row);
+
+}
+
+
+function pagerInto(footer, params, total) {
+
+    footer.replaceChildren();
+
+    const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+
+    const line = document.createElement("span");
+    line.textContent =
+        "Page " + params.page + " of " + pages +
+        " (" + total + " cases)";
+    footer.append(line);
+
+    if (params.page > 1) {
+
+        const back = document.createElement("a");
+        back.className = "btn btn-secondary";
+        back.href = "#";
+        back.textContent = "Previous";
+        back.addEventListener("click", function (ev) {
+            ev.preventDefault();
+            params.page -= 1;
+            writeListParams(params);
+            loadNotifications();
+        });
+        footer.append(back);
 
     }
 
+    if (params.page < pages) {
 
-    const searchInput =
-        document.getElementById(
-            "searchInput"
-        );
+        const next = document.createElement("a");
+        next.className = "btn btn-secondary";
+        next.href = "#";
+        next.textContent = "Next";
+        next.addEventListener("click", function (ev) {
+            ev.preventDefault();
+            params.page += 1;
+            writeListParams(params);
+            loadNotifications();
+        });
+        footer.append(next);
 
-    const statusFilter =
-        document.getElementById(
-            "statusFilter"
-        );
+    }
 
-    const priorityFilter =
-        document.getElementById(
-            "priorityFilter"
-        );
+}
 
+
+async function loadNotifications() {
+
+    const tableBody =
+        document.getElementById("notificationsTableBody");
+
+    if (!tableBody) return;
+
+    const searchInput = document.getElementById("searchInput");
+    const statusFilter = document.getElementById("statusFilter");
+    const priorityFilter = document.getElementById("priorityFilter");
 
     statusFilter.replaceChildren();
 
     const allStates = document.createElement("option");
-
     allStates.value = "";
     allStates.textContent = "All statuses";
     statusFilter.append(allStates);
@@ -1014,420 +593,465 @@ function loadNotifications() {
     CASE_STATES.forEach(function (state) {
 
         const option = document.createElement("option");
-
         option.value = state;
-        option.textContent = state;
-
+        option.textContent = Api.displayState(state);
         statusFilter.append(option);
 
     });
 
-    function renderNotifications() {
+    const params = readListParams();
 
-        const search =
-            searchInput.value
-                .toLowerCase()
-                .trim();
+    searchInput.value = params.q;
+    statusFilter.value = params.state;
+    priorityFilter.value = params.priority;
 
-        const selectedStatus =
-            statusFilter.value;
+    let page;
 
-        const selectedPriority =
-            priorityFilter.value;
+    try {
 
+        page = await Api.getCases({
+            q: params.q,
+            state: params.state,
+            page: params.page,
+            pageSize: PAGE_SIZE
+        });
 
-        /*
-            Filter the breach data.
-        */
+    } catch (err) {
 
-        const filteredBreaches =
-            breaches.filter(
-                function (breach) {
+        flagError("Could not load the register.");
+        return;
 
+    }
 
-                    /*
-                        Search organisation,
-                        case ID or breach type.
-                    */
+    let items = page.items;
 
-                    const matchesSearch =
-                        breach.organisation
-                            .toLowerCase()
-                            .includes(search)
+    if (params.priority) {
 
-                        ||
+        const want = params.priority.toLowerCase();
 
-                        breach.id
-                            .toLowerCase()
-                            .includes(search)
+        items = items.filter(function (item) {
 
-                        ||
+            return String(item.priority || "").toLowerCase() === want;
 
-                        breach.breachType
-                            .toLowerCase()
-                            .includes(search);
+        });
 
+    }
 
-                    /*
-                        Check status filter.
-                    */
+    tableBody.replaceChildren();
 
-                    const matchesStatus =
-                        selectedStatus === "" ||
+    const count = document.getElementById("notificationCount");
 
-                        breach.status ===
-                            selectedStatus;
+    if (count) {
 
+        count.textContent =
+            page.total + " case" +
+            (page.total === 1 ? "" : "s") + " on record";
 
-                    /*
-                        Check priority filter.
-                    */
+    }
 
-                    const matchesPriority =
-                        selectedPriority === "" ||
+    if (items.length === 0) {
 
-                        breach.priority ===
-                            selectedPriority;
+        const row = document.createElement("tr");
+        const cell = document.createElement("td");
+        cell.colSpan = 7;
+        cell.textContent = "No cases match the current filters.";
+        row.append(cell);
+        tableBody.append(row);
 
+    }
 
-                    return (
-                        matchesSearch &&
-                        matchesStatus &&
-                        matchesPriority
-                    );
+    items.forEach(function (item) {
 
-                }
-            );
+        rowFor(tableBody, item);
 
+    });
 
-        /*
-            Clear the existing table.
-        */
+    let footer =
+        document.getElementById("registerPager");
 
-        tableBody.innerHTML = "";
+    if (!footer) {
 
+        footer = document.createElement("div");
+        footer.id = "registerPager";
+        footer.className = "pager";
+        tableBody.closest(".notifications-card").append(footer);
 
-        /*
-            Update notification count.
-        */
+    }
 
-        const count =
-            document.getElementById(
-                "notificationCount"
-            );
+    pagerInto(footer, params, page.total);
 
+    function refresh() {
 
-        if (count) {
+        params.q = searchInput.value.trim();
+        params.state = statusFilter.value;
+        params.priority = priorityFilter.value;
+        params.page = 1;
+        writeListParams(params);
+        loadNotifications();
 
-            count.textContent =
-                filteredBreaches.length +
-                " of " +
-                breaches.length +
-                " records";
+    }
 
-        }
+    searchInput.oninput = refresh;
+    statusFilter.onchange = refresh;
+    priorityFilter.onchange = refresh;
+
+}
 
 
-        /*
-            If nothing matches,
-            show a message.
-        */
+/* =========================================
+   DASHBOARD PAGE
+   ========================================= */
 
-        if (
-            filteredBreaches.length === 0
-        ) {
+async function loadDashboard() {
 
-            tableBody.innerHTML = `
+    const totalEl = document.getElementById("totalNotifications");
+    const pendingEl = document.getElementById("pendingCases");
+    const alertsEl = document.getElementById("activeAlerts");
+    const activityEl = document.getElementById("recentActivity");
 
-                <tr>
+    if (!totalEl && !pendingEl && !alertsEl && !activityEl) return;
 
-                    <td
-                        colspan="7"
-                        style="
-                            text-align: center;
-                            padding: 30px;
-                            color: #6b7280;
-                        "
-                    >
+    let metrics;
 
-                        No notifications found.
+    try {
 
-                    </td>
+        metrics = await Api.getDashboard();
 
-                </tr>
+    } catch (err) {
 
-            `;
+        return;
+
+    }
+
+    if (totalEl) totalEl.textContent = metrics.casesWithNotification;
+    if (pendingEl) pendingEl.textContent = metrics.openCases;
+    if (alertsEl) alertsEl.textContent = metrics.activeAlerts;
+
+    if (activityEl) {
+
+        let recent;
+
+        try {
+
+            recent = await Api.getCases({ page: 1, pageSize: 5 });
+
+        } catch (err) {
 
             return;
 
         }
 
+        activityEl.replaceChildren();
 
-        /*
-            Create a table row for
-            every matching breach.
-        */
+        recent.items.forEach(function (item) {
 
-        filteredBreaches.forEach(
-            function (breach) {
+            const row = document.createElement("tr");
 
+            const idCell = document.createElement("td");
+            const idWrap = document.createElement("span");
+            idWrap.className = "case-id";
+            idWrap.textContent = item.reference;
+            idCell.append(idWrap);
 
-                const row =
-                    document.createElement("tr");
+            const orgCell = document.createElement("td");
+            orgCell.textContent = item.orgName;
 
+            const stateCell = document.createElement("td");
+            const badge = document.createElement("span");
+            badge.className =
+                "status-badge " + getStatusClass(item.state);
+            badge.textContent = Api.displayState(item.state);
+            stateCell.append(badge);
 
-                /*
-                    Determine the CSS class
-                    for the priority badge.
-                */
+            row.append(idCell, orgCell, stateCell);
+            activityEl.append(row);
 
-                const priorityClass =
-                    breach.priority
-                        .toLowerCase();
-
-
-                /*
-                    Determine the CSS class
-                    for the status badge.
-                */
-
-                const statusClass =
-                    getStatusClass(breach.status);
-
-
-                /*
-                    Display a friendly
-                    notification date.
-                */
-
-                const submitted =
-                    breach.notificationDate ||
-                    "Not received";
-
-
-                const idCell =
-                    document.createElement("td");
-
-                idCell.textContent =
-                    breach.id;
-
-
-                const orgCell =
-                    document.createElement("td");
-
-                orgCell.textContent =
-                    breach.organisation;
-
-
-                const incidentCell =
-                    document.createElement("td");
-
-                incidentCell.textContent =
-                    breach.incidentDate;
-
-
-                const submittedCell =
-                    document.createElement("td");
-
-                submittedCell.textContent =
-                    submitted;
-
-
-                const priorityCell =
-                    document.createElement("td");
-
-                const priorityBadge =
-                    document.createElement("span");
-
-                priorityBadge.className =
-                    "priority " + priorityClass;
-
-                priorityBadge.textContent =
-                    breach.priority;
-
-                priorityCell.appendChild(priorityBadge);
-
-
-                const statusCell =
-                    document.createElement("td");
-
-                const statusBadge =
-                    document.createElement("span");
-
-                statusBadge.className =
-                    "status " + statusClass;
-
-                statusBadge.textContent =
-                    breach.status;
-
-                statusCell.appendChild(statusBadge);
-
-
-                const actionCell =
-                    document.createElement("td");
-
-                const viewLink =
-                    document.createElement("a");
-
-                viewLink.className =
-                    "btn btn-secondary";
-
-                viewLink.href =
-                    "breach.html?id=" + encodeURIComponent(breach.id);
-
-                viewLink.textContent = "View";
-
-                actionCell.appendChild(viewLink);
-
-
-                row.append(
-                    idCell,
-                    orgCell,
-                    incidentCell,
-                    submittedCell,
-                    priorityCell,
-                    statusCell,
-                    actionCell
-                );
-
-
-                tableBody.appendChild(row);
-
-            }
-        );
+        });
 
     }
 
+    const panel = document.getElementById("priorityAlerts");
 
-    /*
-        Run the table once when the page loads.
-    */
+    if (panel) {
 
-    renderNotifications();
+        let live;
 
+        try {
 
-    /*
-        Re-render when the user searches.
-    */
+            live = await Api.getAlerts();
 
-    searchInput.addEventListener(
-        "input",
-        renderNotifications
-    );
+        } catch (err) {
 
+            return;
 
-    /*
-        Re-render when status changes.
-    */
+        }
 
-    statusFilter.addEventListener(
-        "change",
-        renderNotifications
-    );
+        const tone = { high: "high", medium: "medium", low: "info" };
 
+        panel.replaceChildren();
 
-    /*
-        Re-render when priority changes.
-    */
+        live.items.slice(0, 3).forEach(function (entry) {
 
-    priorityFilter.addEventListener(
-        "change",
-        renderNotifications
-    );
+            const item = document.createElement("div");
+            const symbol = document.createElement("div");
+            const copy = document.createElement("div");
+            const title = document.createElement("strong");
+            const why = document.createElement("p");
+            const when = document.createElement("span");
+
+            item.className = "alert-item";
+            symbol.className =
+                "alert-symbol " + (tone[entry.priority] || "info");
+            symbol.setAttribute("aria-hidden", "true");
+            symbol.textContent = "!";
+
+            copy.className = "alert-copy";
+            title.textContent =
+                entry.ruleId + (entry.caseRef ? " · " + entry.caseRef : "");
+            why.textContent = entry.reason;
+            when.className = "alert-time";
+            when.textContent = "Raised " + Api.fmtDate(entry.firstSeenAt);
+
+            copy.append(title, why, when);
+            item.append(symbol, copy);
+            panel.append(item);
+
+        });
+
+    }
+
 }
 
-
-document.addEventListener(
-    "DOMContentLoaded",
-    function () {
-
-        loadBreachDetails();
-
-        loadDashboard();
-
-        loadNotifications();
-
-    }
-);
 
 /* =========================================
-   DASHBOARD
+   ALERTS PAGE
    ========================================= */
 
-function loadDashboard() {
+function alertCard(entry, orgName, occurred) {
 
-    const totalNotifications =
-        document.getElementById("totalNotifications");
+    const card = document.createElement("div");
+    card.className = "alert-card";
+    card.dataset.priority = entry.priority;
+    card.dataset.rule = entry.ruleId;
 
-    const pendingCases =
-        document.getElementById("pendingCases");
+    const header = document.createElement("div");
+    header.className = "alert-card-header";
 
-    const activeAlerts =
-        document.getElementById("activeAlerts");
+    const titleBox = document.createElement("div");
+    const priority = document.createElement("span");
+    priority.className =
+        "priority-badge " + String(entry.priority).toLowerCase();
+    priority.textContent = Api.cap(entry.priority) + " priority";
 
+    const heading = document.createElement("h3");
+    heading.textContent = entry.ruleId;
 
-    // If these elements don't exist,
-    // we're not on the Dashboard page.
+    titleBox.append(priority, heading);
 
-    if (
-        !totalNotifications &&
-        !pendingCases &&
-        !activeAlerts
-    ) {
-        return;
-    }
+    const pill = document.createElement("span");
+    pill.className =
+        "status-pill " + (entry.state === "open" ? "action" : "monitoring");
+    pill.textContent =
+        entry.state === "open" ? "Needs review" : entry.state;
 
+    header.append(titleBox, pill);
 
-    // Total number of breach records
+    const why = document.createElement("p");
+    why.textContent = entry.reason;
 
-    const total =
-        breaches.length;
+    const meta = document.createElement("div");
+    meta.className = "alert-meta";
 
+    const rows = [
+        ["Alert", entry.ruleId + " v" + entry.ruleVersion],
+        ["Organisation", orgName],
+        ["Incident", occurred],
+        ["Raised", Api.fmtDate(entry.firstSeenAt)]
+    ];
 
-    // All cases that are still ongoing.
-    // Anything that is NOT closed counts as ongoing.
+    rows.forEach(function ([label, value]) {
 
-    const ongoing =
-        breaches.filter(function (breach) {
+        const wrap = document.createElement("span");
+        const key = document.createElement("strong");
+        key.textContent = label + ":";
+        wrap.append(key, document.createTextNode(" " + value));
+        meta.append(wrap);
 
-            return breach.status !== "Closed";
+    });
 
-        }).length;
+    const actions = document.createElement("div");
+    const openLink = document.createElement("a");
+    const note = document.createElement("span");
 
+    actions.className = "alert-actions";
+    openLink.className = "btn-primary";
+    openLink.textContent = "Investigate";
 
-    // Cases currently flagged as alerts
+    if (entry.caseRef) {
 
-    const alerts =
-        breaches.filter(function (breach) {
+        openLink.href = "breach.html?id=" + entry.caseRef;
 
-            return breach.status === "Alert";
+    } else {
 
-        }).length;
-
-
-    // Put the values into the dashboard
-
-    if (totalNotifications) {
-
-        totalNotifications.textContent =
-            total;
-
-    }
-
-
-    if (pendingCases) {
-
-        pendingCases.textContent =
-            ongoing;
-
-    }
-
-
-    if (activeAlerts) {
-
-        activeAlerts.textContent =
-            alerts;
+        openLink.href = "notifications.html";
+        openLink.textContent = "Open register";
 
     }
+
+    note.className = "alert-note";
+    note.textContent =
+        "Acknowledge and resolve actions arrive with the rules worker.";
+
+    actions.append(openLink, note);
+    card.append(header, why, meta, actions);
+
+    return card;
 
 }
+
+
+async function loadAlerts() {
+
+    const listEl = document.getElementById("alertList");
+
+    if (!listEl) return;
+
+    const countEl = document.getElementById("activeAlertCount");
+    const searchInput = document.getElementById("alertSearch");
+    const prioritySelect = document.getElementById("alertPriority");
+    const ruleSelect = document.getElementById("alertType");
+
+    let entries;
+
+    try {
+
+        const [alertsPage, casesPage] = await Promise.all([
+            Api.getAlerts(),
+            Api.getCases({ page: 1, pageSize: 50 })
+        ]);
+
+        const byId = {};
+
+        casesPage.items.forEach(function (item) {
+
+            byId[item.id] = item;
+
+        });
+
+        entries = alertsPage.items.map(function (entry) {
+
+            const related = entry.caseId ? byId[entry.caseId] : null;
+
+            return {
+                entry: entry,
+                org: related ? related.orgName : "Not in this dataset",
+                occurred: related ? Api.fmtDate(related.occurredAt) : "Unknown"
+            };
+
+        });
+
+    } catch (err) {
+
+        listEl.replaceChildren();
+
+        const empty = document.createElement("div");
+        empty.className = "empty-state";
+        empty.textContent = "Alerts could not be loaded.";
+        listEl.append(empty);
+        return;
+
+    }
+
+    const rules = [];
+    entries.forEach(function (wrap) {
+        if (!rules.includes(wrap.entry.ruleId)) rules.push(wrap.entry.ruleId);
+    });
+
+    ruleSelect.replaceChildren();
+
+    const allRules = document.createElement("option");
+    allRules.value = "";
+    allRules.textContent = "All alert rules";
+    ruleSelect.append(allRules);
+
+    rules.forEach(function (rule) {
+        const option = document.createElement("option");
+        option.value = rule;
+        option.textContent = rule;
+        ruleSelect.append(option);
+    });
+
+    function render(shown) {
+
+        listEl.replaceChildren();
+
+        if (shown.length === 0) {
+
+            const empty = document.createElement("div");
+            empty.className = "empty-state";
+            empty.textContent = "No alerts match the current filters.";
+            listEl.append(empty);
+            countEl.textContent = "0 active alerts";
+            return;
+
+        }
+
+        shown.forEach(function (wrap) {
+
+            listEl.append(alertCard(wrap.entry, wrap.org, wrap.occurred));
+
+        });
+
+        countEl.textContent =
+            shown.length + " active alert" +
+            (shown.length === 1 ? "" : "s");
+
+    }
+
+    function applyFilters() {
+
+        const term =
+            (searchInput.value || "").toLowerCase().trim();
+
+        const shown = entries.filter(function (wrap) {
+
+            const haystack = [
+                wrap.entry.ruleId,
+                wrap.entry.reason,
+                wrap.org
+            ].join(" ").toLowerCase();
+
+            return (!term || haystack.includes(term)) &&
+                (!prioritySelect.value ||
+                    wrap.entry.priority === prioritySelect.value) &&
+                (!ruleSelect.value ||
+                    wrap.entry.ruleId === ruleSelect.value);
+
+        });
+
+        render(shown);
+
+    }
+
+    render(entries);
+
+    searchInput.addEventListener("input", applyFilters);
+    prioritySelect.addEventListener("change", applyFilters);
+    ruleSelect.addEventListener("change", applyFilters);
+
+}
+
+
+/* =========================================
+   ONE BOOTSTRAP
+   ========================================= */
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    bindUser();
+    loadBreachDetails();
+    loadDashboard();
+    loadNotifications();
+    loadAlerts();
+
+});

@@ -321,7 +321,7 @@
         }
     </style>
 </head>
-<body>
+<body data-page="breach">
 <div class="demo-banner">Academic demonstration. All records are synthetic.</div>
 <div class="app">
     <aside class="sidebar">
@@ -545,49 +545,8 @@
     </main>
 </div>
 
+<script src="js/api.js"></script>
 <script src="js/app.js"></script>
-<script>
-function addNote() {
-    const notes = document.getElementById("notes");
-    const message = document.getElementById("noteMessage");
-    const notesList = document.getElementById("notesList");
 
-    if (!notes || !message || !notesList) return;
-
-    if (notes.value.trim() === "") {
-        message.style.color = "#b42323";
-        message.textContent = "Please enter a note first.";
-        return;
-    }
-
-    // the empty-state line goes away once a note exists
-    const emptyMsg = notesList.querySelector("p");
-    if (emptyMsg) {
-        emptyMsg.remove();
-    }
-
-    const noteItem = document.createElement("div");
-    noteItem.style.cssText = "padding: 12px 0; border-bottom: 1px solid #edf1f7; font-size: 13px; color: #33445f; line-height: 1.5;";
-
-    const noteText = document.createElement("div");
-    noteText.style.marginBottom = "4px";
-    noteText.textContent = notes.value.trim();
-
-    const now = new Date();
-    const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
-    const noteMeta = document.createElement("div");
-    noteMeta.style.fontSize = "11px";
-    noteMeta.style.color = "#8794a8";
-    noteMeta.textContent = timeStr + " · this page only, not saved yet";
-
-    noteItem.append(noteText, noteMeta);
-    notesList.prepend(noteItem);
-
-    message.style.color = "#13784f";
-    message.textContent = "Note added to this page. Saving arrives with the backend.";
-    notes.value = "";
-}
-</script>
 </body>
 </html>
