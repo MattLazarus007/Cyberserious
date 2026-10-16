@@ -790,3 +790,9 @@ textarea:focus-visible {
         width: 100%;
     }
 }
+
+.note-item { padding: 12px 0; border-bottom: 1px solid #edf1f7; font-size: 13px; color: #33445f; line-height: 1.5; }
+.note-meta { font-size: 11px; color: #8794a8; margin-top: 4px; }
+.pager { display: flex; gap: 12px; align-items: center; padding: 14px 4px; font-size: 13px; color: #64748b; }
+.chip { display: inline-block; background: #edf4ff; color: #2455a4; border-radius: 20px; padding: 2px 10px; font-size: 12px; margin: 2px 4px 2px 0; }
+.empty-state { padding: 24px; text-align: center; color: #6b7280; }
