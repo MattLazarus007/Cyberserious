@@ -8,6 +8,10 @@ export DATABASE_URL_TEST="${DATABASE_URL_TEST:-postgres://cyberserious:cyberseri
 # Frozen clock for fixtures so seeds and tests never drift.
 export FIXTURE_NOW="${FIXTURE_NOW:-2026-10-13T08:00:00Z}"
 export PORT="${PORT:-8100}"
+export ORG_DATABASE_URL="${ORG_DATABASE_URL:-postgres://cyberserious:cyberserious_dev_only@localhost:5432/cyberserious_org_dev}"
+export ORG_DATABASE_URL_TEST="${ORG_DATABASE_URL_TEST:-postgres://cyberserious:cyberserious_dev_only@localhost:5432/cyberserious_org_test}"
+export ORG_PORT="${ORG_PORT:-8200}"
+export REGULATOR_INTAKE_URL="${REGULATOR_INTAKE_URL:-http://localhost:8100/intake/v1/submissions}"
 # Key for sealed research notes. Lab only. One per shell, never committed.
 if [ -z "${RESEARCH_KEY:-}" ]; then
   export RESEARCH_KEY="$(openssl rand -hex 32)"
