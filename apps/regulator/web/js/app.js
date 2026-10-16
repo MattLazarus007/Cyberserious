@@ -1398,4 +1398,12 @@ document.addEventListener("DOMContentLoaded", function () {
     loadNotifications();
     loadAlerts();
 
+    const noteButton = document.getElementById("addNoteButton");
+
+    if (noteButton) noteButton.addEventListener("click", addNote);
+
+    const statusButton = document.getElementById("updateStatusButton");
+
+    if (statusButton) statusButton.addEventListener("click", updateStatus);
+
 });

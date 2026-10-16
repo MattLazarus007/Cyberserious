@@ -11,6 +11,7 @@ import { assignmentsRouter } from "./routes/assignments.ts";
 import { importsRouter } from "./routes/imports.ts";
 import { researchRouter } from "./routes/research.ts";
 import { intakeRouter } from "./routes/intake.ts";
+import { evidenceRouter } from "./routes/evidence.ts";
 import { verifyChain } from "./audit.ts";
 import { requireSession } from "./session.ts";
 import { can } from "./policy.ts";
@@ -29,7 +30,14 @@ app.get("/health/live", (_req, res) => {
 app.get("/health/ready", async (_req, res) => {
   try {
     await query("select 1");
-    res.json({ ok: true });
+    const queue = await query(
+      `select count(*)::int as pending,
+              coalesce(extract(epoch from (now() - min(next_attempt_at)))::int, 0) as "oldestSec"
+         from outbox_jobs where state in ('pending','leased')`
+    );
+    const pending = queue.rows[0].pending as number;
+    const oldestSec = queue.rows[0].oldestSec as number;
+    res.json({ ok: true, queue: { pending, oldestSec, warn: oldestSec > 300 } });
   } catch {
     res.status(503).json({ ok: false });
   }
@@ -44,6 +52,16 @@ app.use("/api/v1", assignmentsRouter);
 app.use("/api/v1", importsRouter);
 app.use("/api/v1", researchRouter);
 app.use(intakeRouter);
+app.use("/api/v1", evidenceRouter);
+
+app.use((req, res, next) => {
+  res.setHeader("X-Content-Type-Options", "nosniff");
+  res.setHeader("X-Frame-Options", "DENY");
+  res.setHeader("Referrer-Policy", "no-referrer");
+  res.setHeader("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
+  res.setHeader("Content-Security-Policy", "default-src 'self'; base-uri 'self'; frame-ancestors 'none'");
+  next();
+});
 
 app.get("/api/v1/audit/verify", requireSession, async (req, res) => {
   const actor = (req as unknown as { actor: Actor }).actor;
