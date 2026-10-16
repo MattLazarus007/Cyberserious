@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { evaluateAll, ruleLateSubmission, type RuleInput } from "../../apps/regulator/server/rules/index.ts";
+import { evaluateAll, ruleLateSubmission, ruleTriageClock, type RuleInput } from "../../apps/regulator/server/rules/index.ts";
 
 function base(over: Partial<RuleInput> = {}): RuleInput {
   return {
@@ -13,6 +13,7 @@ function base(over: Partial<RuleInput> = {}): RuleInput {
     discoveredAt: "2026-05-01T08:00:00Z",
     discoveredPrecision: "exact",
     firstReceivedAt: "2026-05-02T08:00:00Z",
+    triagedAt: null,
     narrative: "a narrative",
     ...over,
   };
@@ -55,4 +56,43 @@ test("dedupe keys are stable per rule and case", () => {
   const [second] = evaluateAll(base({ severity: "critical", affectedCount: 5 }));
   assert.equal(first.dedupeKey, second.dedupeKey);
   assert.equal(first.inputHash, second.inputHash);
+});
+
+function hoursAgo(h: number): string {
+  return new Date(Date.now() - h * 3600 * 1000).toISOString();
+}
+
+test("triage over 72h with no notice raises RULE-06", () => {
+  const input = base({ triagedAt: hoursAgo(80), firstReceivedAt: null, state: "UnderReview" });
+  const hit = ruleTriageClock(input);
+  assert.ok(hit);
+  assert.equal(hit!.ruleId, "RULE-06");
+  assert.equal(hit!.priority, "high");
+  assert.match(hit!.reason, /triage clock/i);
+  assert.match(hit!.reason, /internal timer/);
+  assert.ok(evaluateAll(input).some((h) => h.ruleId === "RULE-06"));
+});
+
+test("triage at 48h nudges the information officer", () => {
+  const input = base({ triagedAt: hoursAgo(50), firstReceivedAt: null, state: "UnderReview" });
+  const hit = ruleTriageClock(input);
+  assert.ok(hit);
+  assert.equal(hit!.ruleId, "RULE-06");
+  assert.equal(hit!.priority, "medium");
+  assert.match(hit!.reason, /48 hours/);
+  assert.match(hit!.reason, /Information Officer/);
+  assert.match(hit!.reason, /internal timer/);
+});
+
+test("unknown triage time invents no clock", () => {
+  const input = base({ triagedAt: null, firstReceivedAt: null, state: "AwaitingInformation" });
+  assert.equal(ruleTriageClock(input), null);
+  assert.ok(!evaluateAll(input).some((h) => h.ruleId === "RULE-06"));
+});
+
+test("notified cases never get RULE-06", () => {
+  const triaged = hoursAgo(80);
+  const input = base({ triagedAt: triaged, firstReceivedAt: new Date().toISOString(), state: "UnderReview" });
+  assert.equal(ruleTriageClock(input), null);
+  assert.ok(!evaluateAll(input).some((h) => h.ruleId === "RULE-06"));
 });
