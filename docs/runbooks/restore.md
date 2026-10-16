@@ -29,3 +29,16 @@ Recovery point: the nightly dump, so at most one day of lab work.
 Recovery time: about a minute at this data size, measured during the
 rehearsal. The full numbers sit in
 docs/project/exercises/restore-2026-10-16.md.
+
+## TLS operator duty, not yet done
+
+This step is not yet done and stays manual at the edge:
+
+1. Provision certs at the reverse proxy or load balancer before
+   exposing the lab beyond localhost.
+2. Flip the Secure flag in apps/regulator/server/session.ts in
+   sessionCookieHeader and clearCookieHeader.
+3. Verify with `openssl s_client -connect <host>:443 -servername
+   <host>` and confirm a valid chain plus a 200 over HTTPS.
+
+Status: not yet done. The local lab stays plain HTTP until this lands.

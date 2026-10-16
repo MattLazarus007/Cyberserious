@@ -4,8 +4,9 @@ Each requirement with what the build actually does and where the
 proof lives. Limits are stated, not hidden.
 
 **SR-01: transport and link protection.** Local lab runs plain HTTP
-behind localhost. No TLS claim is made. The compose file declares
-the topology TLS would front, and digests pin on first pull. Status:
+on localhost. No TLS is claimed. The compose file declares service
+topology and network isolation only and holds no TLS stanza. Image
+digests pin on first pull. mTLS stays unchecked Phase 12 work. Status:
 documented, not yet demonstrated.
 
 **SR-02: encrypted storage and backups.** Research notes use
