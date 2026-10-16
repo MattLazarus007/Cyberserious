@@ -24,3 +24,24 @@ output to an examiner, and the same flatness spreads into the interface copy.
 The baseline prototype files (index.html, notifications.html, alerts.html,
 breach.html, js/app.js, css/style.css) carry their original wording. They are
 rewritten page by page as each phase touches them.
+
+| 2026-10-16 | README.md (rewrite) | clean. Spans short labels and long explanations |
+| 2026-10-16 | docs/SETUP.md | clean |
+| 2026-10-16 | docs/TOOLBOX.md | clean |
+| 2026-10-16 | docs/PROGRESS.md | clean |
+| 2026-10-16 | docs/UNDERSTANDING.md | clean |
+| 2026-10-16 | docs/SR_EVIDENCE.md | clean |
+| 2026-10-16 | docs/NIST_MAP.md | clean |
+| 2026-10-16 | docs/RESEARCH_METHOD.md | clean |
+| 2026-10-16 | docs/DEMO.md | clean |
+| 2026-10-16 | docs/D4_MAPPING.md | clean |
+| 2026-10-16 | docs/TEST_LOG.md | clean |
+| 2026-10-16 | docs/RISKS.md | clean |
+| 2026-10-16 | docs/GLOSSARY.md | clean |
+| 2026-10-16 | docs/figures/SOURCE.md | clean |
+| 2026-10-16 | docs/runbooks/restore.md | clean |
+| 2026-10-16 | docs/runbooks/incident.md | clean |
+| 2026-10-16 | docs/project/exercises/restore-2026-10-16.md | clean |
+| 2026-10-16 | docs/project/exercises/incident-2026-10-16.md | clean |
+| 2026-10-16 | docs/adr/0001 to 0010 | clean |
+| 2026-10-16 | docs/project/tasks/phase-04, 05, 06 | clean |
