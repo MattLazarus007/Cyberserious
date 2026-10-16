@@ -5,3 +5,5 @@ keys/
 *.db
 .env
 .DS_Store
+test-results/
+playwright-report/
