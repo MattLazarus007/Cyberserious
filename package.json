@@ -7,5 +7,10 @@
     "db:seed": "node db/seed.ts",
     "test": "node --test tests/",
     "dev": "node apps/regulator/server/index.ts"
+  },
+  "dependencies": {
+    "express": "^5.3.0",
+    "pg": "^8.23.1",
+    "zod": "^4.6.7"
   }
 }
