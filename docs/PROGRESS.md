@@ -12,13 +12,13 @@ counts from one definition each, text-only rendering, a single
 bootstrap, fictional organisations and a rewritten introduction.
 That closed Gate A.
 
-Then the backend arrived. Postgres holds ten migration files of
-schema, a deterministic seed and six users across two roles
+Then the backend arrived. Postgres holds twelve migration files of
+schema, a deterministic seed and seven users across two roles
 families. Sign-in pairs passwords with console codes under lockout
 and expiry. One permission gate guards every route. The four pages
 read from the API with a login page beside them. Notes, transitions
 with conflict handling, assignments, imports with immutable
-versions, a rules worker with five evaluated rules, alert actions,
+versions, a rules worker with six evaluated rules, alert actions,
 a research register with sealed notes and duties on every case.
 That closed Gate B.
 
@@ -30,9 +30,9 @@ closed the Gate C intake boxes.
 Then the hardening. Evidence quarantine with review and redacted
 exports. Security headers with a strict content policy. Queue-aware
 health checks. Nightly checksummed backups with a timed restore
-rehearsal. Runbooks with dated exercise notes. Four green browser
-flows. That leaves the build at 66 automated tests passing with two
-honest gaps: assignment-scoped reads and managed identity sign-in.
+rehearsal. Runbooks with dated exercise notes. Five green browser
+flows. That leaves the build at 76 automated tests passing with one
+honest gap: managed identity sign-in.
 Accounts carry email addresses and numbers, administrators create
 accounts through the API, and group sessions can switch on simple
 sign-in to skip the code step.

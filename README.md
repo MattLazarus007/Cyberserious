@@ -20,9 +20,9 @@ Regulator's eServices Portal.
 ## Where things stand
 
 The build is complete through the two-system lab and the hardening
-pass. Sixty-three automated tests pass, four browser flows run green
-on Chromium, and the acceptance log records every result with two
-honest gaps: reads scoped by assignee and managed identity sign-in.
+pass. Seventy-six automated tests pass, five browser flows run green
+on Chromium, and the acceptance log records every result with one
+honest gap: managed identity sign-in.
 Gate A, Gate B and the Gate C intake boxes are ticked in
 CHECKLIST.md with evidence in STATUS.md. The full story of the two
 days sits in docs/PROGRESS.md, last updated 16 October 2026.
@@ -58,7 +58,7 @@ apps/regulator/server     routes, policy gate, sessions, audit chain,
 apps/organisation/web     draft workspace and sign-in
 apps/organisation/server  drafts, approval, signed sending
 packages/contracts        shared enums and input shapes
-db/migrations             ten regulator tables, numbered and ordered
+db/migrations             regulator tables, numbered and ordered
 db/org-migrations         draft table for the portal
 db/seed.ts                fictional cases, alerts from the rules,
                           research from the group bibliography
@@ -69,7 +69,7 @@ Postgres holds everything durable: cases with facts, immutable
 notification versions, hash-chained audit rows, alerts with dedupe
 keys, outbox jobs under lease, research with sealed notes, duties
 per case, evidence rows pointing at quarantined files, sender keys
-for intake. Ten migrations build it from nothing. The seed rebuilds
+for intake. Twelve migrations build it from nothing. The seed rebuilds
 the same rows every time under a frozen clock.
 
 ## Documents worth opening first
