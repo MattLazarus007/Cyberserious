@@ -31,7 +31,8 @@ and show the bound revision and hash. Edit the draft and show the
 approval clearing.
 
 **5. Send and receipt.** Send the approved draft. Show the receipt
-with the test_receiver label. Retry the same submission and show
+with the test_receiver label. Real reports go through the
+Regulator's eServices Portal. Retry the same submission and show
 the original receipt returning. Change one byte under the same id
 and show the 409.
 
