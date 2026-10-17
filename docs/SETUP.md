@@ -71,3 +71,56 @@ because the running process only sees the value it started with.
 The old phrase stops working on the first request after the
 restart, and the group audit rows under action auth.group show
 when the gate was used, by "group" only.
+
+## mTLS intake channel on port 8101
+
+The intake port stays plain http, because the lab UI and the browser
+tests ride on it. A second listener can be opened beside it for the
+organisation sender. That one asks for a client certificate before it
+reads a single byte of a submission. Two environment switches control
+it and neither is on until you set it.
+
+Generate the certificate set once per machine:
+
+```
+source scripts/env.sh
+bash scripts/gen-mtls-certs.sh
+```
+
+The script writes a 4096 bit local authority, a server certificate
+for localhost and 127.0.0.1, and a client certificate with the
+clientAuth purpose into certs/mtls/. That folder sits outside version
+control. A second run prints its message and leaves the files alone.
+
+Start the regulator with the extra listener:
+
+```
+MTLS_PORT=8101 npm run dev
+```
+
+MTLS_PORT carries the port, with 8101 as the value when the setting
+holds no usable number. Without MTLS_PORT no second listener opens,
+so every command above keeps working as written. One collision to
+know about: the browser suite already takes 8101 for its own plain
+server, so run the two one after the other rather than together.
+
+Send over the new channel:
+
+```
+MTLS=1 node tools/org-sender.ts --send
+```
+
+MTLS=1 posts to https://localhost:8101 with the client certificate,
+the client key and the local authority, and it checks the regulator
+against that same authority. Any other value leaves the sender on
+http://localhost:8100 exactly as before. When the certificates are
+missing the sender stops with the script name in the message.
+
+The listener refuses a request with no certificate during the
+handshake, refuses a certificate signed by an authority it does not
+know, and sets TLS 1.3 as the floor. It mounts the same express app
+as the plain port, so routes, checks and receipts behave the same on
+both. Four cases in tests/integration/mtls.test.ts hold that line:
+no certificate refused, a foreign authority refused, plain http to
+8101 unanswered, and a registered certificate carrying a signed
+payload all the way to a 201 receipt.
