@@ -17,6 +17,7 @@ import { verifyChain } from "./audit.ts";
 import { requireSession } from "./session.ts";
 import { can } from "./policy.ts";
 import { securityHeaders } from "./security.ts";
+import { securityTrip } from "./trip.ts";
 import type { Actor } from "./session.ts";
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -25,6 +26,7 @@ export const app = express();
 app.disable("x-powered-by");
 app.use(express.json({ limit: "256kb" }));
 app.use(securityHeaders);
+app.use(securityTrip);
 
 app.get("/health/live", (_req, res) => {
   res.json({ ok: true });

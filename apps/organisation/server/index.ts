@@ -6,6 +6,7 @@ import { fileURLToPath } from "node:url";
 import { query } from "../../regulator/server/db.ts";
 import { authRouter } from "../../regulator/server/routes/auth.ts";
 import { securityHeaders } from "../../regulator/server/security.ts";
+import { securityTrip } from "../../regulator/server/trip.ts";
 import { draftsRouter } from "./drafts.ts";
 
 const here = dirname(fileURLToPath(import.meta.url));
