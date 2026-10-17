@@ -37,7 +37,7 @@ export function simpleLogin(): boolean {
 }
 
 authRouter.get("/auth-mode", (req, res) => {
-  res.json({ otpRequired: !simpleLogin() });
+  res.json({ otpRequired: !simpleLogin(), groupOpen: process.env.GROUP_LOGIN === "1" });
 });
 
 authRouter.post("/login", async (req, res) => {
