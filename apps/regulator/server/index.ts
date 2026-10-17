@@ -18,6 +18,7 @@ import { requireSession } from "./session.ts";
 import { can } from "./policy.ts";
 import { securityHeaders } from "./security.ts";
 import { securityTrip } from "./trip.ts";
+import { mtlsPortFromEnv, startMtls } from "./mtls.ts";
 import type { Actor } from "./session.ts";
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -77,4 +78,18 @@ if (direct) {
   app.listen(port, () => {
     console.log(`regulator listening on ${port}`);
   });
+  // The mutual tls intake listener is opt in. Nothing starts until
+  // MTLS_PORT carries a value, so the plain port keeps serving the
+  // lab UI and every existing test exactly as before.
+  const mtlsPort = mtlsPortFromEnv(process.env);
+  if (mtlsPort > 0) {
+    startMtls(app, mtlsPort)
+      .then(() => {
+        console.log(`regulator mtls listening on ${mtlsPort}`);
+      })
+      .catch((err: unknown) => {
+        console.error("regulator mtls listener failed", err);
+        process.exitCode = 1;
+      });
+  }
 }

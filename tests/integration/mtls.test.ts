@@ -12,6 +12,7 @@ import type { TLSSocket } from "node:tls";
 import pg from "pg";
 import { resetDb, dbUrl } from "./help.ts";
 import { app } from "../../apps/regulator/server/index.ts";
+import { closePool } from "../../apps/regulator/server/db.ts";
 import { mtlsPortFromEnv, startMtls } from "../../apps/regulator/server/mtls.ts";
 
 const sender = "org-karoo-01";
@@ -50,7 +51,14 @@ function post(port: number, jws: string, tls: TlsMaterial): Promise<Attempt> {
         port,
         path,
         method: "POST",
-        headers: { "content-type": "application/jose", "content-length": Buffer.byteLength(jws) },
+        // No pooling and one request per connection, so the run leaves
+        // no idle socket behind when the last assertion is done.
+        agent: false,
+        headers: {
+          "content-type": "application/jose",
+          "content-length": Buffer.byteLength(jws),
+          connection: "close",
+        },
         cert: tls.cert,
         key: tls.key,
         ca: tls.ca,
@@ -59,13 +67,14 @@ function post(port: number, jws: string, tls: TlsMaterial): Promise<Attempt> {
         minVersion: "TLSv1.3",
       },
       (res) => {
+        const protocol = (res.socket as TLSSocket | null)?.getProtocol() ?? null;
         const chunks: Buffer[] = [];
         res.on("data", (c: Buffer) => chunks.push(c));
         res.on("end", () =>
           resolve({
             status: res.statusCode ?? 0,
             body: Buffer.concat(chunks).toString("utf8"),
-            protocol: (res.socket as TLSSocket).getProtocol(),
+            protocol,
             error: null,
           })
         );
@@ -87,7 +96,12 @@ function postPlain(port: number, jws: string): Promise<Attempt> {
         port,
         path,
         method: "POST",
-        headers: { "content-type": "application/jose", "content-length": Buffer.byteLength(jws) },
+        agent: false,
+        headers: {
+          "content-type": "application/jose",
+          "content-length": Buffer.byteLength(jws),
+          connection: "close",
+        },
       },
       (res) => {
         const chunks: Buffer[] = [];
@@ -170,12 +184,18 @@ test.before(async () => {
   port = bound;
   closeChannel = () =>
     new Promise<void>((resolve, reject) => {
+      // Drop anything still open, or the close would wait out an
+      // idle timeout and stretch this file for no reason.
+      server.closeAllConnections();
       server.close((err: unknown) => (err ? reject(err) : resolve()));
     });
 });
 
 test.after(async () => {
   if (closeChannel) await closeChannel();
+  // The pool keeps one idle connection to postgres for ten seconds
+  // after the last query, which would stretch this file for no reason.
+  await closePool();
 });
 
 test("a plain tls client with no certificate is refused", { skip }, async () => {
@@ -184,6 +204,7 @@ test("a plain tls client with no certificate is refused", { skip }, async () => 
   const attempt = await post(port, jws, { ca });
   assert.equal(attempt.status, 0, "no status line may arrive without a client certificate");
   assert.ok(attempt.error, "the handshake must fail before any request is read");
+  assert.match(attempt.error, /certificate/i, "the refusal must come from the missing certificate");
 });
 
 test("a client certificate signed by a foreign ca is refused", { skip }, async () => {
