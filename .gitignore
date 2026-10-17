@@ -7,3 +7,8 @@ keys/
 .DS_Store
 test-results/
 playwright-report/
+infra/sensor/out/
+eve.json
+fast.log
+stats.log
+suricata.log
