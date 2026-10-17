@@ -83,3 +83,24 @@ trip-wire and console tamper work landed. `npm test` gave 92 pass
 | T-48 | Valid session refused while tripped | Pass | security.test.ts "a valid session is refused while the service is tripped": a live cookie and a fresh sign-in both answer 503 "service locked" |
 | T-49 | Below threshold does not trip | Pass | security.test.ts "four unauthenticated requests under the threshold do not trip": four 401s, no flag file, ready has no locked key |
 | T-50 | Console removal reveals no data | Pass | flows.spec.ts "console removal of the lock reveals no data": #screen-lock count 0, 0 record strings and no address in body text, cases alerts and evidence each 401, three counters 0 and one Loading demonstration records row |
+
+## OpenID Connect sign-in (17 October 2026)
+
+Phase 12 stretch item one, run on the same machine. `source
+scripts/env.sh`, then `npm test` gave 102 pass 0 fail and `npm run
+test:e2e` gave 10 pass. The first six rows ride the stub provider
+inside tests/integration/oidc.test.ts, the seventh rides the browser
+suite, and the last two are manual runs against the Keycloak 26.0
+container from scripts/keycloak.sh.
+
+| ID | Name | Result 17 Oct 2026 | Evidence |
+| --- | --- | --- | --- |
+| T-51 | Authorize sends the browser to the provider with state, pkce and nonce | Pass | oidc.test.ts "authorize sends the browser to the provider with state, pkce and nonce": 302 to the provider authorize path, state of 64 hex characters, nonce present, code_challenge_method S256, challenge the sha256 of the stored verifier, oidc_state cookie HttpOnly SameSite=Lax Max-Age=600 |
+| T-52 | A callback with the wrong state is refused and opens nothing | Pass | oidc.test.ts "a callback with the wrong state is refused and opens nothing": 400 {"error":"invalid sign-in"}, no session cookie, token endpoint hit zero times, /api/v1/me answers 401 |
+| T-53 | A matching callback exchanges the code and opens a local session | Pass | oidc.test.ts "a matching callback exchanges the code and opens a local session": 302 /index.html, token call carries code, grant_type authorization_code, client_id and a verifier that hashes to the challenge, /api/v1/me 200 analyst1 regulator_analyst mfaOk true, one auth.oidc ok audit row |
+| T-54 | An unknown name gets one local role and an existing name keeps its rows | Pass | oidc.test.ts "an unknown name gets one local role and an existing name keeps its rows": newbie1 created once with regulator_analyst and a null organisation, analyst1 still one row holding regulator_analyst and regulator_supervisor |
+| T-55 | A tampered token or a foreign issuer is refused and logged | Pass | oidc.test.ts "a tampered token or a foreign issuer is refused and logged": both attempts 400 with no session, two auth.oidc denied audit rows, analyst1 still one row |
+| T-56 | Auth-mode carries the provider switch and hides the route when it is off | Pass | oidc.test.ts "auth-mode carries the provider switch and hides the route when it is off": oidcEnabled false and /auth/oidc 404 {"error":"not found"} while off, oidcEnabled true once the switch is set |
+| T-57 | Single sign-on link appears only when the provider switch is on | Pass | flows.spec.ts "single sign-on link appears only when the provider switch is on": no link on the main server, one link with href /auth/oidc on a server started with OIDC_ISSUER set |
+| T-58 | Live sign-in through Keycloak lands on the seeded analyst | Pass | `OIDC_ISSUER=http://localhost:18080/realms/cyberserious OIDC_CLIENT_ID=regulator-web node apps/regulator/server/index.ts`, then curl /auth/oidc -> 302 to the real authorize endpoint with state, nonce and a S256 challenge, the login form posted with analyst1 and kc-analyst-pass-2026 -> 200 /index.html, `/api/v1/me` -> {"username":"analyst1","role":"regulator_analyst","mfaOk":true}, audit seq 22 action auth.oidc result ok. The same run as demo created the local row with regulator_analyst and no organisation (seq 23) while io1 kept its organisation and information_officer |
+| T-59 | Five wrong passwords at the provider lock it for thirty seconds | Pass | curl loop against the Keycloak login form as demo: failures 1 to 5 answer 200, the correct password is still refused, after `sleep 32` the correct password answers 302. An authorize request with no code challenge answers 302 with error_description "Missing parameter: code_challenge_method", so PKCE S256 is required by the provider |
