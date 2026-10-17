@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import pg from "pg";
 import { query, withTransaction } from "./db.ts";
 import { evaluateAll, type RuleInput } from "./rules/index.ts";
@@ -9,6 +10,7 @@ export interface Lease {
   id: number;
   jobType: string;
   resourceId: string;
+  dedupeKey: string;
   attempts: number;
 }
 
@@ -24,7 +26,7 @@ export async function leaseJobs(limit = BATCH): Promise<Lease[]> {
          limit $1
          for update skip locked
       )
-      returning id, job_type as "jobType", resource_id as "resourceId", attempts`,
+      returning id, job_type as "jobType", resource_id as "resourceId", dedupe_key as "dedupeKey", attempts`,
     [limit]
   );
   return rows.rows as Lease[];
@@ -117,6 +119,58 @@ export async function sweepSnoozes(): Promise<number> {
   return rows.rows.length;
 }
 
+export interface ExtractionNotice {
+  id: string;
+  actor: string;
+  what: string;
+  caseRef: string;
+  caseId: string | null;
+  result: string;
+  at: string;
+}
+
+function readNotice(resourceId: string): ExtractionNotice {
+  const fallback: ExtractionNotice = {
+    id: resourceId,
+    actor: "unknown actor",
+    what: "a file",
+    caseRef: "unknown case",
+    caseId: null,
+    result: "unknown",
+    at: new Date().toISOString(),
+  };
+  try {
+    const parsed = JSON.parse(resourceId) as ExtractionNotice;
+    if (typeof parsed.actor !== "string" || typeof parsed.what !== "string") return fallback;
+    return parsed;
+  } catch {
+    return fallback;
+  }
+}
+
+export async function openExtractionNotice(job: Lease): Promise<number> {
+  const notice = readNotice(job.resourceId);
+  const outcome = notice.result === "ok" ? `extracted ${notice.what}` : `was blocked extracting ${notice.what}`;
+  const reason = `${notice.actor} ${outcome} from ${notice.caseRef} at ${notice.at}`;
+  const inputHash = createHash("sha256").update(job.resourceId).digest("hex");
+  return withTransaction(async (client) => {
+    const done = await client.query(
+      `insert into alerts (case_id, rule_id, rule_version, dedupe_key, priority, reason, input_hash, state)
+       values ($1, $2, $3, $4, 'high', $5, $6, 'open')
+       on conflict (dedupe_key) do nothing returning id`,
+      [notice.caseId, "EXTRACTION-NOTICE", 1, job.dedupeKey, reason, inputHash]
+    );
+    await recordAuditTx(client, {
+      actor: "worker",
+      action: "extraction.notice",
+      resource: notice.id,
+      result: "ok",
+      meta: { outcome: notice.result, opened: done.rows.length },
+    });
+    return done.rows.length;
+  });
+}
+
 export async function runOnce(): Promise<{ jobs: number; opened: number; reopened: number }> {
   const jobs = await leaseJobs();
   let opened = 0;
@@ -125,6 +179,8 @@ export async function runOnce(): Promise<{ jobs: number; opened: number; reopene
       if (job.jobType === "evaluate_case") {
         const done = await evaluateCase(job.resourceId);
         opened += done.opened;
+      } else if (job.jobType === "extraction_notice") {
+        opened += await openExtractionNotice(job);
       }
       await finishJob(job.id);
     } catch (err) {

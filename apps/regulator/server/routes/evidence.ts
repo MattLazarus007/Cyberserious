@@ -25,6 +25,28 @@ function evidenceDir(): string {
   return dir;
 }
 
+export interface ExtractionNotice {
+  id: string;
+  actor: string;
+  what: string;
+  caseRef: string;
+  caseId: string | null;
+  result: "ok" | "blocked";
+  at: string;
+}
+
+export async function noticeExtraction(notice: ExtractionNotice): Promise<void> {
+  try {
+    await query(
+      `insert into outbox_jobs (job_type, resource_id, dedupe_key)
+       values ('extraction_notice', $1, $2)`,
+      [JSON.stringify(notice), `extract:${notice.id}:${Date.now()}`]
+    );
+  } catch {
+    // A notice that cannot be queued must never fail the download.
+  }
+}
+
 const uploadInput = z.object({
   filename: z.string().min(1).max(160),
   mime: z.string().min(1).max(80),
@@ -93,7 +115,12 @@ evidenceRouter.post("/cases/:id/evidence", async (req, res) => {
 
 evidenceRouter.get("/evidence/:id", async (req, res) => {
   const actor = (req as unknown as { actor: Actor }).actor;
+  const at = new Date().toISOString();
   if (!actor.mfaOk || !can(actor.role, "read_case")) {
+    await noticeExtraction({
+      id: req.params.id, actor: actor.username, what: req.params.id,
+      caseRef: "unknown case", caseId: null, result: "blocked", at,
+    });
     res.status(404).json({ error: "not found" });
     return;
   }
@@ -109,25 +136,46 @@ evidenceRouter.get("/evidence/:id", async (req, res) => {
   }
   const rows = await query(
     `select e.id, e.case_id as "caseId", e.filename, e.mime, e.size_bytes as "sizeBytes",
-            e.sha256, e.status from evidence e join cases c on c.id = e.case_id
+            e.sha256, e.status, c.reference as "caseRef" from evidence e join cases c on c.id = e.case_id
       where e.id = $1 ${scope}`,
     params
   );
-  if (rows.rows.length === 0 || rows.rows[0].status !== "clean") {
+  if (rows.rows.length === 0) {
+    await noticeExtraction({
+      id: req.params.id, actor: actor.username, what: req.params.id,
+      caseRef: "unknown case", caseId: null, result: "blocked", at,
+    });
+    res.status(404).json({ error: "not found" });
+    return;
+  }
+  const found = rows.rows[0] as { id: string; caseId: string; filename: string; mime: string; status: string; caseRef: string };
+  if (found.status !== "clean") {
+    await noticeExtraction({
+      id: found.id, actor: actor.username, what: found.filename,
+      caseRef: found.caseRef, caseId: found.caseId, result: "blocked", at,
+    });
     res.status(404).json({ error: "not found" });
     return;
   }
   const file = join(evidenceDir(), `${req.params.id}.bin`);
   if (!existsSync(file)) {
+    await noticeExtraction({
+      id: found.id, actor: actor.username, what: found.filename,
+      caseRef: found.caseRef, caseId: found.caseId, result: "blocked", at,
+    });
     res.status(404).json({ error: "not found" });
     return;
   }
   await recordAudit({
-    actor: actor.username, action: "evidence.download", resource: rows.rows[0].caseId, result: "ok",
+    actor: actor.username, action: "evidence.download", resource: found.caseId, result: "ok",
     meta: { evidenceId: req.params.id },
   });
-  res.setHeader("content-type", rows.rows[0].mime);
-  res.setHeader("content-disposition", `attachment; filename="${rows.rows[0].filename}"`);
+  await noticeExtraction({
+    id: found.id, actor: actor.username, what: found.filename,
+    caseRef: found.caseRef, caseId: found.caseId, result: "ok", at,
+  });
+  res.setHeader("content-type", found.mime);
+  res.setHeader("content-disposition", `attachment; filename="${found.filename}"`);
   res.send(readFileSync(file));
 });
 
@@ -159,7 +207,12 @@ evidenceRouter.post("/evidence/:id/review", async (req, res) => {
 
 evidenceRouter.get("/cases/:id/export", async (req, res) => {
   const actor = (req as unknown as { actor: Actor }).actor;
+  const at = new Date().toISOString();
   if (!actor.mfaOk || !can(actor.role, "read_case")) {
+    await noticeExtraction({
+      id: req.params.id, actor: actor.username, what: "the case export",
+      caseRef: req.params.id, caseId: null, result: "blocked", at,
+    });
     res.status(404).json({ error: "not found" });
     return;
   }
@@ -174,7 +227,7 @@ evidenceRouter.get("/cases/:id/export", async (req, res) => {
     scope += `and (c.assigned_to IS NULL OR c.assigned_to = $${params.length}::uuid) `;
   }
   const rows = await query(
-    `select c.reference, o.display_name as "orgName", c.state, c.severity,
+    `select c.id as "caseId", c.reference, o.display_name as "orgName", c.state, c.severity,
             c.priority, c.opened_at as "openedAt", c.closed_at as "closedAt",
             f.category, f.breach_status as "breachStatus",
             case when f.count_precision = 'unknown' then null else f.affected_count end as "affectedCount"
@@ -184,9 +237,14 @@ evidenceRouter.get("/cases/:id/export", async (req, res) => {
     params
   );
   if (rows.rows.length === 0) {
+    await noticeExtraction({
+      id: req.params.id, actor: actor.username, what: "the case export",
+      caseRef: req.params.id, caseId: null, result: "blocked", at,
+    });
     res.status(404).json({ error: "not found" });
     return;
   }
+  const record = rows.rows[0] as { caseId: string; reference: string } & Record<string, unknown>;
   const notes = await query(
     "select count(*)::int as n from case_notes where case_id = (select id from cases where id::text = $1 or reference = $1)",
     [req.params.id]
@@ -194,5 +252,11 @@ evidenceRouter.get("/cases/:id/export", async (req, res) => {
   await recordAudit({
     actor: actor.username, action: "case.export", resource: req.params.id, result: "ok",
   });
-  res.json({ ...rows.rows[0], noteCount: notes.rows[0].n, exportedAt: new Date().toISOString(), marking: "synthetic academic export" });
+  await noticeExtraction({
+    id: record.caseId, actor: actor.username, what: "the case export",
+    caseRef: record.reference, caseId: record.caseId, result: "ok", at,
+  });
+  const { caseId, ...body } = record;
+  void caseId;
+  res.json({ ...body, noteCount: notes.rows[0].n, exportedAt: new Date().toISOString(), marking: "synthetic academic export" });
 });
