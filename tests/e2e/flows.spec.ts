@@ -94,3 +94,40 @@ test("T-34 small screen keeps navigation, large text keeps content", async ({ pa
   await page.goto(`${BASE}/notifications.html`);
   await expect(page.locator("#notificationsTableBody")).toBeVisible();
 });
+
+test("group passphrase signs in with no code step", async ({ page }) => {
+  const groupPort = 8102;
+  const groupBase = `http://localhost:${groupPort}`;
+  const groupLog = "/tmp/e2e-group-server.log";
+  writeFileSync(groupLog, "");
+  const groupOut = openSync(groupLog, "a");
+  const groupServer: ChildProcess = spawn("node", ["apps/regulator/server/index.ts"], {
+    env: { ...process.env, PORT: String(groupPort), GROUP_LOGIN: "1", GROUP_PASSPHRASE: "e2e-group-secret" },
+    stdio: ["ignore", groupOut, groupOut],
+  });
+  try {
+    let up = false;
+    for (let i = 0; i < 50 && !up; i++) {
+      try {
+        const res = await fetch(`${groupBase}/health/ready`);
+        if (res.ok) {
+          up = true;
+        } else {
+          await new Promise((r) => setTimeout(r, 200));
+        }
+      } catch {
+        await new Promise((r) => setTimeout(r, 200));
+      }
+    }
+    if (!up) throw new Error("group e2e server never came up");
+    await page.goto(`${groupBase}/login.html`);
+    await expect(page.locator("#groupForm")).toBeVisible();
+    await expect(page.locator("#otpForm")).toBeHidden();
+    await page.fill("#groupPassphrase", "e2e-group-secret");
+    await page.click("#groupForm button[type=submit]");
+    await page.waitForURL(`${groupBase}/index.html`);
+    await expect(page.locator("#totalNotifications")).not.toBeEmpty();
+  } finally {
+    groupServer.kill();
+  }
+});
