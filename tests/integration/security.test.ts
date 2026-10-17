@@ -6,10 +6,10 @@ import { createServer } from "node:http";
 import { dirname, join } from "node:path";
 import pg from "pg";
 import { resetDb, startApp, dbUrl } from "./help.ts";
+import { securityTrip } from "../../apps/regulator/server/trip.ts";
 
 // Same file the server side uses, resolved from the repo root the way
-// npm test runs it. Duplicated here so these tests do not import the
-// guard module and share its in-memory state.
+// npm test runs it.
 const TRIP_FLAG = join(process.cwd(), "data", "trip.lock");
 
 mkdirSync(dirname(TRIP_FLAG), { recursive: true });
@@ -80,6 +80,7 @@ async function waitUp(base: string, path: string): Promise<Response> {
 
 test("four unauthenticated requests under the threshold do not trip", async () => {
   clearTripFlag();
+  securityTrip.resetWindows();
   process.env.TRIP_THRESHOLD = "5";
   resetDb();
   const srv = await startApp();
@@ -101,6 +102,7 @@ test("four unauthenticated requests under the threshold do not trip", async () =
 
 test("an unauthenticated burst past the threshold trips the service", async () => {
   clearTripFlag();
+  securityTrip.resetWindows();
   process.env.TRIP_THRESHOLD = "5";
   resetDb();
   const srv = await startApp();
