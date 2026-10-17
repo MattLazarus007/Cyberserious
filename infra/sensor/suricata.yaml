@@ -1,0 +1,53 @@
+# Lab sensor override for Suricata 8.x on this macOS machine. A short
+# file on purpose: only what the replay and the live run need. Every
+# unset key keeps the Suricata default.
+%YAML 1.1
+---
+vars:
+  address-groups:
+    HOME_NET: "any"
+    EXTERNAL_NET: "any"
+  port-groups:
+    HTTP_PORTS: "8100,8200"
+
+# Logs land under infra/sensor/out unless -l points somewhere else,
+# which is what the replay test does with a temp directory.
+default-log-dir: infra/sensor/out/
+
+logging:
+  default-log-level: notice
+  outputs:
+    - console:
+        enabled: yes
+    - file:
+        enabled: yes
+        level: info
+        filename: suricata.log
+
+outputs:
+  - eve-log:
+      enabled: yes
+      filetype: regular
+      filename: eve.json
+      types:
+        - alert
+
+# af-packet is Linux only and stays out. The pcap section is the
+# cross platform path and carries the lo0 live capture on this machine.
+pcap:
+  - interface: lo0
+  - interface: default
+
+app-layer:
+  protocols:
+    http:
+      enabled: yes
+
+# Base rules live where Homebrew put them. The lab rules load through
+# -S infra/sensor/local.rules, which replaces this list at run time.
+default-rule-path: /opt/homebrew/etc/suricata/rules
+rule-files:
+  - suricata.rules
+
+classification-file: /opt/homebrew/etc/suricata/classification.config
+reference-config-file: /opt/homebrew/etc/suricata/reference.config
