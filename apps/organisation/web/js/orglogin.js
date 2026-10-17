@@ -6,6 +6,50 @@ document.addEventListener("DOMContentLoaded", function () {
     const otpForm = document.getElementById("otpForm");
     const loginMessage = document.getElementById("loginMessage");
     const otpMessage = document.getElementById("otpMessage");
+    const groupForm = document.getElementById("groupForm");
+    const groupMessage = document.getElementById("groupMessage");
+
+    fetch("/api/v1/auth-mode").then(function (res) {
+        if (!res.ok) return null;
+        return res.json();
+    }).then(function (mode) {
+        if (!mode || !groupForm) return;
+        if (mode.groupOpen) {
+            groupForm.hidden = false;
+            return;
+        }
+        groupForm.remove();
+    }).catch(function () {
+        if (groupForm) groupForm.remove();
+    });
+
+    groupForm.addEventListener("submit", async function (ev) {
+
+        ev.preventDefault();
+        groupMessage.textContent = "Checking…";
+
+        const passphrase = document.getElementById("groupPassphrase").value;
+
+        let res;
+        try {
+            res = await fetch("/api/v1/login/group", {
+                method: "POST",
+                headers: { "content-type": "application/json" },
+                body: JSON.stringify({ passphrase: passphrase })
+            });
+        } catch (err) {
+            groupMessage.textContent = "The server is not answering.";
+            return;
+        }
+
+        if (!res.ok) {
+            groupMessage.textContent = "Those details did not match.";
+            return;
+        }
+
+        window.location.href = "drafts.html";
+
+    });
 
     passwordForm.addEventListener("submit", async function (ev) {
 
