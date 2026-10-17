@@ -49,3 +49,22 @@ Seeded baseline for every automated run: 7 cases, 6 notifications,
 
 One item stays open by choice. Keycloak-backed sign-in (the
 full T-11 story) waits in Phase 12.
+
+## Group access + extraction watch (17 October 2026)
+
+Same machine, same seeded baseline, run at the task 8 gate walk.
+`npm test` gave 87 pass 0 fail. `npm run test:e2e` gave 8 pass.
+`node db/seed.ts --reset` still prints 7 / 6 / 11 / 13.
+
+| ID | Name | Result 17 Oct 2026 | Evidence |
+| --- | --- | --- | --- |
+| T-37 | Group sign-in with the shared passphrase | Pass | auth.test.ts "group passphrase signs straight in when open" (groupOpen true, one step, no code). flows.spec.ts "group passphrase signs in with no code step" on its own server at 8102 |
+| T-38 | Wrong group passphrase refused and locked out | Pass | auth.test.ts "wrong group passphrase is refused like a wrong password" (401, same body as wrong password) plus "sixth group failure in fifteen minutes is rate limited" (429) |
+| T-39 | Closed group gate answers 404 | Pass | auth.test.ts "closed group gate is not found", GROUP_LOGIN unset, 404 with no hint the route exists |
+| T-40 | Topbar swaps sign in for the member name | Pass | flows.spec.ts "topbar shows sign in when signed out and name when signed in": "Sign in" before, "Regulator Analyst" after |
+| T-41 | Blur lock on a stranger dashboard, data stays shut | Pass | flows.spec.ts "signed-out dashboard shows blur lock, data stays locked": #screen-lock role alertdialog with a Sign in link, request to /api/v1/cases answers 401 while the overlay is up, dashboard fields fill only after sign-in |
+| T-42 | Extraction notice on download, export and denial | Pass | evidence.test.ts "a clean download raises an extraction notice for supervisors", "a case export raises the same extraction notice", "a blocked download raises its notice too": high priority, open state, named analyst, case ref and filename in the reason |
+| T-43 | Download survives a dead outbox | Pass | evidence.test.ts "a broken notice queue never blocks the download itself": outbox_jobs renamed away, download still 200 with the file bytes, evidence.download audit row still written |
+| T-44 | API answers never cache, static pages still do | Pass | cases.test.ts "api responses are never cached" (Cache-Control no-store, Pragma no-cache on /api/v1/cases) and "static html keeps its normal caching" (login.html stays cacheable) |
+
+Push stays blocked: `git remote -v | grep -c DISABLED` gives 1.
