@@ -94,18 +94,62 @@ async function bindUser() {
 
         const me = await Api.getMe();
 
-        const bars =
+        const names =
             document.querySelectorAll(".user span");
 
-        bars.forEach(function (bar) {
+        names.forEach(function (el) {
 
-            bar.textContent = me.displayName;
+            el.textContent = me.displayName;
+
+        });
+
+        const avatars =
+            document.querySelectorAll(".user .user-avatar");
+
+        avatars.forEach(function (el) {
+
+            el.textContent =
+                String(me.displayName || "?").trim().charAt(0).toUpperCase() || "?";
+
+        });
+
+        const links =
+            document.querySelectorAll("#accountLink");
+
+        links.forEach(function (el) {
+
+            el.setAttribute("href", "login.html");
 
         });
 
     } catch (err) {
 
-        return;
+        const names =
+            document.querySelectorAll(".user span");
+
+        names.forEach(function (el) {
+
+            el.textContent = "Sign in";
+
+        });
+
+        const avatars =
+            document.querySelectorAll(".user .user-avatar");
+
+        avatars.forEach(function (el) {
+
+            el.textContent = "?";
+
+        });
+
+        const links =
+            document.querySelectorAll("#accountLink");
+
+        links.forEach(function (el) {
+
+            el.setAttribute("href", "login.html");
+
+        });
 
     }
 
