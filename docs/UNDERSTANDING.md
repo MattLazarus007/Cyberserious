@@ -87,7 +87,34 @@ supervisor clears them. Intake verifies signatures before parsing and answers
 retries from the stored receipt. Each control maps to a risk in
 docs/RISKS.md, which names the test that proves it.
 
-## 6. Legal-honesty rules
+## 6. Group access
+
+Group lab sessions can switch on a shared passphrase gate with
+GROUP_LOGIN=1 and GROUP_PASSPHRASE set in the environment, on both
+the regulator and the organisation portal, which mount the same
+auth router. With the switch off, POST /api/v1/login/group answers
+404, so the route cannot be probed. A wrong passphrase answers 401
+with the same body as a wrong password, the secret compare is a
+constant-time equal on equal-length buffers, and after five failures
+the next fifteen minutes answer 429, so a steady attacker on
+localhost gets about twenty guesses an hour, roughly 480 a day; the
+counters live in the server process, so a restart clears them and
+the passphrase still needs to be long. Every attempt, success,
+refusal or rate limit, lands in the audit chain as auth.group with
+actor "group", and no seed file creates a group user: db/seed.ts
+holds no such account, and the row is born on the first successful
+sign-in with an unusable password hash. The honest catch is that one
+shared secret cannot say who typed it, so every action through the
+gate lands on "group", which is fine for lab demos and not fine for
+assessed work, which stays on personal logins with console codes.
+The lab serves plain HTTP, so keeping the passphrase off the wire is
+the operator's job until the TLS path in Phase 12. Reads stay free,
+but every evidence download and case export writes an audit row and
+queues an extraction notice that the worker turns into a high
+priority supervisor alert in its next sweep, so bulk copying becomes
+visible without ever blocking a legitimate download.
+
+## 7. Legal-honesty rules
 
 The system never computes words like compliant. Review outcomes are
 recorded human findings. Internal timers say internal wherever they
@@ -97,7 +124,7 @@ cases use invented organisations. Absence of a report is never
 presented as proof of non-reporting. The official channel is the
 Regulator's eServices Portal.
 
-## 7. Questions the marker may ask
+## 8. Questions the marker may ask
 
 How do you collect data? Secondary-source analysis, method and
 limits in docs/RESEARCH_METHOD.md. Where is multi-factor sign-in?
@@ -118,7 +145,7 @@ points at every test. What remains open? T-09 assignment scoping
 and Keycloak, both named in TEST_LOG.md. How do I run it? README.md
 and docs/SETUP.md, start to finish.
 
-## 8. Known limits
+## 9. Known limits
 
 One lab machine holds everything. The prose gates use the repo's
 own checks, which lower machine-like tells without promising any
