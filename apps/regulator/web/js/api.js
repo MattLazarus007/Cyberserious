@@ -3,16 +3,31 @@
 
 var Api = (function () {
 
-    function signInBar() {
-        if (document.getElementById("signin-bar")) return;
-        const bar = document.createElement("div");
-        bar.id = "signin-bar";
-        bar.className = "demo-banner";
+    function lockScreen() {
+        if (document.getElementById("screen-lock")) return;
+        const overlay = document.createElement("div");
+        overlay.id = "screen-lock";
+        overlay.className = "screen-lock";
+        overlay.setAttribute("role", "alertdialog");
+        overlay.setAttribute("aria-label", "Sign in needed");
+        const card = document.createElement("div");
+        card.className = "screen-lock-card";
+        const title = document.createElement("h2");
+        title.textContent = "Sign in needed";
+        const copy = document.createElement("p");
+        copy.textContent = "This workspace needs a signed-in analyst.";
         const link = document.createElement("a");
         link.href = "login.html";
+        link.className = "btn-primary";
         link.textContent = "Sign in";
-        bar.append("This workspace needs a signed-in analyst. ", link, ".");
-        document.body.prepend(bar);
+        card.append(title, copy, link);
+        overlay.append(card);
+        document.body.append(overlay);
+    }
+
+    function unlockScreen() {
+        const overlay = document.getElementById("screen-lock");
+        if (overlay) overlay.remove();
     }
 
     async function call(path, opts) {
@@ -23,7 +38,7 @@ var Api = (function () {
             throw new Error("The server is not answering. Start it with npm run dev.");
         }
         if (res.status === 401 || res.status === 403) {
-            signInBar();
+            lockScreen();
             const err = new Error("Signed in access needed.");
             err.status = res.status;
             throw err;
@@ -109,6 +124,8 @@ var Api = (function () {
     }
 
     return {
+        lockScreen: lockScreen,
+        unlockScreen: unlockScreen,
         getMe: getMe,
         getDashboard: getDashboard,
         getCases: getCases,
