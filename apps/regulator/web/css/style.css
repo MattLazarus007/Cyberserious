@@ -146,6 +146,14 @@ body {
     font-size: 14px;
 }
 
+.user a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: inherit;
+    text-decoration: none;
+}
+
 .user-avatar {
     width: 35px;
     height: 35px;
