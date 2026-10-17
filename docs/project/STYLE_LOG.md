@@ -45,3 +45,7 @@ rewritten page by page as each phase touches them.
 | 2026-10-16 | docs/project/exercises/incident-2026-10-16.md | clean |
 | 2026-10-16 | docs/adr/0001 to 0010 | clean |
 | 2026-10-16 | docs/project/tasks/phase-04, 05, 06 | clean |
+| 2026-10-17 | docs/SETUP.md | clean. New mTLS section spans 6 to 31 word sentences |
+| 2026-10-17 | docs/SR_EVIDENCE.md | clean. SR-01 rewritten, no filler word |
+| 2026-10-17 | STATUS.md | clean. The new entry carries no semicolon |
+| 2026-10-17 | CHECKLIST.md | clean. One box ticked, nothing else changed |
