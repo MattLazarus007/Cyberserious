@@ -121,10 +121,12 @@ test("group passphrase signs straight in when open", async () => {
   resetDb();
   process.env.GROUP_LOGIN = "1";
   process.env.GROUP_PASSPHRASE = "test-group-secret";
+  delete process.env.OIDC_ISSUER;
   const srv = await startApp();
   try {
-    const mode = await (await fetch(`${srv.base}/api/v1/auth-mode`)).json() as { groupOpen: boolean };
+    const mode = await (await fetch(`${srv.base}/api/v1/auth-mode`)).json() as { groupOpen: boolean, oidcEnabled: boolean };
     assert.equal(mode.groupOpen, true);
+    assert.equal(mode.oidcEnabled, false, "the identity provider stays off unless the switch is set");
     const res = await fetch(`${srv.base}/api/v1/login/group`, {
       method: "POST",
       headers: { "content-type": "application/json" },
