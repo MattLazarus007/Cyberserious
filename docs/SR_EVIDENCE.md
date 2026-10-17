@@ -35,8 +35,11 @@ Status: field evidence done, host encryption declared.
 
 **SR-03: multi-factor sign-in.** Password plus console code, with
 lockout, expiry and idle and absolute session limits, all tested.
-Keycloak remains the full story in Phase 12. Status: lab story
-complete, limits documented.
+Phase 12 added the Keycloak single sign-in path (T-51 to T-57). It
+identifies a person and opens the same session, yet it carries no
+second factor of its own, so it sits where the group gate sits rather
+than beside the console code. Status: lab story complete, limits
+documented.
 
 **SR-04: deny by default with scope.** Central gate, matrix tests
 with negatives, cross-organisation denial across six surfaces

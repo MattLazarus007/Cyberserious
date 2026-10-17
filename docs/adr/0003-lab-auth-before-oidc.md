@@ -17,3 +17,16 @@ module, not every route.
 The console code is weaker than real multi-factor sign-in. Every
 document that describes it says so plainly, including the limits
 section of the main guide.
+
+## Addendum, 17 October 2026
+
+Phase 12 stretch item one built the swap-in this decision waited on.
+The browser takes an authorization code with a PKCE challenge from a
+local Keycloak 26.0 instance, and the provider identifies the person
+while the local tables still decide the role. The two routes sit at
+/auth/oidc and /auth/oidc/callback behind OIDC_ISSUER, so the
+provider stays hidden until the switch carries a value. That keeps
+the wait the paragraph above describes, and the session row that
+opens is the same row a local sign-in opens, so lockout, idle limits
+and the console code step all stand where they stood. The decision
+itself is unchanged and still signed off as written.

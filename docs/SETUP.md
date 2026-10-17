@@ -124,3 +124,56 @@ both. Four cases in tests/integration/mtls.test.ts hold that line:
 no certificate refused, a foreign authority refused, plain http to
 8101 unanswered, and a registered certificate carrying a signed
 payload all the way to a 201 receipt.
+
+## Keycloak single sign-in on port 18080
+
+Phase 12 stretch item one. The regulator can identify a person
+through an OpenID Connect provider instead of a local password, and
+the local tables still decide every role. Nothing switches on until
+you set an environment variable, so the commands above keep working
+as written.
+
+Start the lab provider:
+
+```
+source scripts/env.sh
+bash scripts/keycloak.sh
+```
+
+The script runs Keycloak 26.0 in a container and waits for the realm
+document to answer. Port 18080 rather than the Keycloak default
+8080, because something else on this machine already listens there.
+The realm cyberserious imports from
+infra/keycloak/realm-export.json on the first start. It carries the
+public client regulator-web with PKCE S256 required, brute force set
+to five failures and a thirty second wait, and the three lab users.
+A second run reports the container as already up. The command
+`bash scripts/keycloak.sh stop` removes the container and the realm
+data with it.
+
+Point the regulator at the provider:
+
+```
+OIDC_ISSUER=http://localhost:18080/realms/cyberserious \
+OIDC_CLIENT_ID=regulator-web npm run dev
+```
+
+The login page then shows one extra link, Sign in with single
+sign-on, above the password form. That link goes to /auth/oidc,
+which builds a state, a nonce and a PKCE verifier, keeps them in a
+ten minute cookie and sends the browser to Keycloak. The callback
+checks the state, the issuer, the audience and the signature, then
+exchanges the code and opens the same session row a local sign-in
+opens. Lockout, the idle limit and the absolute limit therefore
+behave exactly as they did before.
+
+The lab users are analyst1 with kc-analyst-pass-2026, io1 with
+kc-io-pass-2026 and demo with kc-demo-pass-2026. They are synthetic
+and stay on this machine. A first sign-in creates the local account
+when the name is new and keeps the existing rows when it is not, so
+io1 arrives with its organisation and information officer while demo
+arrives as a regulator analyst. No role ever comes from the
+provider.
+
+Without OIDC_ISSUER the two routes answer 404 and the login page
+renders no link, which is the state the browser suite pins.
