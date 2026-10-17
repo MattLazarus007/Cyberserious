@@ -34,6 +34,13 @@
             <button class="btn-primary" type="submit">Verify code</button>
             <div id="otpMessage" role="status" aria-live="polite"></div>
         </form>
+
+        <form id="groupForm" hidden>
+            <label for="groupPassphrase">Group passphrase</label>
+            <input id="groupPassphrase" name="passphrase" type="password" autocomplete="current-password">
+            <button class="btn-primary" type="submit">Sign in</button>
+            <div id="groupMessage" role="status" aria-live="polite"></div>
+        </form>
     </div>
 </div>
 <script src="js/orglogin.js"></script>
