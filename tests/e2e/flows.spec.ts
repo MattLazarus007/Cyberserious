@@ -37,7 +37,9 @@ test.beforeAll(async () => {
   writeFileSync(LOG, "");
   const out = openSync(LOG, "a");
   server = spawn("node", ["apps/regulator/server/index.ts"], {
-    env: { ...process.env, PORT: String(PORT) },
+    // The browser suite runs with the provider switch off, whatever
+    // the shell that launched it happens to carry.
+    env: { ...process.env, PORT: String(PORT), OIDC_ISSUER: "" },
     stdio: ["ignore", out, out],
   });
   for (let i = 0; i < 50; i++) {
@@ -191,5 +193,52 @@ test("group passphrase signs in with no code step", async ({ page }) => {
     await expect(page.locator("#totalNotifications")).not.toBeEmpty();
   } finally {
     groupServer.kill();
+  }
+});
+
+test("single sign-on link appears only when the provider switch is on", async ({ page }) => {
+  await page.goto(`${BASE}/login.html`);
+  await expect(page.locator("#ssoSignIn")).toHaveCount(0);
+  await expect(page.locator("#passwordForm")).toBeVisible();
+
+  const oidcPort = 8103;
+  const oidcBase = `http://localhost:${oidcPort}`;
+  const oidcLog = "/tmp/e2e-oidc-server.log";
+  writeFileSync(oidcLog, "");
+  const oidcOut = openSync(oidcLog, "a");
+  const oidcServer: ChildProcess = spawn("node", ["apps/regulator/server/index.ts"], {
+    env: {
+      ...process.env,
+      PORT: String(oidcPort),
+      OIDC_ISSUER: "http://localhost:8104/realms/cyberserious",
+      OIDC_CLIENT_ID: "regulator-web",
+    },
+    stdio: ["ignore", oidcOut, oidcOut],
+  });
+  try {
+    let up = false;
+    for (let i = 0; i < 50 && !up; i++) {
+      try {
+        const res = await fetch(`${oidcBase}/health/ready`);
+        if (res.ok) {
+          up = true;
+        } else {
+          await new Promise((r) => setTimeout(r, 200));
+        }
+      } catch {
+        await new Promise((r) => setTimeout(r, 200));
+      }
+    }
+    if (!up) throw new Error("oidc e2e server never came up");
+    await page.goto(`${oidcBase}/login.html`);
+    const link = page.locator("#ssoSignIn a");
+    await expect(link).toBeVisible();
+    await expect(link).toHaveText("Sign in with single sign-on");
+    await expect(link).toHaveAttribute("href", "/auth/oidc");
+    await expect(page.locator("#passwordForm")).toBeVisible();
+    const mode = await page.evaluate(async () => (await fetch("/api/v1/auth-mode")).json());
+    expect(mode.oidcEnabled).toBe(true);
+  } finally {
+    oidcServer.kill();
   }
 });
