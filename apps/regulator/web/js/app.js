@@ -1437,6 +1437,11 @@ async function loadAlerts() {
 document.addEventListener("DOMContentLoaded", function () {
 
     bindUser();
+    Api.getMe().then(function () {
+        Api.unlockScreen();
+    }, function () {
+        Api.lockScreen();
+    });
     loadBreachDetails();
     loadDashboard();
     loadNotifications();
