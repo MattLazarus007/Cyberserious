@@ -95,6 +95,23 @@ test("T-34 small screen keeps navigation, large text keeps content", async ({ pa
   await expect(page.locator("#notificationsTableBody")).toBeVisible();
 });
 
+test("signed-out dashboard shows blur lock, data stays locked", async ({ page, request }) => {
+  await page.goto(`${BASE}/index.html`);
+  const lock = page.locator("#screen-lock");
+  await expect(lock).toBeVisible();
+  await expect(lock).toHaveAttribute("role", "alertdialog");
+  const link = lock.locator("a");
+  await expect(link).toContainText("Sign in");
+  await expect(link).toHaveAttribute("href", "login.html");
+  const data = await request.get(`${BASE}/api/v1/cases`);
+  expect(data.status()).toBe(401);
+  await signIn(page);
+  await expect(page.locator("#screen-lock")).toHaveCount(0);
+  await expect(page.locator("#totalNotifications")).not.toBeEmpty();
+  await expect(page.locator("#pendingCases")).not.toBeEmpty();
+  await expect(page.locator("#activeAlerts")).not.toBeEmpty();
+});
+
 test("topbar shows sign in when signed out and name when signed in", async ({ page }) => {
   await page.goto(`${BASE}/index.html`);
   await expect(page.locator(".user")).toContainText("Sign in");
