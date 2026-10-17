@@ -95,6 +95,13 @@ test("T-34 small screen keeps navigation, large text keeps content", async ({ pa
   await expect(page.locator("#notificationsTableBody")).toBeVisible();
 });
 
+test("topbar shows sign in when signed out and name when signed in", async ({ page }) => {
+  await page.goto(`${BASE}/index.html`);
+  await expect(page.locator(".user")).toContainText("Sign in");
+  await signIn(page);
+  await expect(page.locator(".user")).toContainText("Regulator Analyst");
+});
+
 test("group passphrase signs in with no code step", async ({ page }) => {
   const groupPort = 8102;
   const groupBase = `http://localhost:${groupPort}`;
