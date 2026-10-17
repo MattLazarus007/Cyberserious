@@ -1,11 +1,30 @@
 import { Router } from "express";
+import type { Request, Response } from "express";
 import { createHash, randomInt, timingSafeEqual } from "node:crypto";
 import { query } from "../db.ts";
 import { verifyPassword } from "../passwords.ts";
 import { createSession, destroySession, readCookie, sameCode, sessionCookieHeader, clearCookieHeader, SESSION_COOKIE } from "../session.ts";
 import { recordAudit } from "../audit.ts";
+import { oidcEnabled, startOidc, handleCallback } from "../oidc.ts";
 
 export const authRouter = Router();
+
+// The identity provider calls back at the site root, not under
+// /api/v1, so these two live on their own router. Both stay hidden
+// until OIDC_ISSUER is set, the same way the group gate stays hidden.
+export const oidcRouter = Router();
+
+function guarded(handler: (req: Request, res: Response) => Promise<void>) {
+  return (req: Request, res: Response) => {
+    handler(req, res).catch((err: unknown) => {
+      console.error("[oidc] route failed", err);
+      if (!res.headersSent) res.status(400).json({ error: "invalid sign-in" });
+    });
+  };
+}
+
+oidcRouter.get("/auth/oidc", guarded(startOidc));
+oidcRouter.get("/auth/oidc/callback", guarded(handleCallback));
 
 // shortcut: in-memory counters, fine for one lab server. A shared
 // deployment would keep these in the database or the proxy.
@@ -37,7 +56,11 @@ export function simpleLogin(): boolean {
 }
 
 authRouter.get("/auth-mode", (req, res) => {
-  res.json({ otpRequired: !simpleLogin(), groupOpen: process.env.GROUP_LOGIN === "1" });
+  res.json({
+    otpRequired: !simpleLogin(),
+    groupOpen: process.env.GROUP_LOGIN === "1",
+    oidcEnabled: oidcEnabled(),
+  });
 });
 
 authRouter.post("/login", async (req, res) => {

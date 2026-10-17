@@ -2,7 +2,7 @@ import express from "express";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { query } from "./db.ts";
-import { authRouter } from "./routes/auth.ts";
+import { authRouter, oidcRouter } from "./routes/auth.ts";
 import { casesRouter } from "./routes/cases.ts";
 import { alertsRouter } from "./routes/alerts.ts";
 import { notesRouter } from "./routes/notes.ts";
@@ -50,6 +50,9 @@ app.get("/health/ready", async (_req, res) => {
 });
 
 app.use("/api/v1", authRouter);
+// OpenID Connect lives at the root: the provider redirects the browser
+// to /auth/oidc/callback, outside the api prefix.
+app.use(oidcRouter);
 app.use("/api/v1", casesRouter);
 app.use("/api/v1", alertsRouter);
 app.use("/api/v1", notesRouter);
