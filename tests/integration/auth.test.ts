@@ -123,6 +123,8 @@ test("group passphrase signs straight in when open", async () => {
   process.env.GROUP_PASSPHRASE = "test-group-secret";
   const srv = await startApp();
   try {
+    const mode = await (await fetch(`${srv.base}/api/v1/auth-mode`)).json() as { groupOpen: boolean };
+    assert.equal(mode.groupOpen, true);
     const res = await fetch(`${srv.base}/api/v1/login/group`, {
       method: "POST",
       headers: { "content-type": "application/json" },
