@@ -37,6 +37,11 @@
         .login-card button {
             margin-top: 18px;
         }
+        .login-card .sso-row a {
+            display: block;
+            text-align: center;
+            margin: 4px 0 16px;
+        }
         #loginMessage, #otpMessage {
             min-height: 20px;
             font-size: 13px;
@@ -1132,6 +1137,11 @@
         }
         .login-card button {
             margin-top: 18px;
+        }
+        .login-card .sso-row a {
+            display: block;
+            text-align: center;
+            margin: 4px 0 16px;
         }
         #loginMessage, #otpMessage {
             min-height: 20px;

@@ -8,12 +8,21 @@ document.addEventListener("DOMContentLoaded", function () {
     const otpMessage = document.getElementById("otpMessage");
     const groupForm = document.getElementById("groupForm");
     const groupMessage = document.getElementById("groupMessage");
+    const ssoSignIn = document.getElementById("ssoSignIn");
 
     fetch("/api/v1/auth-mode").then(function (res) {
         if (!res.ok) return null;
         return res.json();
     }).then(function (mode) {
-        if (!mode || !groupForm) return;
+        if (!mode) return;
+        if (ssoSignIn) {
+            if (mode.oidcEnabled) {
+                ssoSignIn.hidden = false;
+            } else {
+                ssoSignIn.remove();
+            }
+        }
+        if (!groupForm) return;
         if (mode.groupOpen) {
             groupForm.hidden = false;
             return;
@@ -21,6 +30,7 @@ document.addEventListener("DOMContentLoaded", function () {
         groupForm.remove();
     }).catch(function () {
         if (groupForm) groupForm.remove();
+        if (ssoSignIn) ssoSignIn.remove();
     });
 
     groupForm.addEventListener("submit", async function (ev) {
