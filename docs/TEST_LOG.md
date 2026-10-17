@@ -68,3 +68,18 @@ Same machine, same seeded baseline, run at the task 8 gate walk.
 | T-44 | API answers never cache, static pages still do | Pass | cases.test.ts "api responses are never cached" (Cache-Control no-store, Pragma no-cache on /api/v1/cases) and "static html keeps its normal caching" (login.html stays cacheable) |
 
 Push stays blocked: `git remote -v | grep -c DISABLED` gives 1.
+
+## Breach response (17 October 2026)
+
+Same machine, same seeded baseline, run at the closeout gate after the
+trip-wire and console tamper work landed. `npm test` gave 92 pass
+0 fail. `npm run test:e2e` gave 9 pass.
+
+| ID | Name | Result 17 Oct 2026 | Evidence |
+| --- | --- | --- | --- |
+| T-45 | Burst past the threshold trips the service | Pass | security.test.ts "an unauthenticated burst past the threshold trips the service": four 401s then 503 "service locked", every sessions row deleted, data/trip.lock written, one audit row action security.trip result denied, one high open SECURITY-TRIP alert with the burst reason |
+| T-46 | Tripped state survives a restart | Pass | security.test.ts "a fresh boot with the flag file stays tripped": fresh child process answers ready {ok:true, locked:true}, /api/v1/me 503, flag file still on disk |
+| T-47 | TRIP_OPEN reopens for the operator | Pass | security.test.ts "boot with TRIP_OPEN=1 clears the flag and serves": flag file consumed, /health/live 200, /api/v1/me back to 401 |
+| T-48 | Valid session refused while tripped | Pass | security.test.ts "a valid session is refused while the service is tripped": a live cookie and a fresh sign-in both answer 503 "service locked" |
+| T-49 | Below threshold does not trip | Pass | security.test.ts "four unauthenticated requests under the threshold do not trip": four 401s, no flag file, ready has no locked key |
+| T-50 | Console removal reveals no data | Pass | flows.spec.ts "console removal of the lock reveals no data": #screen-lock count 0, 0 record strings and no address in body text, cases alerts and evidence each 401, three counters 0 and one Loading demonstration records row |
