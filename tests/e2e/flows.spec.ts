@@ -119,6 +119,44 @@ test("topbar shows sign in when signed out and name when signed in", async ({ pa
   await expect(page.locator(".user")).toContainText("Regulator Analyst");
 });
 
+test("console removal of the lock reveals no data", async ({ page }) => {
+  await page.goto(`${BASE}/index.html`);
+  await expect(page.locator("#screen-lock")).toBeVisible();
+  await page.evaluate(() => document.getElementById("screen-lock")?.remove());
+  await expect(page.locator("#screen-lock")).toHaveCount(0);
+  const bodyText = await page.locator("body").innerText();
+  for (const secret of [
+    "BR-2026",
+    "Karoo Retail Holdings",
+    "Umhlanga Logistics",
+    "Thabazimbi Health Group",
+    "Standard Bank",
+    "Liberty Group",
+    "@regulator.example",
+    "@karoo-retail.example",
+  ]) {
+    expect(bodyText).not.toContain(secret);
+  }
+  expect(bodyText).not.toMatch(/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+/);
+  const statuses = await page.evaluate(async () => {
+    const paths = ["/api/v1/cases", "/api/v1/alerts", "/api/v1/evidence"];
+    const out: Record<string, number> = {};
+    for (const path of paths) {
+      out[path] = (await fetch(path)).status;
+    }
+    return out;
+  });
+  expect(statuses["/api/v1/cases"]).toBe(401);
+  expect(statuses["/api/v1/alerts"]).toBe(401);
+  expect(statuses["/api/v1/evidence"]).toBe(401);
+  await expect(page.locator("#totalNotifications")).toHaveText("0");
+  await expect(page.locator("#pendingCases")).toHaveText("0");
+  await expect(page.locator("#activeAlerts")).toHaveText("0");
+  await expect(page.locator("#recentActivity tr")).toHaveCount(1);
+  await expect(page.locator("#recentActivity")).toContainText("Loading demonstration records…");
+  await expect(page.locator("#recentActivity tr td")).toHaveCount(1);
+});
+
 test("group passphrase signs in with no code step", async ({ page }) => {
   const groupPort = 8102;
   const groupBase = `http://localhost:${groupPort}`;
