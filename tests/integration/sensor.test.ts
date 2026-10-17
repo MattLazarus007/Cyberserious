@@ -200,7 +200,7 @@ test("T-63 the same sensor event shipped twice keeps one row", async () => {
     const conn = new pg.Client({ connectionString: dbUrl });
     await conn.connect();
     const rows = await conn.query(
-      "select count(*)::int as n, max(last_seen_at > first_seen_at) as refreshed from alerts where rule_id = 'SENSOR-IDS'"
+      "select count(*)::int as n, bool_or(last_seen_at > first_seen_at) as refreshed from alerts where rule_id = 'SENSOR-IDS'"
     );
     await conn.end();
     assert.equal(rows.rows[0].n, 1);

@@ -11,6 +11,7 @@ import { assignmentsRouter } from "./routes/assignments.ts";
 import { importsRouter } from "./routes/imports.ts";
 import { researchRouter } from "./routes/research.ts";
 import { intakeRouter } from "./routes/intake.ts";
+import { sensorRouter } from "./routes/sensor.ts";
 import { evidenceRouter } from "./routes/evidence.ts";
 import { usersRouter } from "./routes/users.ts";
 import { verifyChain } from "./audit.ts";
@@ -50,6 +51,10 @@ app.get("/health/ready", async (_req, res) => {
 });
 
 app.use("/api/v1", authRouter);
+// The sensor intake sits above the session scoped routers: its shared
+// secret replaces a cookie, and the routers below answer 401 to any
+// /api/v1 path that reaches them first.
+app.use("/api/v1", sensorRouter);
 // OpenID Connect lives at the root: the provider redirects the browser
 // to /auth/oidc/callback, outside the api prefix.
 app.use(oidcRouter);
