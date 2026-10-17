@@ -48,4 +48,9 @@ rewritten page by page as each phase touches them.
 | 2026-10-17 | docs/SETUP.md | clean. New mTLS section spans 6 to 31 word sentences |
 | 2026-10-17 | docs/SR_EVIDENCE.md | clean. SR-01 rewritten, no filler word |
 | 2026-10-17 | STATUS.md | clean. The new entry carries no semicolon |
-| 2026-10-17 | CHECKLIST.md | clean. One box ticked, nothing else changed |
+| 2026-10-17 | CHECKLIST.md | clean. One box ticked, nothing else changed || 2026-10-17 | docs/SETUP.md | clean. The Keycloak section spans 4 to 37 word sentences |
+| 2026-10-17 | docs/adr/0003-lab-auth-before-oidc.md | clean. Addendum appended, the decision above it untouched |
+| 2026-10-17 | docs/SR_EVIDENCE.md | clean. SR-03 states the single sign-in carries no second factor |
+| 2026-10-17 | docs/TEST_LOG.md | clean. Seven automated rows and two live rows added |
+| 2026-10-17 | STATUS.md | clean. The sign-in entry carries no semicolon |
+| 2026-10-17 | CHECKLIST.md | clean. One more box ticked |
