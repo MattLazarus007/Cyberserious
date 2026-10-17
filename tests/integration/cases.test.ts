@@ -203,6 +203,34 @@ test("T-10 the administrator signs in but reads no case content", async () => {
   }
 });
 
+test("api responses are never cached", async () => {
+  resetDb();
+  const srv = await startApp();
+  try {
+    const cookie = await loginFull(srv.base, "analyst1", "demo-analyst-pass");
+    const res = await fetch(`${srv.base}/api/v1/cases`, { headers: { cookie } });
+    assert.equal(res.status, 200);
+    assert.match(res.headers.get("cache-control") ?? "", /no-store/);
+    assert.match(res.headers.get("pragma") ?? "", /no-cache/);
+  } finally {
+    await srv.close();
+  }
+});
+
+test("static html keeps its normal caching", async () => {
+  resetDb();
+  const srv = await startApp();
+  try {
+    const res = await fetch(`${srv.base}/login.html`);
+    assert.equal(res.status, 200);
+    const cached = res.headers.get("cache-control") ?? "";
+    assert.ok(!cached.includes("no-store"), `static page stayed cacheable, got "${cached}"`);
+    assert.ok(!(res.headers.get("pragma") ?? "").includes("no-cache"), "no pragma on static pages");
+  } finally {
+    await srv.close();
+  }
+});
+
 test("no cookie means no data on any endpoint", async () => {
   resetDb();
   const srv = await startApp();
