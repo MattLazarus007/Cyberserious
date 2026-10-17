@@ -60,3 +60,14 @@ scripts/env.sh. The sender key for signed intake lives under keys/,
 outside version control, created by tools/org-sender.ts with
 --register. Backups land under data/backups/, also outside version
 control.
+
+The group gate reads its two variables from the environment on
+every request: set GROUP_LOGIN=1 to open it and GROUP_PASSPHRASE
+to the agreed phrase, the same inline way LAB_SIMPLE_LOGIN is used
+above. The .env.example file carries empty placeholders only, and
+no real value ever enters version control. Rotation is a manual
+two-step: change the value in the shell, then restart the server,
+because the running process only sees the value it started with.
+The old phrase stops working on the first request after the
+restart, and the group audit rows under action auth.group show
+when the gate was used, by "group" only.
