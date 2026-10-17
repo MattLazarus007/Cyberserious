@@ -16,6 +16,7 @@ import { usersRouter } from "./routes/users.ts";
 import { verifyChain } from "./audit.ts";
 import { requireSession } from "./session.ts";
 import { can } from "./policy.ts";
+import { securityHeaders } from "./security.ts";
 import type { Actor } from "./session.ts";
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -23,6 +24,7 @@ const here = dirname(fileURLToPath(import.meta.url));
 export const app = express();
 app.disable("x-powered-by");
 app.use(express.json({ limit: "256kb" }));
+app.use(securityHeaders);
 
 app.get("/health/live", (_req, res) => {
   res.json({ ok: true });
@@ -55,15 +57,6 @@ app.use("/api/v1", researchRouter);
 app.use(intakeRouter);
 app.use("/api/v1", evidenceRouter);
 app.use("/api/v1", usersRouter);
-
-app.use((req, res, next) => {
-  res.setHeader("X-Content-Type-Options", "nosniff");
-  res.setHeader("X-Frame-Options", "DENY");
-  res.setHeader("Referrer-Policy", "no-referrer");
-  res.setHeader("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
-  res.setHeader("Content-Security-Policy", "default-src 'self'; base-uri 'self'; frame-ancestors 'none'");
-  next();
-});
 
 app.get("/api/v1/audit/verify", requireSession, async (req, res) => {
   const actor = (req as unknown as { actor: Actor }).actor;

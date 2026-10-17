@@ -5,6 +5,7 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { query } from "../../regulator/server/db.ts";
 import { authRouter } from "../../regulator/server/routes/auth.ts";
+import { securityHeaders } from "../../regulator/server/security.ts";
 import { draftsRouter } from "./drafts.ts";
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -12,6 +13,7 @@ const here = dirname(fileURLToPath(import.meta.url));
 export const orgApp = express();
 orgApp.disable("x-powered-by");
 orgApp.use(express.json({ limit: "256kb" }));
+orgApp.use(securityHeaders);
 
 orgApp.get("/health/live", (_req, res) => {
   res.json({ ok: true });
