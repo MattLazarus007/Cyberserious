@@ -742,7 +742,7 @@ async function updateStatus() {
                 body: JSON.stringify({
                     toState: status.value,
                     rowVersion: currentRowVersion,
-                    reason: reason
+                    ...(reason ? { reason: reason } : {})
                 })
             });
 
@@ -1267,28 +1267,40 @@ function alertCard(entry, orgName, occurred) {
         reasonInput.placeholder = "Reason for snooze or resolve";
         reasonInput.setAttribute("aria-label", "Reason");
 
-        const ack = document.createElement("button");
-        ack.type = "button";
-        ack.className = "btn btn-secondary";
-        ack.textContent = "Acknowledge";
-        ack.addEventListener("click", async function () {
-            await act(entry.id, "acknowledge", {});
-        });
+        actions.append(reasonInput);
 
-        const snooze = document.createElement("button");
-        snooze.type = "button";
-        snooze.className = "btn btn-secondary";
-        snooze.textContent = "Snooze 7 days";
-        snooze.addEventListener("click", async function () {
-            if (!reasonInput.value.trim()) {
-                reasonInput.focus();
-                return;
-            }
-            await act(entry.id, "snooze", {
-                until: new Date(Date.now() + 7 * 86400000).toISOString(),
-                reason: reasonInput.value.trim()
+        if (entry.state === "open") {
+
+            const ack = document.createElement("button");
+            ack.type = "button";
+            ack.className = "btn btn-secondary";
+            ack.textContent = "Acknowledge";
+            ack.addEventListener("click", async function () {
+                await act(entry.id, "acknowledge", {});
             });
-        });
+            actions.append(ack);
+
+        }
+
+        if (entry.state === "open" || entry.state === "acknowledged") {
+
+            const snooze = document.createElement("button");
+            snooze.type = "button";
+            snooze.className = "btn btn-secondary";
+            snooze.textContent = "Snooze 7 days";
+            snooze.addEventListener("click", async function () {
+                if (!reasonInput.value.trim()) {
+                    reasonInput.focus();
+                    return;
+                }
+                await act(entry.id, "snooze", {
+                    until: new Date(Date.now() + 7 * 86400000).toISOString(),
+                    reason: reasonInput.value.trim()
+                });
+            });
+            actions.append(snooze);
+
+        }
 
         const resolve = document.createElement("button");
         resolve.type = "button";
@@ -1301,8 +1313,7 @@ function alertCard(entry, orgName, occurred) {
             }
             await act(entry.id, "resolve", { resolution: reasonInput.value.trim() });
         });
-
-        actions.append(reasonInput, ack, snooze, resolve);
+        actions.append(resolve);
 
     }
 
@@ -1315,15 +1326,23 @@ function alertCard(entry, orgName, occurred) {
 
 async function act(id, action, body) {
 
+    const message = document.getElementById("alertMessage");
+
     try {
 
         await Api.alertAction(id, action, body);
 
     } catch (err) {
 
+        if (message) {
+            message.textContent =
+                "The server refused that action. Reload the page and try again.";
+        }
         return;
 
     }
+
+    if (message) message.textContent = "";
 
     loadAlerts();
 
