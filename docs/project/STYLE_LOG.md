@@ -77,5 +77,7 @@ rewritten page by page as each phase touches them.
 | 2026-10-19 | README.md | clean. Group gate caveat corrected after the test |
 | 2026-10-19 | docs/DEMO.md | clean. Step 6 points at a page that exists, no em dash |
 | 2026-10-19 | CHECKLIST.md | clean. Removed page annotated, no semicolon |
+| 2026-10-19 | STATUS.md | clean. Push entry added, no semicolon |
+| 2026-10-19 | CHECKLIST.md | clean. Push gate line states the authorised push |
 | 2026-10-19 | docs/SETUP.md | clean. Counts corrected, sensor token added |
 | 2026-10-19 | docs/DEMO.md | clean. Real passwords, notice step added, no semicolon |
