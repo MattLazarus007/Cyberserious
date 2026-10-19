@@ -65,3 +65,12 @@ rewritten page by page as each phase touches them.
 | 2026-10-19 | docs/runbooks/sensor.md | clean. Arm64 refusal paragraph added, no em dash |
 | 2026-10-19 | docs/TEST_LOG.md | clean. T-77 manual rehearsal row added |
 | 2026-10-19 | STATUS.md | clean. Rehearsal paragraph and the script guard line added |
+| 2026-10-19 | STATUS.md | clean. Humanize pass: five openers, three semicolons, two phrases |
+| 2026-10-19 | docs/NIST_MAP.md | clean. Six paragraphs reworked, no em dash, no filler word |
+| 2026-10-19 | docs/adr/0009-login-rate-limit.md | clean. Comparative sentence restructured |
+| 2026-10-19 | docs/adr/0011-table-vs-text.md | clean. Two sentence splits, one join |
+| 2026-10-19 | docs/UNDERSTANDING.md | clean. One semicolon became a period |
+| 2026-10-19 | docs/TEST_LOG.md | clean. Two semicolons became periods |
+| 2026-10-19 | CHECKLIST.md | clean. One semicolon became a period |
+| 2026-10-19 | docs/runbooks/sensor.md | clean. Two tell phrases replaced |
+| 2026-10-19 | docs/project/AICHECK_LOG.md | clean. New log, 40 rows, no em dash, no filler word |

@@ -8,11 +8,11 @@ analysts may write notes and work alerts. Submitted evidence itself
 stays immutable, so versions and receipts never change.
 
 Audit reading sits with a separate audit_reviewer role. The table
-lets the information officer read audit rows, but separation is
-stronger when audit reads sit outside case work. No case role reads
-the chain except through this role.
+lets the information officer read audit rows. Separation is stronger
+when audit reads sit outside case work, so no case role reads the
+chain except through this role.
 
 A regulator_supervisor role exists for transitions and assignments.
-The table has no such role, but case progress needs an owner for
-state moves and task assignment. The role covers only those moves,
+The table has no such role. Case progress still needs an owner for
+state moves and task assignment. That is the whole of the role,
 nothing wider.

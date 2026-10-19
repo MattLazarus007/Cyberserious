@@ -97,7 +97,7 @@ auth router. With the switch off, POST /api/v1/login/group answers
 with the same body as a wrong password, the secret compare is a
 constant-time equal on equal-length buffers, and after five failures
 the next fifteen minutes answer 429, so a steady attacker on
-localhost gets about twenty guesses an hour, roughly 480 a day; the
+localhost gets about twenty guesses an hour, roughly 480 a day. The
 counters live in the server process, so a restart clears them and
 the passphrase still needs to be long. Every attempt, success,
 refusal or rate limit, lands in the audit chain as auth.group with
