@@ -55,6 +55,7 @@ app.use("/api/v1", authRouter);
 // secret replaces a cookie, and the routers below answer 401 to any
 // /api/v1 path that reaches them first.
 app.use("/api/v1", sensorRouter);
+app.use(intakeRouter);
 // OpenID Connect lives at the root: the provider redirects the browser
 // to /auth/oidc/callback, outside the api prefix.
 app.use(oidcRouter);
@@ -65,7 +66,6 @@ app.use("/api/v1", transitionsRouter);
 app.use("/api/v1", assignmentsRouter);
 app.use("/api/v1", importsRouter);
 app.use("/api/v1", researchRouter);
-app.use(intakeRouter);
 app.use("/api/v1", evidenceRouter);
 app.use("/api/v1", usersRouter);
 

@@ -45,6 +45,19 @@ for (const person of people) {
   );
 }
 
+const channels = ["email", "sms", "phone", "letter"] as const;
+const orgs = await conn.query("select id from organisations order by reference");
+for (const org of orgs.rows) {
+  for (let i = 1; i <= 25; i++) {
+    const suffix = String(i).padStart(4, "0");
+    await conn.query(
+      `insert into affected_recipients (org_id, reference, display_name, channel, contact_ref)
+       values ($1, $2, $3, $4, $5) on conflict (org_id, reference) do nothing`,
+      [org.id, `RCP-${suffix}`, `Synthetic Recipient ${suffix}`, channels[(i - 1) % channels.length], `SYNTHETIC-DEMO-RCP-${suffix}`]
+    );
+  }
+}
+
 const counts = await conn.query("select (select count(*) from users) as users, (select count(*) from drafts) as drafts");
 console.log(`org seeded users=${counts.rows[0].users} drafts=${counts.rows[0].drafts}`);
 await conn.end();
