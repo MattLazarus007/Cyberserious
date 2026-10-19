@@ -11,6 +11,12 @@ The organisation also records a notice to every affected person and reports
 the sent count back. Every write is attributed. The important ones land in a
 hash-chained audit log.
 
+## Start here
+
+If you are new to the project, read [docs/BRIEF.md](docs/BRIEF.md) first. It
+explains the law, both systems, the data and the answers a marker asks for, in
+plain words. Everything below assumes you have read it.
+
 ## Quick start
 
 You need Node 24 and PostgreSQL 16. docs/SETUP.md covers an empty machine,
