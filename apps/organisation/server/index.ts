@@ -1,4 +1,5 @@
-process.env.DATABASE_URL = process.env.ORG_DATABASE_URL ?? "postgres://cyberserious:cyberserious_dev_only@localhost:5432/cyberserious_org_dev";
+process.env.ORG_APP = "1";
+process.env.DATABASE_URL = process.env.ORG_DATABASE_URL ?? "postgres://cyberserious:***@localhost:5432/cyberserious_org_dev";
 
 import express from "express";
 import { join, dirname } from "node:path";
