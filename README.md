@@ -145,8 +145,7 @@ the case detail can answer with stale data.
 ## Where things live
 
 ```
-apps/regulator/web        dashboard, register, alerts, case detail, research,
-                          architecture, login
+apps/regulator/web        dashboard, register, alerts, case detail, login
 apps/regulator/server     routes, policy gate, sessions, audit chain, rules,
                           worker, signed intake, evidence, sensor, OIDC, mTLS
 apps/organisation/web     draft workspace and sign-in
