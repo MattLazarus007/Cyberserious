@@ -87,6 +87,16 @@ const seedCases = [
   { ref: "BR-2026-0007", org: "DEMO-ORG-01", state: "AwaitingInformation", severity: "medium", priority: "routine", days: 258, notified: false, occurred: "2026-01-27T09:00:00Z", occurredP: "approximate", discovered: null as string | null, discoveredP: "unknown", count: 210, countP: "range", category: "data exposure" },
 ];
 
+const caseNarratives: Record<string, string> = {
+  "BR-2026-0001": "A former contractor kept a live login to the stock system. The account moved order records for three weeks before the nightly report showed a gap.",
+  "BR-2026-0002": "A shared driver login was reused after a depot closed. Two depots saw each other's delivery addresses until the account was retired.",
+  "BR-2026-0003": "A backup tape left the site in a courier bag. The clinic cannot say how many patient files it held, so the count is an estimate.",
+  "BR-2026-0004": "A phishing mail took one finance password. The mailbox held supplier invoices with bank details. Discovery came before the invoice run.",
+  "BR-2026-0005": "A public bucket held scanned customs forms for two days. The forms carried names and identity numbers. Logs show reads from outside the network.",
+  "BR-2026-0006": "Staff found a terminal logged in after hours. Nobody can say what was opened, so the affected count stays unknown.",
+  "BR-2026-0007": "A till vendor left a diagnostic port open. The range comes from stock counts, not from a list of people. The organisation has not sent a notice yet.",
+};
+
 const caseIds: Record<string, string> = {};
 for (const seed of seedCases) {
   const closed = seed.state === "Closed";
@@ -110,7 +120,7 @@ for (const seed of seedCases) {
     [row.rows[0].id, seed.occurred, seed.occurredP, seed.discovered, seed.discoveredP,
      "organisation report", at(seed.days - 1), "reported", seed.category,
      seed.count, seed.countP, ["names", "contact information"],
-     `Synthetic fixture for ${seed.ref}. No real persons are involved.`]
+     caseNarratives[seed.ref]]
   );
   if (seed.notified) {
     const note = await conn.query(
@@ -153,7 +163,7 @@ for (const seed of seedCases) {
     discoveredPrecision: seed.discoveredP,
     firstReceivedAt: received,
     triagedAt: at(seed.days - 1),
-    narrative: `Synthetic fixture for ${seed.ref}. No real persons are involved.`,
+    narrative: caseNarratives[seed.ref],
   });
   for (const hit of hits) {
     await conn.query(
