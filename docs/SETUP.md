@@ -177,3 +177,30 @@ provider.
 
 Without OIDC_ISSUER the two routes answer 404 and the login page
 renders no link, which is the state the browser suite pins.
+
+## Lab sensor on the app ports
+
+Suricata 8.x runs the three lab rules in `infra/sensor/local.rules` and
+writes alerts to `infra/sensor/out/eve.json`. The replay path needs no
+root:
+
+```bash
+node scripts/build-fixture-pcap.mjs /tmp/sensor-fixture.pcap
+suricata -c infra/sensor/suricata.yaml -S infra/sensor/local.rules \
+  -r /tmp/sensor-fixture.pcap -l /tmp/sensor-replay
+```
+
+Live capture on `lo0` needs `sudo`. It is a demonstration step, not a
+test. Set `INTERNAL_TOKEN` and run the shipper to put alerts in the
+regulator inbox:
+
+```bash
+export INTERNAL_TOKEN=<lab value>
+node scripts/sensor-shipper.mjs --base http://localhost:8100
+```
+
+The Wazuh manager does not run on this arm64 machine. The amd64 image
+exits 139 under emulation after 98 ms. The parser and the ingest path are
+tested from a saved file. `docs/runbooks/sensor.md` carries the evidence
+and the steps for a linux/amd64 host.
+
