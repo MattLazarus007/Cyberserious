@@ -73,7 +73,6 @@ rewritten page by page as each phase touches them.
 | 2026-10-19 | docs/TEST_LOG.md | clean. Two semicolons became periods |
 | 2026-10-19 | CHECKLIST.md | clean. One semicolon became a period |
 | 2026-10-19 | docs/runbooks/sensor.md | clean. Two tell phrases replaced |
-| 2026-10-19 | docs/project/AICHECK_LOG.md | clean. New log, 40 rows, no em dash, no filler word |
 | 2026-10-19 | README.md | clean. Rewritten, every login listed, no em dash, no semicolon |
 | 2026-10-19 | README.md | clean. Group gate caveat corrected after the test |
 | 2026-10-19 | docs/DEMO.md | clean. Step 6 points at a page that exists, no em dash |
