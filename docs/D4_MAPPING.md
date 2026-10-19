@@ -5,7 +5,7 @@ The group owns the disclosure wording. This file only maps.
 
 ## Architecture
 
-System topology: docs/UNDERSTANDING.md section 2 and
+System topology: docs/BRIEF.md section 2 and
 apps/regulator/web/architecture.html. Trust corrections: the
 specification sections 3.1 to 3.3 with ADR-0001 to ADR-0010.
 Database: db/migrations 001 to 013 and db/org-migrations 001 to 002,

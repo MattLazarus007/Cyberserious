@@ -27,7 +27,7 @@ rewritten page by page as each phase touches them.
 | 2026-10-16 | docs/SETUP.md | clean |
 | 2026-10-16 | docs/TOOLBOX.md | clean |
 | 2026-10-16 | docs/PROGRESS.md | clean |
-| 2026-10-16 | docs/UNDERSTANDING.md | clean |
+| 2026-10-16 | docs/BRIEF.md | clean |
 | 2026-10-16 | docs/SR_EVIDENCE.md | clean |
 | 2026-10-16 | docs/NIST_MAP.md | clean |
 | 2026-10-16 | docs/RESEARCH_METHOD.md | clean |
@@ -59,7 +59,7 @@ rewritten page by page as each phase touches them.
 | 2026-10-19 | docs/NIST_MAP.md | clean. Six paragraphs reworked, no em dash, no filler word |
 | 2026-10-19 | docs/adr/0009-login-rate-limit.md | clean. Comparative sentence restructured |
 | 2026-10-19 | docs/adr/0011-table-vs-text.md | clean. Two sentence splits, one join |
-| 2026-10-19 | docs/UNDERSTANDING.md | clean. One semicolon became a period |
+| 2026-10-19 | docs/BRIEF.md | clean. One semicolon became a period |
 | 2026-10-19 | docs/TEST_LOG.md | clean. Two semicolons became periods |
 | 2026-10-19 | docs/runbooks/sensor.md | clean. Two tell phrases replaced |
 | 2026-10-19 | README.md | clean. Rewritten, every login listed, no em dash, no semicolon |
