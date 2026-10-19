@@ -40,9 +40,9 @@ under the same id and show the 409. As io1, record the affected-person
 notice, show 24 of 25 sent by email and the one failed synthetic
 delivery. The case page now carries the counts and a shortfall alert.
 
-**6. Rules and architecture.** Watch the worker open alerts for the new
-case. Resolve one with a reason. Open the architecture page and trace
-one trust boundary to the control that enforces it.
+**6. Rules and duties.** Watch the worker open alerts for the new
+case. Resolve one with a reason. Open the case page and trace one
+section 22 duty to its status.
 
 ## If something fails live
 

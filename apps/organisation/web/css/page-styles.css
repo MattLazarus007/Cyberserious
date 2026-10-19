@@ -305,39 +305,6 @@
             .alerts-footer { flex-direction: column; }
         }
 
-/* page: architecture.html (moved from the page head for the content policy) */
-.arch-figure {
-            background: #fff;
-            border: 1px solid #e4eaf2;
-            border-radius: 12px;
-            padding: 24px;
-            margin-bottom: 24px;
-        }
-        .arch-figure img {
-            max-width: 100%;
-            border: 1px solid #e4eaf2;
-            border-radius: 8px;
-        }
-        .build-tags {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-            margin: 12px 0;
-        }
-        .tag-built, .tag-pending {
-            font-size: 12px;
-            padding: 3px 10px;
-            border-radius: 20px;
-        }
-        .tag-built {
-            background: #e3f4ea;
-            color: #13784f;
-        }
-        .tag-pending {
-            background: #fdf3e3;
-            color: #8a5c00;
-        }
-
 /* page: breach.html (moved from the page head for the content policy) */
 :root {
             --page-bg: #f4f7fc;
