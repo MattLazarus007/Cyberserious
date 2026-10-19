@@ -2,9 +2,6 @@
 // Needs a static server on 8023 (`python3 -m http.server 8023`) and jsdom:
 //   npm install jsdom --no-save
 // Run: node tools/render_check.js
-// Playwright takes over this job in phase 9.
-
-// Renders each prototype page in a real DOM and asserts what the user sees.
 const { JSDOM, VirtualConsole } = require("jsdom");
 
 const BASE = "http://localhost:8023";
