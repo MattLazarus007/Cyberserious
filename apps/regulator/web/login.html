@@ -23,7 +23,7 @@
 
         <form id="passwordForm">
             <label for="username">Username</label>
-            <input id="username" name="username" autocomplete="username" value="analyst1">
+            <input id="username" name="username" type="text" autocomplete="username" value="analyst1">
             <label for="password">Password</label>
             <input id="password" name="password" type="password" autocomplete="current-password">
             <button class="btn-primary" type="submit">Continue</button>
@@ -32,7 +32,7 @@
 
         <form id="otpForm" hidden>
             <label for="otp">One-time code from the server terminal</label>
-            <input id="otp" name="otp" inputmode="numeric" autocomplete="one-time-code"
+            <input id="otp" name="otp" type="text" inputmode="numeric" autocomplete="one-time-code"
                 placeholder="6 digits" maxlength="6">
             <button class="btn-primary" type="submit">Verify code</button>
             <div id="otpMessage" role="status" aria-live="polite"></div>
