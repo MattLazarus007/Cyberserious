@@ -8,6 +8,10 @@
         .draft-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
         .draft-status { font-size: 12px; padding: 2px 10px; border-radius: 20px; background: #edf4ff; color: #2455a4; }
         #portalMessage { min-height: 20px; font-size: 13px; margin: 12px 0; }
+        .draft-meta { margin: 8px 0 0; color: #64748b; font-size: 12px; line-height: 1.6; }
+        .draft-actions select { width: auto; flex: 0 0 150px; }
+        .run-list { margin-top: 10px; padding-top: 10px; border-top: 1px solid #edf1f7; }
+        .run-list .draft-meta { margin: 4px 0 0; }
 
 /* page: login.html (moved from the page head for the content policy) */
 .login-wrap {
