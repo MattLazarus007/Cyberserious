@@ -61,3 +61,7 @@ rewritten page by page as each phase touches them.
 | 2026-10-19 | STATUS.md | clean. Two new sections, the new entries carry no semicolon |
 | 2026-10-19 | CHECKLIST.md | clean. The sensor box is ticked with its annotation |
 | 2026-10-19 | docs/PROGRESS.md | clean. Rewritten to the 19 October state, no em dash, no filler word |
+| 2026-10-19 | docs/D4_MAPPING.md | clean. Pointers refreshed to 013, T-76 and eleven flows, no em dash |
+| 2026-10-19 | docs/runbooks/sensor.md | clean. Arm64 refusal paragraph added, no em dash |
+| 2026-10-19 | docs/TEST_LOG.md | clean. T-77 manual rehearsal row added |
+| 2026-10-19 | STATUS.md | clean. Rehearsal paragraph and the script guard line added |
