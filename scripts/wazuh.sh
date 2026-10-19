@@ -35,6 +35,19 @@ alerts_out="$root/infra/sensor/out/wazuh-alerts.json"
 present() { docker ps -a --format '{{.Names}}' | grep -qx "$1"; }
 running() { docker ps --format '{{.Names}}' | grep -qx "$1"; }
 
+# The manager image is amd64. On an arm64 engine the emulated binary
+# dies with exit 139 before it writes a log line. Refuse the start
+# actions here so the failure is clear. Status still works.
+require_native() {
+  if [ "$platform" = "linux/amd64" ] && [ "$(uname -m)" != "x86_64" ] && [ "${WAZUH_ALLOW_EMULATION:-0}" != "1" ]; then
+    echo "host is $(uname -m), the Wazuh images are amd64" >&2
+    echo "under emulation the manager exits 139 before it writes a log line" >&2
+    echo "see docs/runbooks/sensor.md, or set WAZUH_ALLOW_EMULATION=1 to try" >&2
+    return 1
+  fi
+  return 0
+}
+
 manager_conf() { docker exec "$manager_name" bash -c "cat /var/ossec/etc/ossec.conf"; }
 manager_log_tail() { docker exec "$manager_name" bash -c "tail -n ${1:-40} /var/ossec/logs/ossec.log" 2>/dev/null || true; }
 
@@ -239,17 +252,21 @@ stop() {
 
 case "${1:-start}" in
   start)
+    require_native || exit 2
     start_manager
     start_agent
     status
     ;;
   manager)
+    require_native || exit 2
     start_manager
     ;;
   agent)
+    require_native || exit 2
     start_agent
     ;;
   verify)
+    require_native || exit 2
     verify_password
     ;;
   probe)
