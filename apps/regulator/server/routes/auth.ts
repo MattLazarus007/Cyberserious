@@ -58,7 +58,7 @@ export function simpleLogin(): boolean {
 authRouter.get("/auth-mode", (req, res) => {
   res.json({
     otpRequired: !simpleLogin(),
-    groupOpen: process.env.GROUP_LOGIN === "1",
+    groupOpen: process.env.GROUP_LOGIN === "1" && process.env.ORG_APP !== "1",
     oidcEnabled: oidcEnabled(),
   });
 });
@@ -101,7 +101,9 @@ authRouter.post("/login", async (req, res) => {
 });
 
 authRouter.post("/login/group", async (req, res) => {
-  if (process.env.GROUP_LOGIN !== "1") {
+  // The group account lives in the regulator tables. The organisation app
+  // has no regulator audit table, so the gate stays closed there.
+  if (process.env.GROUP_LOGIN !== "1" || process.env.ORG_APP === "1") {
     res.status(404).json({ error: "not found" });
     return;
   }

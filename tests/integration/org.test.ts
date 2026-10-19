@@ -208,6 +208,8 @@ test("foreign drafts stay hidden across orgs", async () => {
 
 test("strangers cannot draft on the organisation side", async () => {
   resetOrgDb();
+  process.env.GROUP_LOGIN = "1";
+  process.env.GROUP_PASSPHRASE = "group-demo-2026";
   const srv = await startOrgApp();
   try {
     const res = await fetch(`${srv.base}/api/v1/login`, {
@@ -218,8 +220,18 @@ test("strangers cannot draft on the organisation side", async () => {
     assert.equal(res.status, 401);
     const anon = await fetch(`${srv.base}/api/v1/drafts`);
     assert.equal(anon.status, 401);
+    const mode = (await (await fetch(`${srv.base}/api/v1/auth-mode`)).json()) as { groupOpen: boolean };
+    assert.equal(mode.groupOpen, false, "the group gate stays closed on this app");
+    const groupTry = await fetch(`${srv.base}/api/v1/login/group`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ passphrase: "group-demo-2026" }),
+    });
+    assert.equal(groupTry.status, 404);
     void orgDbUrl;
   } finally {
+    delete process.env.GROUP_LOGIN;
+    delete process.env.GROUP_PASSPHRASE;
     await srv.close();
   }
 });

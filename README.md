@@ -37,7 +37,8 @@ npm run worker    # rules worker, opens alerts for new cases
 ```
 
 Reset the demo state at any time with
-`node db/seed.ts --reset && node db/seed_org.ts --reset`.
+`node db/seed.ts --reset && node db/seed_org.ts --reset && node tools/org-sender.ts --register`.
+The last step renews the sender key.
 
 ## Every way to sign in
 
@@ -82,9 +83,9 @@ shared account named group with the regulator analyst role. It skips the
 code. Use it when the whole group signs in together. It carries no per-person
 attribution, so keep it off for assessed work.
 
-The organisation login page shows the same form while the gate is open. That
-session has no organisation, so every draft action stays refused. Sign in
-there as io1 or steward1 instead.
+The organisation portal does not offer that form. Its database has no
+regulator audit table, so the gate stays closed there. Sign in as io1 or
+steward1.
 
 ### Keycloak single sign-on, regulator only
 
