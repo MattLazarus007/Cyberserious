@@ -67,3 +67,4 @@ rewritten page by page as each phase touches them.
 | 2026-10-19 | docs/DEMO.md | clean. Step 6 points at a page that exists, no em dash |
 | 2026-10-19 | docs/SETUP.md | clean. Counts corrected, sensor token added |
 | 2026-10-19 | docs/DEMO.md | clean. Real passwords, notice step added, no semicolon |
+| 2026-10-19 | docs/BRIEF.md | clean. Rewritten for a first-time reader, 14 sections |
