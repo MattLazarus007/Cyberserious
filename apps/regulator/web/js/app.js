@@ -243,7 +243,9 @@ function fillDetail(theCase) {
             : occurred);
 
     setText("detailNotificationDate",
-        "Held in the notification register. Version history ships with the intake work.");
+        theCase.firstReceivedAt
+            ? Api.fmtDate(theCase.firstReceivedAt)
+            : "No notification date on record.");
 
     setText("detailBreachType",
         theCase.category || "Not recorded");
@@ -307,7 +309,11 @@ function fillDetail(theCase) {
     }
 
     setText("detailOrganisationResponse",
-        "The organisation's own account arrives with its notification versions.");
+        theCase.versionCount > 0
+            ? theCase.versionCount + (theCase.versionCount === 1
+                ? " notification version is held for this case."
+                : " notification versions are held for this case.")
+            : "No organisation account is held for this case yet.");
 
     const priorityDisplay =
         document.getElementById("priorityDisplay");
@@ -324,13 +330,24 @@ function fillDetail(theCase) {
     }
 
     setText("notificationReceived",
-        "Checked against the register when intake history lands.");
+        theCase.firstReceivedAt
+            ? "Received " + Api.fmtDate(theCase.firstReceivedAt) + "."
+            : "No notification on record.");
 
-    setText("notificationTiming",
-        "Measured from evidence, never assumed.");
+    if (theCase.discoveredAt && theCase.firstReceivedAt) {
+        const days = Math.round(
+            (new Date(theCase.firstReceivedAt) - new Date(theCase.discoveredAt)) / 86400000);
+        setText("notificationTiming",
+            days >= 0
+                ? days + (days === 1 ? " day after discovery." : " days after discovery.")
+                : Math.abs(days) + (days === -1 ? " day before discovery." : " days before discovery."));
+    } else {
+        setText("notificationTiming",
+            "Discovery or receipt date is missing, so no interval is measured.");
+    }
 
     setText("assessment",
-        "A recorded human finding, not a computed value.");
+        "No assessment is recorded for this case yet.");
 
     const history =
         document.getElementById("activityHistory");
@@ -342,7 +359,7 @@ function fillDetail(theCase) {
         const line = document.createElement("p");
         line.textContent =
             "Opened " + Api.fmtDate(theCase.openedAt) +
-            ". Full history appears here once case work is durable.";
+            ". State changes and assignments are recorded in the case events.";
         history.append(line);
 
     }
