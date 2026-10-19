@@ -25,15 +25,15 @@ exact revision and hash, signs and sends. Signed intake verifies, claims
 idempotency and receipts with the test label. That closed the Gate C
 intake boxes.
 
-Then the POPIA section 22 duty to the affected people. The information
-officer records one dispatch per draft. The portal writes a delivery row
-per person and two audit rows, then reports the counts to the regulator
-as a signed notice. A claim wider than the recipient register is
+The build also owed the affected people a notice under section 22. The
+information officer records one dispatch per draft. The portal writes a
+delivery row per person and two audit rows, then reports the counts to
+the regulator as a signed notice. A claim wider than the recipient register is
 refused. A shortfall raises one medium alert and the case page shows the
 sent and total counts. Every label says recorded dispatch (lab
 simulation).
 
-Then the hardening and the stretch items. Evidence quarantine with
+The hardening and the stretch items came last. Evidence quarantine with
 review and redacted exports. Security headers with a strict content
 policy. Queue-aware health checks. Nightly checksummed backups with a
 timed restore rehearsal. Runbooks with dated exercise notes. Keycloak

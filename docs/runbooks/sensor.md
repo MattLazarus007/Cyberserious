@@ -13,7 +13,8 @@ Suricata runs the rules. `scripts/sensor-shipper.mjs` carries the alerts to
 `POST /api/v1/sensor/alerts` on the regulator under the `INTERNAL_TOKEN`
 header. The inbox shows them as sensor alerts. A repeated event keeps one
 row because the ingest path dedupes on the event key. A burst past the rate
-limit answers 429 and the shipper counts it as refused. The run never dies.
+limit answers 429 and the shipper counts it as refused. A refused post does
+not stop the run.
 
 ## Files
 
@@ -88,7 +89,7 @@ attempt with a host bind mount into `/wazuh-config-mount` failed with s6
 "child crashed with signal 11". The emulated manager binary dies before it
 reaches its entry point.
 
-What this means:
+The build makes three claims here.
 
 - The delivered sensor is Suricata. The replay path is proven.
 - The Wazuh parser maps a saved `alerts.json` to sensor payloads. T-64 and
