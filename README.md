@@ -161,7 +161,8 @@ clock.
 
 ## Documents worth opening first
 
-docs/UNDERSTANDING.md explains the system end to end.
+docs/BRIEF.md explains the law, both systems and the data for a first-time
+reader.
 docs/PROGRESS.md states where the build stands.
 docs/TEST_LOG.md holds every acceptance result, T-01 to T-77.
 docs/DEMO.md scripts the walkthrough across both systems.
