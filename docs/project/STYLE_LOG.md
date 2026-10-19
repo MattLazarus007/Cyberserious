@@ -74,3 +74,6 @@ rewritten page by page as each phase touches them.
 | 2026-10-19 | CHECKLIST.md | clean. One semicolon became a period |
 | 2026-10-19 | docs/runbooks/sensor.md | clean. Two tell phrases replaced |
 | 2026-10-19 | docs/project/AICHECK_LOG.md | clean. New log, 40 rows, no em dash, no filler word |
+| 2026-10-19 | README.md | clean. Rewritten, every login listed, no em dash, no semicolon |
+| 2026-10-19 | docs/SETUP.md | clean. Counts corrected, sensor token added |
+| 2026-10-19 | docs/DEMO.md | clean. Real passwords, notice step added, no semicolon |
