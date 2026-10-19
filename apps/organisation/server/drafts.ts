@@ -1,8 +1,6 @@
 import { Router } from "express";
 import { createHash } from "node:crypto";
-import { readFileSync } from "node:fs";
 import { z } from "zod";
-import * as jose from "jose";
 import { query, withTransaction } from "../../regulator/server/db.ts";
 import { requireSession, type Actor } from "../../regulator/server/session.ts";
 import { postSigned } from "./send.ts";
@@ -183,7 +181,6 @@ draftsRouter.post("/drafts/:id/send", async (req, res) => {
     return;
   }
   const keyPath = process.env.ORG_SENDER_KEY;
-  const senderId = process.env.ORG_SENDER_ID ?? "org-karoo-01";
   const intakeUrl = process.env.REGULATOR_INTAKE_URL ?? "http://localhost:8100/intake/v1/submissions";
   if (!keyPath) {
     res.status(500).json({ error: "no sender key configured" });
@@ -192,11 +189,7 @@ draftsRouter.post("/drafts/:id/send", async (req, res) => {
   await query("update drafts set status = 'Sending' where public_id = $1 and org_ref = (select reference from organisations where id = $2)", [req.params.id, actor.orgId]);
   let answer: Response;
   try {
-    const privateKey = await jose.importJWK(JSON.parse(readFileSync(keyPath, "utf8") as unknown as string), "ES256");
-    const jws = await new jose.CompactSign(Buffer.from(body, "utf8"))
-      .setProtectedHeader({ alg: "ES256", kid: senderId })
-      .sign(privateKey);
-    answer = await fetch(intakeUrl, { method: "POST", headers: { "content-type": "application/jose" }, body: jws });
+    answer = await postSigned(intakeUrl, body);
   } catch {
     await query("update drafts set status = 'RetryPending' where public_id = $1 and org_ref = (select reference from organisations where id = $2)", [req.params.id, actor.orgId]);
     res.status(502).json({ error: "the regulator intake is not answering, retry later" });

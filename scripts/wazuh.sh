@@ -1,23 +1,16 @@
 #!/usr/bin/env bash
-# Wazuh manager and agent for the phase 12 sensor lab, amd64 images on
-# this arm64 machine so they run under colima's emulation. Lab only.
+# Wazuh manager and agent for the phase 12 sensor lab. Lab only.
 #
-# What this script does differently from the earlier draft: it runs the
-# image's own entry point (the "manual permanent data" workaround was
-# built on a segfault claim that did not reproduce, and the host bind
-# mount of a config file into /wazuh-config-mount is what actually
-# crashed s6 with "child crashed with signal 11"). The lab password is
-# therefore set with docker exec + docker restart, and the agent's
-# watched /lab directory is created inside the container so no host
-# path has to be mounted.
+# The images are amd64. On this arm64 host the emulated manager dies
+# with exit 139 after about 100 ms and writes no log line, so the start
+# actions refuse unless WAZUH_ALLOW_EMULATION=1. Evidence sits in
+# docs/runbooks/sensor.md. Run this on a linux/amd64 host.
+#
+# The script sets the lab password with docker exec and creates /lab
+# inside the container, so no host path is mounted.
 #
 # Manager and agent must share a minor version: Docker Hub carries no
-# wazuh-agent below 4.13.0, so the lab pins both to 4.14.9.
-#
-# This arm64 host cannot run the manager. Under emulation the container
-# exits 139 after about 100 ms and writes no log line. The evidence sits
-# in STATUS.md and docs/runbooks/sensor.md. Start this script on a
-# linux/amd64 host.
+# wazuh-agent below 4.13.0, so both stay at 4.14.9.
 set -euo pipefail
 
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
