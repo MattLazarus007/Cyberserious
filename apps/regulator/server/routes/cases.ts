@@ -104,11 +104,19 @@ casesRouter.get("/cases/:id", async (req, res) => {
             f.discovery_source as "discoverySource", f.breach_status as "breachStatus",
             f.category, f.affected_count as "affectedCount", f.count_precision as "countPrecision",
             f.data_categories as "dataCategories", f.narrative,
+            n.first_received_at as "firstReceivedAt",
+            (select count(*)::int from notification_versions v where v.notification_id = n.id) as "versionCount",
             an.sent as "affectedSent", an.affected_total as "affectedTotal",
             an.channel as "affectedChannel", an.completed_at as "affectedCompletedAt"
        from cases c
        join organisations o on o.id = c.org_id
        left join case_facts f on f.case_id = c.id
+       left join lateral (
+         select id, first_received_at from notifications
+          where case_id = c.id
+          order by first_received_at desc, id
+          limit 1
+       ) n on true
        left join lateral (
          select sent, affected_total, channel, completed_at
            from affected_notices n

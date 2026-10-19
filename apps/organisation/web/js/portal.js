@@ -213,6 +213,10 @@ document.addEventListener("DOMContentLoaded", function () {
         } catch (err) {
             role = null;
         }
+        if (role) {
+            const hint = document.getElementById("signInHint");
+            if (hint) hint.hidden = true;
+        }
     }
 
     loadRole().then(refresh);
