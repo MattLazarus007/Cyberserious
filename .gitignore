@@ -12,3 +12,7 @@ eve.json
 fast.log
 stats.log
 suricata.log
+
+# Session handoffs
+SESSION_HANDOFF.md
+.full-review/
