@@ -41,7 +41,7 @@ single sign-in under a local role map. Intake over mutual TLS. A
 Suricata lab sensor with three rules, a fixture replay and a shipper to
 the regulator inbox. The Wazuh manager cannot run on this arm64 host,
 because the amd64 image exits 139 under emulation. That gap is recorded
-in STATUS and docs/runbooks/sensor.md. No Wazuh claim is made.
+in docs/runbooks/sensor.md. No Wazuh claim is made.
 
 The build stands at 118 automated tests and 11 browser flows, all
 passing.

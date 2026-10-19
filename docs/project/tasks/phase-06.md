@@ -23,7 +23,7 @@ live API. Completes Gate B. Covers T-21 to T-25.
 3. Alert actions with reason required, snooze expiry via worker sweep.
 4. Dedupe test: same inputs refresh last_seen_at, no new row.
 5. Unknown-date and stale-feed fixtures from the seed drive T-24 T-25.
-6. Gate B walk recorded in STATUS.md.
+6. Gate B walk recorded.
 
 ## Verification
 

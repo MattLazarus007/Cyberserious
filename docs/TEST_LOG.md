@@ -108,7 +108,7 @@ container from scripts/keycloak.sh.
 | T-61 | Sensor alert with the internal token lands in the inbox | Pass | sensor.test.ts: 201 created, one SENSOR-IDS alert, medium priority, reason "Suricata IDS: LAB cleartext credential post on an app port", null case, open state, visible to analyst1 on /api/v1/alerts |
 | T-62 | Sensor alert without a valid token is refused | Pass | sensor.test.ts: missing and wrong token answer 401, no SENSOR-IDS row, two sensor.alert denied audit rows |
 | T-63 | The same sensor event shipped twice keeps one row | Pass | sensor.test.ts: first 201 created true, retry 200 created false, one row with last_seen_at later than first_seen_at |
-| T-64 | A Wazuh source label maps to the FIM reason | Pass | sensor.test.ts: a saved payload with source wazuh gives reason "Wazuh FIM: File added to a watched directory" and low priority. The manager itself is not running, see STATUS Deviations |
+| T-64 | A Wazuh source label maps to the FIM reason | Pass | sensor.test.ts: a saved payload with source wazuh gives reason "Wazuh FIM: File added to a watched directory" and low priority. The manager itself is not running, see docs/runbooks/sensor.md |
 | T-65 | A burst past the sensor rate limit is refused | Pass | sensor.test.ts: SENSOR_RATE_LIMIT 3, four posts answer 201, 200, 200, 429 |
 | T-66 | The shipper carries replayed eve alerts into the inbox | Pass | sensor.test.ts: three parsed alerts shipped, sent 3 refused 0, three SENSOR-IDS rows with the three lab signatures. A 429 only server counts refused 3 and sent 0 |
 | T-67 | The Wazuh parser maps levels and descriptions | Pass | sensor.test.ts: level 5 gives low, level 12 gives medium, the signature is the rule description, the source is the agent name. Saved file only |
