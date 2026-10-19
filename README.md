@@ -167,7 +167,6 @@ docs/TEST_LOG.md holds every acceptance result, T-01 to T-77.
 docs/DEMO.md scripts the walkthrough across both systems.
 docs/SETUP.md covers the empty machine, secrets and the optional listeners.
 docs/runbooks/ holds the restore, incident and sensor procedures.
-docs/project/AICHECK_LOG.md records the prose pass over every file.
 
 ## Limits, stated plainly
 
