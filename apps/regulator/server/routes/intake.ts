@@ -135,6 +135,147 @@ intakeRouter.post(
   }
 );
 
+const affectedNoticePayload = z.object({
+  draftPublicId: z.string().min(4).max(128),
+  orgRef: z.string().min(1).max(40).optional(),
+  caseRef: z.string().min(4).max(64).optional(),
+  affectedTotal: z.number().int().min(0),
+  sent: z.number().int().min(0),
+  failed: z.number().int().min(0),
+  channel: z.enum(["email", "sms", "phone", "letter"]),
+  completedAt: z.string().datetime(),
+});
+
+async function verifyNotice(raw: string): Promise<{ senderId: string; orgId: string; body: unknown }> {
+  const header = safeHeader(raw);
+  if (!header || header.alg !== "ES256" || typeof header.kid !== "string") {
+    await recordAudit({ actor: "unknown-sender", action: "intake.affected_notice.rejected", resource: "affected_notice", result: "denied", meta: { why: "bad header" } });
+    throw Object.assign(new Error("unknown sender"), { status: 401 });
+  }
+  const keyRow = await query("select sender_id, org_id, public_jwk from sender_keys where sender_id = $1 and active", [header.kid]);
+  if (keyRow.rows.length === 0) {
+    await recordAudit({ actor: header.kid, action: "intake.affected_notice.rejected", resource: "affected_notice", result: "denied", meta: { why: "unregistered sender" } });
+    throw Object.assign(new Error("unknown sender"), { status: 401 });
+  }
+  let verified: jose.CompactVerifyResult;
+  try {
+    const key = await jose.importJWK(keyRow.rows[0].public_jwk, "ES256");
+    verified = await jose.compactVerify(raw, key);
+  } catch {
+    await recordAudit({ actor: header.kid, action: "intake.affected_notice.rejected", resource: "affected_notice", result: "denied", meta: { why: "bad signature" } });
+    throw Object.assign(new Error("bad signature"), { status: 401 });
+  }
+  let body: unknown;
+  try {
+    body = JSON.parse(Buffer.from(verified.payload).toString("utf8"));
+  } catch {
+    throw Object.assign(new Error("notice is not JSON"), { status: 400 });
+  }
+  return { senderId: header.kid, orgId: keyRow.rows[0].org_id, body };
+}
+
+intakeRouter.post(
+  "/api/v1/intake/affected-notices",
+  expressRaw(),
+  async (req, res) => {
+    const raw = (req as unknown as { rawBody: string }).rawBody;
+    if (!raw || typeof raw !== "string") {
+      res.status(400).json({ error: "expected a signed affected notice" });
+      return;
+    }
+    try {
+      const { senderId, orgId, body } = await verifyNotice(raw);
+      const parsed = affectedNoticePayload.safeParse(body);
+      if (!parsed.success) {
+        res.status(400).json({ error: "affected notice fails validation" });
+        return;
+      }
+      const notice = parsed.data;
+      if (notice.sent + notice.failed > notice.affectedTotal) {
+        res.status(422).json({ error: "sent and failed cannot exceed the affected total" });
+        return;
+      }
+      const senderOrg = await query("select reference from organisations where id = $1", [orgId]);
+      if (notice.orgRef && notice.orgRef !== senderOrg.rows[0].reference) {
+        res.status(422).json({ error: "the sender key does not belong to that organisation" });
+        return;
+      }
+      let caseId: string | null = null;
+      let caseRef: string | null = null;
+      if (notice.caseRef) {
+        const found = await query("select id, reference from cases where reference = $1 and org_id = $2", [notice.caseRef, orgId]);
+        if (found.rows.length === 0) {
+          res.status(422).json({ error: "unknown case reference" });
+          return;
+        }
+        caseId = found.rows[0].id;
+        caseRef = found.rows[0].reference;
+      } else {
+        const receipt = await query(
+          "select response->>'caseRef' as reference from intake_receipts where sender_id = $1 and submission_id = $2",
+          [senderId, notice.draftPublicId]
+        );
+        if (receipt.rows.length > 0 && receipt.rows[0].reference) {
+          caseRef = receipt.rows[0].reference;
+          const found = await query("select id from cases where reference = $1 and org_id = $2", [caseRef, orgId]);
+          if (found.rows.length > 0) caseId = found.rows[0].id;
+        }
+      }
+      const payloadHash = createHash("sha256").update(raw).digest("hex");
+      const result = await withTransaction(async (client) => {
+        const inserted = await client.query(
+          `insert into affected_notices
+             (case_id, draft_public_id, sender_org_id, affected_total, sent, failed, channel, completed_at)
+           values ($1, $2, $3, $4, $5, $6, $7, $8)
+           on conflict (sender_org_id, draft_public_id, channel, completed_at) do nothing
+           returning id`,
+          [caseId, notice.draftPublicId, orgId, notice.affectedTotal, notice.sent, notice.failed, notice.channel, notice.completedAt]
+        );
+        if (inserted.rows.length === 0) {
+          const prior = await client.query(
+            `select id from affected_notices
+              where sender_org_id = $1 and draft_public_id = $2 and channel = $3 and completed_at = $4`,
+            [orgId, notice.draftPublicId, notice.channel, notice.completedAt]
+          );
+          return { noticeId: prior.rows[0].id as string, duplicate: true };
+        }
+        const noticeId = inserted.rows[0].id as string;
+        if (notice.sent < notice.affectedTotal) {
+          const shortfall = notice.affectedTotal - notice.sent;
+          await client.query(
+            `insert into alerts
+               (case_id, rule_id, rule_version, dedupe_key, priority, reason, input_hash, state)
+             values ($1, 'AFFECTED-NOTICE-SHORTFALL', 1, $2, 'medium', $3, $4, 'open')
+             on conflict (dedupe_key) do nothing`,
+            [
+              caseId,
+              `AFFECTED-NOTICE-SHORTFALL:v1:${notice.draftPublicId}:${notice.channel}:${notice.completedAt}`,
+              `Affected notice shortfall on ${notice.draftPublicId}: sent ${notice.sent} of ${notice.affectedTotal} by ${notice.channel}, ${shortfall} short, ${notice.failed} failed.`,
+              payloadHash,
+            ]
+          );
+        }
+        await recordAuditTx(client, {
+          actor: senderId, action: "intake.affected_notice", resource: caseId ?? notice.draftPublicId,
+          result: "ok",
+          meta: {
+            draftPublicId: notice.draftPublicId, channel: notice.channel,
+            affectedTotal: notice.affectedTotal, sent: notice.sent, failed: notice.failed,
+          },
+        });
+        return { noticeId, duplicate: false };
+      });
+      res.status(result.duplicate ? 200 : 201).json({
+        recorded: true, noticeId: result.noticeId, caseRef,
+        ...(result.duplicate ? { duplicate: true } : {}),
+      });
+    } catch (err) {
+      const status = (err as { status?: number }).status ?? 500;
+      res.status(status).json({ error: (err as Error).message });
+    }
+  }
+);
+
 function safeHeader(raw: string): { alg?: string; kid?: string } | null {
   try {
     const first = raw.split(".")[0];
