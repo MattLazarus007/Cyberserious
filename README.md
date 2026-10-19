@@ -1,89 +1,181 @@
 # CyberSerious
 
-Breach notification and case management for Section 22 of POPIA,
-built by Group 1 for the Eduvos ITNPA3 project.
+Breach notification and case management for section 22 of POPIA. Group 1,
+Eduvos ITNPA3. The lab runs on one machine, every record is synthetic, and
+nothing here is an official reporting channel.
 
-When personal information is compromised, the responsible
-organisation must tell the Information Regulator and the affected
-people as soon as reasonably possible. That is the whole system in
-one sentence. Organisations draft the report, approve that exact
-draft and send it. Analysts on the regulator side open cases, read
-the evidence, add notes, move cases through review, and work alerts
-raised by named rules. Every step is attributed and every important
-write is audited.
+An organisation that loses personal information drafts a report, approves
+that exact revision and sends it. The regulator receives the signed report,
+opens a case, reads the evidence, works the alerts and records the outcome.
+The organisation also records a notice to every affected person and reports
+the sent count back. Every write is attributed. The important ones land in a
+hash-chained audit log.
 
-Nothing here is real data. Fixtures use invented organisations and
-test receipts carry the test label. This is coursework, not an
-official reporting channel. The official channel is the
-Regulator's eServices Portal.
+## Quick start
 
-## Where things stand
+You need Node 24 and PostgreSQL 16. docs/SETUP.md covers an empty machine,
+including the toolchain pin and the four local databases.
 
-The build is complete through the two-system lab and the hardening
-pass. Seventy-six automated tests pass, five browser flows run green
-on Chromium, and the acceptance log records every result with one
-honest gap: managed identity sign-in.
-Gate A, Gate B and the Gate C intake boxes are ticked in
-CHECKLIST.md with evidence in STATUS.md. The full story of the two
-days sits in docs/PROGRESS.md, last updated 16 October 2026.
-
-## Run it
-
-You need Node 24 and PostgreSQL 16. The toolchain pins itself
-through scripts/env.sh.
-
-```
+```bash
 source scripts/env.sh
 npm install
 npm run db:migrate && npm run db:seed
 npm run db:migrate:org && npm run db:seed:org
-npm run dev
+node tools/org-sender.ts --register
 ```
 
-Open http://localhost:8100/index.html and sign in as analyst1. The
-one-time code prints in the server terminal. The organisation
-portal runs with npm run dev:org on port 8200, where steward1
-drafts and io1 approves. The rules worker runs with npm run worker.
-Tests run with npm test, browser flows with npm run test:e2e. Setup
-from an empty machine, secrets included, is written up in
-docs/SETUP.md.
+`--register` writes keys/org-sender.json and puts its public key in the
+sender registry. The organisation portal cannot send or notify without it.
 
-## How it fits together
+Start what you need, each in its own terminal:
+
+```bash
+npm run dev       # regulator, http://localhost:8100
+ORG_SENDER_KEY="$PWD/keys/org-sender.json" npm run dev:org
+                  # organisation portal, http://localhost:8200
+npm run worker    # rules worker, opens alerts for new cases
+```
+
+Reset the demo state at any time with
+`node db/seed.ts --reset && node db/seed_org.ts --reset`.
+
+## Every way to sign in
+
+A normal account takes two steps. Username and password first. Then a
+six-digit code, printed in the terminal that runs the server you are signing
+in to. The code lives five minutes and allows three attempts. Five wrong
+passwords lock that username for fifteen minutes.
+
+Regulator workspace, port 8100:
+
+| Username | Password | Role | What it can do |
+|---|---|---|---|
+| analyst1 | demo-analyst-pass | regulator analyst | read cases, write notes, import records, update alerts |
+| supervisor1 | demo-supervisor-pass | regulator supervisor | the above, plus move cases and assign analysts |
+| reviewer1 | demo-reviewer-pass | audit reviewer | read the audit chain, nothing else |
+| admin1 | demo-admin-pass | system administrator | create and manage accounts, no case content |
+| io1 | demo-io-pass | information officer | organisation role, kept for the shared seed |
+| steward1 | demo-steward-pass | data steward | organisation role, kept for the shared seed |
+| so1 | demo-so-pass | security officer | organisation role, kept for the shared seed |
+
+The three organisation roles exist in the regulator database for the shared
+fixtures. The regulator screens refuse them, because the permission table
+gives those roles nothing on that side.
+
+Organisation portal, port 8200. It has its own database, so only these three
+accounts exist there:
+
+| Username | Password | What it can do |
+|---|---|---|
+| steward1 | demo-steward-pass | write a draft, send it for approval |
+| io1 | demo-io-pass | approve, sign, send, record the affected-person notice |
+| so1 | demo-so-pass | read the draft list |
+
+### Group passphrase, no code
+
+```bash
+GROUP_LOGIN=1 GROUP_PASSPHRASE="group-demo-2026" npm run dev
+```
+
+The regulator login page then shows a third form. The passphrase creates one
+shared account named group with the regulator analyst role. It skips the
+code. Use it when the whole group signs in together. It carries no per-person
+attribution, so keep it off for assessed work.
+
+The organisation login page shows the same form while the gate is open. That
+session has no organisation, so every draft action stays refused. Sign in
+there as io1 or steward1 instead.
+
+### Keycloak single sign-on, regulator only
+
+```bash
+bash scripts/keycloak.sh
+OIDC_ISSUER=http://localhost:18080/realms/cyberserious \
+  OIDC_CLIENT_ID=regulator-web npm run dev
+```
+
+A "Sign in with single sign-on" link appears above the password form. The
+realm is cyberserious, the client is regulator-web, and PKCE S256 is required.
+The provider proves the identity. The local database still decides the role.
+
+| Provider user | Password |
+|---|---|
+| analyst1 | kc-analyst-pass-2026 |
+| io1 | kc-io-pass-2026 |
+| demo | kc-demo-pass-2026 |
+
+A name the local tables do not know arrives as a regulator analyst with no
+organisation. An existing name keeps its rows and its organisation.
+
+### Simple lab sign-in
+
+`LAB_SIMPLE_LOGIN=1` in front of either server command signs a password
+account in without the code. The server log marks each one. Use it when the
+group tests together, never for assessed work.
+
+### Machine channels, not human logins
+
+- Signed intake: the organisation signs each submission with the key under
+  keys/, created by `node tools/org-sender.ts --register`.
+- Mutual TLS: `bash scripts/gen-mtls-certs.sh` writes a local authority and a
+  client certificate. `MTLS_PORT=8101 npm run dev` opens a second listener
+  that refuses any request without that certificate. The sender uses
+  `MTLS=1 node tools/org-sender.ts --send`.
+- Sensor intake: the shipper sends alerts with an `INTERNAL_TOKEN` header.
+  Export a value before you start it. The regulator refuses every other one.
+
+## Tests
+
+```bash
+npm test          # 118 tests: unit, integration, security
+npm run test:e2e  # 11 browser flows on Chromium
+```
+
+The browser suite uses the dev databases for the regulator pages and the test
+databases for the notification flow. Reseed the dev pair after a migration, or
+the case detail can answer with stale data.
+
+## Where things live
 
 ```
-apps/regulator/web        dashboard, register, alerts, case detail,
-                          research, architecture, login
-apps/regulator/server     routes, policy gate, sessions, audit chain,
-                          rules, worker, signed intake, evidence
+apps/regulator/web        dashboard, register, alerts, case detail, research,
+                          architecture, login
+apps/regulator/server     routes, policy gate, sessions, audit chain, rules,
+                          worker, signed intake, evidence, sensor, OIDC, mTLS
 apps/organisation/web     draft workspace and sign-in
-apps/organisation/server  drafts, approval, signed sending
+apps/organisation/server  drafts, approval, signed sending, affected notices
 packages/contracts        shared enums and input shapes
-db/migrations             regulator tables, numbered and ordered
-db/org-migrations         draft table for the portal
-db/seed.ts                fictional cases, alerts from the rules,
-                          research from the group bibliography
+db/migrations             thirteen regulator migrations
+db/org-migrations         two organisation migrations
+db/seed.ts                seven cases, alerts from the rules, research
+db/seed_org.ts            one company, three users, 25 synthetic recipients
 docs/                     guides, decisions, risks, evidence, runbooks
 ```
 
-Postgres holds everything durable: cases with facts, immutable
-notification versions, hash-chained audit rows, alerts with dedupe
-keys, outbox jobs under lease, research with sealed notes, duties
-per case, evidence rows pointing at quarantined files, sender keys
-for intake. Twelve migrations build it from nothing. The seed rebuilds
-the same rows every time under a frozen clock.
+Postgres holds everything durable: cases with facts, immutable notification
+versions, hash-chained audit rows, alerts with dedupe keys, outbox jobs under
+lease, sealed research notes, duties per case, quarantined evidence and the
+sender registry. The seed rebuilds the same rows every time under a frozen
+clock.
 
 ## Documents worth opening first
 
-docs/UNDERSTANDING.md explains the system end to end for markers
-and new group members. docs/PROGRESS.md tracks what is done.
-docs/TOOLBOX.md lists every tool with its version. docs/TEST_LOG.md
-holds the acceptance results. docs/DEMO.md scripts the fifteen
-minute walkthrough. docs/RISKS.md pairs each risk with its test.
+docs/UNDERSTANDING.md explains the system end to end.
+docs/PROGRESS.md states where the build stands.
+docs/TEST_LOG.md holds every acceptance result, T-01 to T-77.
+docs/DEMO.md scripts the walkthrough across both systems.
+docs/SETUP.md covers the empty machine, secrets and the optional listeners.
+docs/runbooks/ holds the restore, incident and sensor procedures.
+docs/project/AICHECK_LOG.md records the prose pass over every file.
 
 ## Limits, stated plainly
 
-The console code is weaker than real multi-factor sign-in, and the
-Keycloak path is recorded for later. Timers pace the demo and never
-claim legal force. The system computes no verdicts. The lab runs on
-one machine over plain HTTP. Backups are dumps with checksums, and
-the research key lives outside them by design.
+The console code is not real multi-factor authentication, and the Keycloak
+path is a lab provider. The shared group passphrase carries no attribution.
+The timers pace the work and never claim legal force. The system computes no
+verdicts. Everything runs on one machine over plain HTTP, except the optional
+mTLS listener. The sensor is Suricata with three rules. The Wazuh manager does
+not run on this arm64 host, and no Wazuh claim is made.
+
+Every account in this file is synthetic and lab only. The seed files carry
+them on purpose. Never reuse them anywhere else.
