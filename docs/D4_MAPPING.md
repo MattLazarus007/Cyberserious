@@ -16,7 +16,7 @@ Postgres 16, local service.
 Interface: apps/regulator/web and apps/organisation/web. API:
 apps/regulator/server/routes with contracts in packages/contracts.
 Seeded fixtures: db/seed.ts and db/seed_org.ts with the frozen
-clock. Gate walks: STATUS.md entries for Gate A, Gate B and the
+clock. Gate walks: docs/PROGRESS.md records Gate A, Gate B and the
 Gate C intake boxes. Affected-person notices:
 apps/organisation/server/drafts.ts and
 apps/regulator/server/routes/intake.ts with T-68 to T-76.
