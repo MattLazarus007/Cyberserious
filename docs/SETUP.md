@@ -16,16 +16,16 @@ disabled on purpose. Full tool list with versions: docs/TOOLBOX.md.
 Role cyberserious with four databases: cyberserious_dev and
 cyberserious_test for the regulator, cyberserious_org_dev and
 cyberserious_org_test for the organisation portal. The schema
-travels as numbered migration files under db/migrations (ten for
-the regulator) plus one draft table under db/org-migrations. The
+travels as numbered migration files under db/migrations (thirteen for
+the regulator) plus two under db/org-migrations. The
 migration runners apply each file once inside its own transaction
 and record it, so reruns are safe.
 
 Seeded content is deterministic under a frozen clock. The regulator
-seed builds three fictional organisations, six users, seven cases,
-six notifications, ten rule-raised alerts, four research cases,
-eleven sources and the duty table. The organisation seed builds one
-company with a steward and an information officer.
+seed builds three fictional organisations, seven users, seven cases,
+six notifications, eleven rule-raised alerts, four research cases,
+thirteen sources and the duty table. The organisation seed builds one
+company with three users and 25 synthetic recipients.
 
 ## Run it
 
@@ -37,7 +37,8 @@ npm run dev
 ```
 
 The regulator answers on port 8100. Sign in as analyst1 and read
-the one-time code from this same terminal. The portal runs with
+the one-time code from this same terminal. Every account, password
+and sign-in path is listed in README.md. The portal runs with
 npm run dev:org on port 8200. The worker runs with npm run worker.
 Tests run with npm test, browser flows with npm run test:e2e.
 
@@ -60,6 +61,10 @@ scripts/env.sh. The sender key for signed intake lives under keys/,
 outside version control, created by tools/org-sender.ts with
 --register. Backups land under data/backups/, also outside version
 control.
+
+The sensor shipper needs INTERNAL_TOKEN set to the same value the
+regulator holds. The .env.example file carries an empty placeholder.
+Export a value in both shells before starting the shipper.
 
 The group gate reads its two variables from the environment on
 every request: set GROUP_LOGIN=1 to open it and GROUP_PASSPHRASE
