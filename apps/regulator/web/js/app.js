@@ -262,6 +262,21 @@ function fillDetail(theCase) {
                 ? " (" + theCase.countPrecision + ")"
                 : ""));
 
+    const noticeTotal = theCase.affectedTotal;
+
+    if (noticeTotal === null || noticeTotal === undefined) {
+        setText("detailAffectedNotice",
+            "No affected-person notice is recorded for this case yet.");
+    } else {
+        const shortfall = noticeTotal - theCase.affectedSent;
+        setText("detailAffectedNotice",
+            formatCount(theCase.affectedSent) + " of " + formatCount(noticeTotal) +
+            " notified by " + theCase.affectedChannel + " on " +
+            Api.fmtDate(theCase.affectedCompletedAt) +
+            " (recorded dispatch, lab simulation)." +
+            (shortfall > 0 ? " Shortfall: " + formatCount(shortfall) + "." : ""));
+    }
+
     setText("detailDescription",
         theCase.narrative || "No narrative recorded.");
 
