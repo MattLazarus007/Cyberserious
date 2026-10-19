@@ -73,6 +73,10 @@ does not run on this machine.
 `wazuh/wazuh-agent:4.14.9` for `linux/amd64`. The host is arm64 and the
 Docker engine is arm64. The images therefore run under emulation.
 
+On an arm64 host the script refuses the start actions with exit 2 and
+names this gap. `WAZUH_ALLOW_EMULATION=1` overrides the refusal for a
+trial. `status` still reads the stopped containers.
+
 Evidence from 2026-10-19:
 
     docker inspect wz-manager --format 'exit={{.State.ExitCode}} oom={{.State.OOMKilled}}'
