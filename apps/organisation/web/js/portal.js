@@ -116,8 +116,12 @@ document.addEventListener("DOMContentLoaded", function () {
                     refresh();
                 }),
                 button("Sign and send", async function () {
-                    const done = await call("/api/v1/drafts/" + draft.publicId + "/send", { method: "POST" });
-                    say("Receipt kept: case " + done.receipt.caseRef + ".");
+                    try {
+                        const done = await call("/api/v1/drafts/" + draft.publicId + "/send", { method: "POST" });
+                        say("Receipt kept: case " + done.receipt.caseRef + ".");
+                    } catch (err) {
+                        say(err.message, true);
+                    }
                     refresh();
                 })
             );
