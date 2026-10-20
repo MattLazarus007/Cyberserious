@@ -124,6 +124,18 @@ test("T-20 failures leave no receipt, success leaves one case and one job", asyn
     const receipts = await conn.query("select count(*)::int as n from intake_receipts");
     assert.equal(receipts.rows[0].n, 0);
     await conn.end();
+    // 020B
+    const foreignOrg = await postIntake(srv.base, await keys.sign(submission({ submissionId: "SUB-TEST-020B", orgRef: "DEMO-ORG-02" })));
+    assert.equal(foreignOrg.status, 422, "the key is registered to DEMO-ORG-01 only");
+    const scope = new pg.Client({ connectionString: dbUrl });
+    await scope.connect();
+    const casesSoFar = await scope.query("select count(*)::int as n from cases");
+    assert.equal(casesSoFar.rows[0].n, 7, "the foreign report opens no case");
+    const denials = await scope.query(
+      "select count(*)::int as n from audit_events where action = 'intake.rejected' and meta->>'why' = 'org mismatch'"
+    );
+    assert.equal(denials.rows[0].n, 1);
+    await scope.end();
     const good = await postIntake(srv.base, await keys.sign(submission({ submissionId: "SUB-TEST-020" })));
     assert.equal(good.status, 201);
     const conn2 = new pg.Client({ connectionString: dbUrl });
