@@ -65,6 +65,24 @@ intakeRouter.post(
     }
     const senderId = header.kid as string;
     const payloadHash = createHash("sha256").update(raw).digest("hex");
+    const org = await query("select id from organisations where reference = $1", [parsed.data.orgRef]);
+    if (org.rows.length === 0) {
+      res.status(422).json({ error: "unknown organisation" });
+      return;
+    }
+    // The key names the sender. The body must name the same organisation.
+    const senderOrgId = keyRow.rows[0].org_id as string;
+    if (org.rows[0].id !== senderOrgId) {
+      await recordAudit({
+        actor: senderId,
+        action: "intake.rejected",
+        resource: "intake",
+        result: "denied",
+        meta: { why: "org mismatch", claimedOrg: parsed.data.orgRef },
+      });
+      res.status(422).json({ error: "the sender key does not belong to that organisation" });
+      return;
+    }
     try {
       const receipt = await withTransaction(async (client) => {
         const prior = await client.query(
@@ -80,15 +98,11 @@ intakeRouter.post(
           }
           return { retry: true, stored: prior.rows[0].response };
         }
-        const org = await client.query("select id from organisations where reference = $1", [parsed.data.orgRef]);
-        if (org.rows.length === 0) {
-          throw Object.assign(new Error("unknown organisation"), { status: 422 });
-        }
         const count = await client.query("select count(*)::int as n from cases");
         const reference = `BR-2026-${String(100 + count.rows[0].n).padStart(4, "0")}`;
         const kase = await client.query(
           "insert into cases (reference, org_id, state, severity, priority) values ($1, $2, 'Pending', $3, $4) returning id",
-          [reference, org.rows[0].id, parsed.data.severity, parsed.data.priority]
+          [reference, senderOrgId, parsed.data.severity, parsed.data.priority]
         );
         const caseId = kase.rows[0].id as string;
         await client.query(
