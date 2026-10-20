@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="View detailed breach case information under POPIA Section 22.">
+    <title>Breach Details | CyberSerious</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/page-styles.css">
+    <!-- page styles live in css/style.css -->
+</head>
+<body data-page="breach">
+<div class="app">
+    <aside class="sidebar">
+        <div class="logo">
+            <h1>CYBERSERIOUS</h1>
+            <p>Information Regulator</p>
+        </div>
+                <nav class="nav" aria-label="Main navigation">
+            <a href="index.html">
+                <span class="nav-icon" aria-hidden="true">▦</span>
+                Dashboard
+            </a>
+            <a href="notifications.html">
+                <span class="nav-icon" aria-hidden="true">▤</span>
+                Notifications
+            </a>
+            <a href="alerts.html">
+                <span class="nav-icon" aria-hidden="true">⚠</span>
+                Alerts
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            POPIA Section 22<br>
+            Breach Monitoring System
+        </div>
+    </aside>
+
+    <main class="main">
+        <header class="topbar">
+            <div class="topbar-title">
+                Information Regulator / Breach Details
+            </div>
+            <div class="user">
+                <a href="login.html" id="accountLink"><div class="user-avatar">?</div><span>Sign in</span></a>
+            </div>
+        </header>
+
+        <section class="content">
+            <a href="notifications.html" class="back-link">← Back to Notifications</a>
+
+            <div class="page-intro">
+                <div>
+                    <span class="page-eyebrow">Case details</span>
+                    <h2 id="caseTitle">Case details</h2>
+                    <p id="organisationName"></p>
+                </div>
+                <span class="status-badge review" id="headerStatus"></span>
+            </div>
+
+            <div class="detail-grid">
+                <!-- LEFT COLUMN -->
+                <div>
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Incident Information</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="detail-row">
+                                <div class="detail-label">Case ID</div>
+                                <div id="detailCaseId"></div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-label">Organisation</div>
+                                <div id="detailOrganisation"></div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-label">Incident Date</div>
+                                <div id="detailIncidentDate"></div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-label">Notification Date</div>
+                                <div id="detailNotificationDate"></div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-label">Breach Type</div>
+                                <div id="detailBreachType"></div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-label">Severity</div>
+                                <div>
+                                    <span id="detailSeverity" class="priority"></span>
+                                </div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-label">Affected Data Subjects</div>
+                                <div id="detailAffectedSubjects"></div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-label">Affected Notice</div>
+                                <div id="detailAffectedNotice"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Breach Description</h3>
+                        </div>
+                        <div class="card-body">
+                            <p id="detailDescription"></p>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Information Potentially Affected</h3>
+                        </div>
+                        <div class="card-body">
+                            <div id="informationAffected"></div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Organisation Response</h3>
+                        </div>
+                        <div class="card-body">
+                            <p id="detailOrganisationResponse"></p>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Internal Notes</h3>
+                        </div>
+                        <div class="card-body">
+                            <textarea
+                                class="notes-box"
+                                id="notes"
+                                placeholder="Add an internal note about this case..."
+                            ></textarea>
+                            <div class="note-actions">
+                                <button type="button" class="btn-primary" id="addNoteButton">
+                                    Add Note
+                                </button>
+                            </div>
+                            <div id="noteMessage" class="action-message"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- RIGHT COLUMN -->
+                <div>
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Regulatory Status</h3>
+                        </div>
+                        <div class="card-body">
+                            <label for="caseStatus" class="assessment-label">Current Status</label>
+                            <select id="caseStatus" aria-label="Case status"></select>
+                            <button
+                                type="button"
+                                class="btn-primary btn-block"
+                                id="updateStatusButton"
+                            >
+                                Update Status
+                            </button>
+                            <div id="statusMessage" class="action-message"></div>
+                        </div>
+                    </div>
+
+                    <!-- SAVED NOTES (shows notes after you add them) -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Saved Notes</h3>
+                        </div>
+                        <div class="card-body">
+                            <div id="notesList">
+                                <p class="empty-note">No notes added yet.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Case Priority</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="priority-display" id="priorityDisplay"></div>
+                            <p class="priority-note">Requires regulator review.</p>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Section 22 Assessment</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="assessment-item">
+                                <span class="assessment-label">Notification received</span>
+                                <strong class="assessment-value" id="notificationReceived"></strong>
+                            </div>
+                            <div class="assessment-item">
+                                <span class="assessment-label">Notification timing</span>
+                                <strong class="assessment-value" id="notificationTiming"></strong>
+                            </div>
+                            <div class="assessment-item">
+                                <span class="assessment-label">Current assessment</span>
+                                <span id="assessment" class="status-badge pending"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Section 22 duties for this case</h3>
+                        </div>
+                        <div class="card-body">
+                            <div id="dutyList"><p>Loading duties…</p></div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Activity History</h3>
+                        </div>
+                        <div class="card-body">
+                            <div id="activityHistory"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <footer class="breach-footer">
+                <span>
+                    <strong>CyberSerious</strong> · POPIA Section 22 monitoring prototype
+                </span>
+                <span>
+                    Illustrative data only · Not an official reporting system
+                </span>
+            </footer>
+        </section>
+    </main>
+</div>
+
+<script src="js/api.js"></script>
+<script src="js/app.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,106 @@
+{
+  "realm": "cyberserious",
+  "displayName": "CyberSerious lab",
+  "enabled": true,
+  "registrationAllowed": false,
+  "registrationEmailAsUsername": false,
+  "loginWithEmailAllowed": false,
+  "duplicateEmailsAllowed": false,
+  "resetPasswordAllowed": false,
+  "editUsernameAllowed": false,
+  "rememberMe": false,
+  "verifyEmail": false,
+  "sslRequired": "external",
+  "accessTokenLifespan": 300,
+  "ssoSessionIdleTimeout": 1800,
+  "ssoSessionMaxLifespan": 36000,
+  "offlineSessionIdleTimeout": 1800,
+  "bruteForceProtected": true,
+  "permanentLockout": false,
+  "bruteForceStrategy": "MULTIPLE",
+  "failureFactor": 5,
+  "waitIncrementSeconds": 30,
+  "maxFailureWaitSeconds": 30,
+  "minimumQuickLoginWaitSeconds": 30,
+  "quickLoginCheckMilliSeconds": 1000,
+  "maxDeltaTimeSeconds": 43200,
+  "clients": [
+    {
+      "clientId": "regulator-web",
+      "name": "Regulator workspace",
+      "description": "Public client for the CyberSerious regulator app on localhost:8100. Authorization code only, PKCE S256 required.",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": false,
+      "frontchannelLogout": true,
+      "rootUrl": "http://localhost:8100",
+      "baseUrl": "/login.html",
+      "adminUrl": "http://localhost:8100",
+      "redirectUris": ["http://localhost:8100/auth/oidc/callback"],
+      "webOrigins": ["http://localhost:8100"],
+      "attributes": {
+        "pkce.code.challenge.method": "S256",
+        "pkce.required": "true",
+        "token.endpoint.auth.method": "none",
+        "backchannel.logout.session.required": "true",
+        "display.on.consent.screen": "false"
+      },
+      "defaultClientScopes": ["web-origins", "acr", "roles", "profile", "email"],
+      "optionalClientScopes": ["address", "phone", "offline_access", "microprofile-jwt"]
+    }
+  ],
+  "users": [
+    {
+      "username": "analyst1",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Lab",
+      "lastName": "Analyst",
+      "email": "analyst1@cyberserious.example",
+      "attributes": {
+        "lab_password": ["kc-analyst-pass-2026"]
+      },
+      "credentials": [
+        {
+          "type": "password",
+          "value": "kc-analyst-pass-2026",
+          "temporary": false
+        }
+      ]
+    },
+    {
+      "username": "io1",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Lab",
+      "lastName": "Officer",
+      "email": "io1@cyberserious.example",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "kc-io-pass-2026",
+          "temporary": false
+        }
+      ]
+    },
+    {
+      "username": "demo",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Lab",
+      "lastName": "Demo",
+      "email": "demo@cyberserious.example",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "kc-demo-pass-2026",
+          "temporary": false
+        }
+      ]
+    }
+  ]
+}
