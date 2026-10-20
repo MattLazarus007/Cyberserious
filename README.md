@@ -174,6 +174,13 @@ docs/DEMO.md scripts the walkthrough across both systems.
 docs/SETUP.md covers the empty machine, secrets and the optional listeners.
 docs/runbooks/ holds the restore, incident and sensor procedures.
 
+## Maintainers
+
+Group 1 maintains this repository. The members are MattLazarus, TristanMellet,
+YadavSingh, RynhardtVanNiekerk and AndileMushwana.
+
+[Explore Repository](https://github.com/MattLazarus007/Cyberserious)
+
 ## Limits, stated plainly
 
 The console code is not real multi-factor authentication, and the Keycloak
