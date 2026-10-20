@@ -216,6 +216,25 @@ test("T-70 notify stays scoped and gated", async () => {
     });
     assert.equal(denied.status, 403);
 
+    const createdEarly = await fetch(`${srv.base}/api/v1/drafts`, {
+      method: "POST",
+      headers: { "content-type": "application/json", cookie: steward },
+      body: JSON.stringify({ category: "data exposure", narrative: "A draft that is still waiting for the officer.", affectedCount: 12 }),
+    });
+    assert.equal(createdEarly.status, 201);
+    const early = (await createdEarly.json()) as { publicId: string };
+    const earlySubmit = await fetch(`${srv.base}/api/v1/drafts/${early.publicId}/submit`, {
+      method: "POST",
+      headers: { cookie: steward },
+    });
+    assert.equal(earlySubmit.status, 200);
+    const earlyNotify = await fetch(`${srv.base}/api/v1/drafts/${early.publicId}/notify`, {
+      method: "POST",
+      headers: { "content-type": "application/json", cookie: io },
+      body: JSON.stringify({ channel: "email" }),
+    });
+    assert.equal(earlyNotify.status, 409, "a submitted draft waits for approval before any notice");
+
     const org = new pg.Client({ connectionString: orgDbUrl });
     await org.connect();
     await org.query(

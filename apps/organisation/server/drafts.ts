@@ -284,7 +284,7 @@ draftsRouter.post("/drafts/:id/notify", async (req, res) => {
     return;
   }
   const draft = found.rows[0];
-  if (!["Approved", "ReadyForApproval", "Acknowledged"].includes(draft.status)) {
+  if (!["Approved", "Acknowledged"].includes(draft.status)) {
     res.status(409).json({ error: "only an approved draft can notify affected people" });
     return;
   }
