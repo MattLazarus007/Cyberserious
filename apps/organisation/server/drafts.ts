@@ -164,7 +164,7 @@ draftsRouter.post("/drafts/:id/send", async (req, res) => {
     res.status(403).json({ error: "forbidden" });
     return;
   }
-  const found = await query("select * from drafts where public_id = $1 and status = 'Approved' and org_ref = (select reference from organisations where id = $2)", [req.params.id, actor.orgId]);
+  const found = await query("select * from drafts where public_id = $1 and status in ('Approved','RetryPending') and org_ref = (select reference from organisations where id = $2)", [req.params.id, actor.orgId]);
   if (found.rows.length === 0) {
     res.status(404).json({ error: "only approved drafts are sent" });
     return;

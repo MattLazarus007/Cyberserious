@@ -312,6 +312,7 @@ test("intake 422 marks draft Rejected, 5xx and network stay RetryPending", async
     }
 
     const broken = await startStub(500, { error: "intake is down" });
+    let retryId = "";
     try {
       process.env.REGULATOR_INTAKE_URL = broken.url;
       const publicId = await approvedDraft("A laptop went missing on a site visit.");
@@ -322,8 +323,30 @@ test("intake 422 marks draft Rejected, 5xx and network stay RetryPending", async
       assert.equal(sent.status, 502);
       const seen = await draftStatus(publicId, steward);
       assert.equal(seen.status, "RetryPending");
+      retryId = publicId;
     } finally {
       await broken.close();
+    }
+
+    const good = await startStub(201, {
+      caseRef: "BR-2026-0999",
+      notificationId: "note-1",
+      receivedAt: "2026-10-20T09:00:00Z",
+      destination: "test_receiver",
+    });
+    try {
+      process.env.REGULATOR_INTAKE_URL = good.url;
+      const retried = await fetch(`${srv.base}/api/v1/drafts/${retryId}/send`, {
+        method: "POST",
+        headers: { cookie: steward },
+      });
+      assert.equal(retried.status, 200, "a draft held at RetryPending goes out again");
+      const receipt = ((await retried.json()) as { receipt: { destination: string } }).receipt;
+      assert.equal(receipt.destination, "test_receiver");
+      const after = await draftStatus(retryId, steward);
+      assert.equal(after.status, "Acknowledged");
+    } finally {
+      await good.close();
     }
 
     process.env.REGULATOR_INTAKE_URL = "http://localhost:1/intake/v1/submissions";
