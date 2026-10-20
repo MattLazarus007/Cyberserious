@@ -1,0 +1,18 @@
+node_modules/
+data/
+certs/
+keys/
+*.db
+.env
+.DS_Store
+test-results/
+playwright-report/
+infra/sensor/out/
+eve.json
+fast.log
+stats.log
+suricata.log
+
+# Session handoffs
+SESSION_HANDOFF.md
+.full-review/

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Sign in to the CyberSerious regulator workspace.">
+    <title>Sign in | CyberSerious</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/page-styles.css">
+    <!-- page styles live in css/style.css -->
+</head>
+<body data-page="login">
+<div class="login-wrap">
+    <div class="login-card">
+        <p class="page-eyebrow">Regulator workspace</p>
+        <h1>Sign in</h1>
+        <p>Use your lab username and password. The second step asks for
+        the one-time code shown in the server terminal.</p>
+
+        <div id="ssoSignIn" class="sso-row" hidden>
+            <a class="btn btn-primary" href="/auth/oidc">Sign in with single sign-on</a>
+        </div>
+
+        <form id="passwordForm">
+            <label for="username">Username</label>
+            <input id="username" name="username" type="text" autocomplete="username" value="analyst1">
+            <label for="password">Password</label>
+            <input id="password" name="password" type="password" autocomplete="current-password">
+            <button class="btn-primary" type="submit">Continue</button>
+            <div id="loginMessage" role="status" aria-live="polite"></div>
+        </form>
+
+        <form id="otpForm" hidden>
+            <label for="otp">One-time code from the server terminal</label>
+            <input id="otp" name="otp" type="text" inputmode="numeric" autocomplete="one-time-code"
+                placeholder="6 digits" maxlength="6">
+            <button class="btn-primary" type="submit">Verify code</button>
+            <div id="otpMessage" role="status" aria-live="polite"></div>
+        </form>
+
+        <form id="groupForm" hidden>
+            <label for="groupPassphrase">Group passphrase</label>
+            <input id="groupPassphrase" name="passphrase" type="password" autocomplete="current-password">
+            <button class="btn-primary" type="submit">Sign in</button>
+            <div id="groupMessage" role="status" aria-live="polite"></div>
+        </form>
+
+        <footer class="dashboard-footer">
+            <span>
+                <strong>CyberSerious</strong> · POPIA Section 22 monitoring prototype
+            </span>
+            <span>
+                Not an official reporting system. Real reports go through the Regulator's eServices Portal.
+            </span>
+        </footer>
+    </div>
+</div>
+<script src="js/login.js"></script>
+</body>
+</html>
