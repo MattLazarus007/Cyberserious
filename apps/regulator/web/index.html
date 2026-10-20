@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="CyberSerious POPIA Section 22 breach monitoring dashboard.">
+    <title>Dashboard | CyberSerious</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/page-styles.css">
+    <!-- page styles live in css/style.css -->
+</head>
+<body data-page="dashboard">
+<div class="app">
+    <aside class="sidebar">
+        <div class="logo">
+            <h1>CYBERSERIOUS</h1>
+            <p>Information Regulator</p>
+        </div>
+                <nav class="nav" aria-label="Main navigation">
+            <a href="index.html" class="active" aria-current="page">
+                <span class="nav-icon" aria-hidden="true">▦</span>
+                Dashboard
+            </a>
+            <a href="notifications.html">
+                <span class="nav-icon" aria-hidden="true">▤</span>
+                Notifications
+            </a>
+            <a href="alerts.html">
+                <span class="nav-icon" aria-hidden="true">⚠</span>
+                Alerts
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            POPIA Section 22<br>
+            Breach Monitoring System
+        </div>
+    </aside>
+
+    <main class="main">
+        <header class="topbar">
+            <div class="topbar-title">
+                Information Regulator / Dashboard
+            </div>
+            <div class="user">
+                <a href="login.html" id="accountLink"><div class="user-avatar">?</div><span>Sign in</span></a>
+            </div>
+        </header>
+
+        <section class="content">
+            <section class="dashboard-hero" aria-labelledby="dashboard-title">
+                <div class="hero-content">
+                    <div class="hero-eyebrow">
+                        <span></span>
+                        Section 22 Monitoring Workspace
+                    </div>
+                    <h1 id="dashboard-title">Breach overview</h1>
+                    <p>
+                        Monitor reported security incidents, review notification
+                        statuses and identify cases that may require attention
+                        under Section 22 of the Protection of Personal Information
+                        Act (POPIA).
+                    </p>
+                </div>
+                <div class="hero-side-card">
+                    <span class="side-label">Workspace</span>
+                    <strong>Regulatory monitoring</strong>
+                    <small>POPIA · Section 22</small>
+                </div>
+            </section>
+
+            <section aria-labelledby="snapshot-title">
+                <div class="section-heading">
+                    <div>
+                        <h2 id="snapshot-title">Monitoring snapshot</h2>
+                        <p>A summary of the breach records in this demonstration.</p>
+                    </div>
+                    <span class="demo-label">
+                        <span></span>
+                        Demonstration data · Not live reporting
+                    </span>
+                </div>
+
+                <div class="stats-grid">
+                    <article class="stat-card">
+                        <div class="stat-top">
+                            <span class="stat-label">Notifications received</span>
+                            <div class="stat-icon blue" aria-hidden="true">▤</div>
+                        </div>
+                        <span class="stat-number" id="totalNotifications">0</span>
+                        <span class="stat-description">
+                            Records that carry a notification date
+                        </span>
+                    </article>
+                    <article class="stat-card">
+                        <div class="stat-top">
+                            <span class="stat-label">Open cases</span>
+                            <div class="stat-icon orange" aria-hidden="true">◷</div>
+                        </div>
+                        <span class="stat-number" id="pendingCases">0</span>
+                        <span class="stat-description">
+                            Records not marked as closed
+                        </span>
+                    </article>
+                    <article class="stat-card">
+                        <div class="stat-top">
+                            <span class="stat-label">Active alerts</span>
+                            <div class="stat-icon red" aria-hidden="true">!</div>
+                        </div>
+                        <span class="stat-number" id="activeAlerts">0</span>
+                        <span class="stat-description">
+                            Records currently marked for attention
+                        </span>
+                    </article>
+                </div>
+            </section>
+
+            <section class="dashboard-columns" aria-label="Dashboard activity">
+                <article class="dashboard-panel">
+                    <header class="panel-header">
+                        <div>
+                            <h2>Recent breach activity</h2>
+                            <p>Latest records in the monitoring dataset</p>
+                        </div>
+                        <a class="panel-link" href="notifications.html">
+                            View notifications →
+                        </a>
+                    </header>
+                    <div class="table-wrap">
+                        <table class="dashboard-table">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Case ID</th>
+                                    <th scope="col">Incident</th>
+                                    <th scope="col">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recentActivity">
+                                <tr>
+                                    <td colspan="3">Loading demonstration records…</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </article>
+
+                <article class="dashboard-panel">
+                    <header class="panel-header">
+                        <div>
+                            <h2>Priority alerts</h2>
+                            <p>Items to review in the demonstration</p>
+                        </div>
+                        <a class="panel-link" href="alerts.html">
+                            View alerts →
+                        </a>
+                    </header>
+                    <div class="alerts-list" id="priorityAlerts"></div>
+                </article>
+            </section>
+
+            <footer class="dashboard-footer">
+                <span>
+                    <strong>CyberSerious</strong> · POPIA Section 22 monitoring prototype
+                </span>
+                <span>
+                    Illustrative records only · Not an official reporting system
+                </span>
+            </footer>
+        </section>
+    </main>
+</div>
+
+<script src="js/api.js"></script>
+<script src="js/app.js"></script>
+
+</body>
+</html>

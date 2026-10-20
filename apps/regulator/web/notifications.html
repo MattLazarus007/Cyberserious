@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Review and filter POPIA Section 22 breach notifications in CyberSerious.">
+    <title>Notifications | CyberSerious</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/page-styles.css">
+
+    <!-- page styles live in css/style.css -->
+</head>
+
+<body data-page="notifications">
+<div class="app">
+
+    <aside class="sidebar">
+        <div class="logo">
+            <h1>CYBERSERIOUS</h1>
+            <p>Information Regulator</p>
+        </div>
+
+                <nav class="nav" aria-label="Main navigation">
+            <a href="index.html">
+                <span class="nav-icon" aria-hidden="true">▦</span>
+                Dashboard
+            </a>
+            <a href="notifications.html" class="active" aria-current="page">
+                <span class="nav-icon" aria-hidden="true">▤</span>
+                Notifications
+            </a>
+            <a href="alerts.html">
+                <span class="nav-icon" aria-hidden="true">⚠</span>
+                Alerts
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            POPIA Section 22<br>
+            Breach Monitoring System
+        </div>
+    </aside>
+
+    <main class="main">
+        <header class="topbar">
+            <div class="topbar-title">
+                Information Regulator / Notifications
+            </div>
+
+            <div class="user">
+                <a href="login.html" id="accountLink"><div class="user-avatar">?</div><span>Sign in</span></a>
+            </div>
+        </header>
+
+        <section class="content">
+
+            <div class="page-intro">
+                <div>
+                    <span class="page-eyebrow">Case management</span>
+                    <h2>Breach Notifications</h2>
+                    <p>
+                        Review and filter reported security incidents,
+                        inspect notification details and track the status
+                        of each demonstration case.
+                    </p>
+                </div>
+
+                <span class="prototype-badge">
+                    Demonstration environment
+                </span>
+            </div>
+
+            <section class="intro-banner">
+                <h3>Section 22 notification register</h3>
+                <p>
+                    Use the register to locate a case by organisation,
+                    case reference or breach type. Filter by status and
+                    priority to focus on records requiring review.
+                    The records shown are illustrative prototype data.
+                </p>
+            </section>
+
+            <section class="filters-card" aria-labelledby="filters-title">
+                <div class="filters-heading">
+                    <h3 id="filters-title">Find a notification</h3>
+                    <p>Search records or narrow the results using the filters.</p>
+                </div>
+
+                <div class="filters">
+                    <div class="search">
+                        <input
+                            type="search"
+                            id="searchInput"
+                            aria-label="Search notifications"
+                            placeholder="Search organisation, case ID or breach type..."
+                        >
+                    </div>
+
+                    <div>
+                        <select id="statusFilter" aria-label="Filter by status"></select>
+                    </div>
+
+                    <div>
+                        <select id="priorityFilter" aria-label="Filter by priority">
+                            <option value="">All priorities</option>
+                            <option value="urgent">Urgent</option>
+                            <option value="routine">Routine</option>
+                            <option value="immediate">Immediate</option>
+                        </select>
+                    </div>
+                </div>
+            </section>
+
+            <section class="notifications-card" aria-labelledby="notifications-title">
+
+                <header class="table-heading">
+                    <div>
+                        <h3 id="notifications-title">Notification register</h3>
+                        <p>Every case, with the notification date where one exists</p>
+                    </div>
+
+                    <span id="notificationCount" aria-live="polite">
+                        Loading notifications…
+                    </span>
+                </header>
+
+                <div class="table-container">
+                    <table class="notifications-table">
+                        <thead>
+                            <tr>
+                                <th scope="col">Case ID</th>
+                                <th scope="col">Organisation</th>
+                                <th scope="col">Incident date</th>
+                                <th scope="col">Submitted</th>
+                                <th scope="col">Priority</th>
+                                <th scope="col">Status</th>
+                                <th scope="col">Action</th>
+                            </tr>
+                        </thead>
+
+                        <tbody id="notificationsTableBody">
+                            <tr>
+                                <td colspan="7">Loading demonstration records…</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <footer class="notifications-footer">
+                <span>
+                    <strong>CyberSerious</strong> · POPIA Section 22 monitoring prototype
+                </span>
+                <span>
+                    Illustrative data only · Not an official reporting system
+                </span>
+            </footer>
+
+        </section>
+    </main>
+</div>
+
+<script src="js/api.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
