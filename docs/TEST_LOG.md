@@ -24,12 +24,12 @@ Seeded baseline for every automated run: 7 cases, 6 notifications,
 | T-12 | CSRF and unauthorised write | Pass by control | SameSite=Lax cookies, no token needed for same-origin forms. Negative write tests across suites. |
 | T-13 | Hostile strings in text fields | Pass | hardening.test.ts: marker round-trips verbatim, never executes |
 | T-14 | Injection and mass assignment | Pass | hardening.test.ts: injected query harmless, smuggled fields ignored |
-| T-15 | Approved revision edited | Pass | org.test.ts: edit resets approval, send binds hash |
+| T-15 | Approved revision edited | Pass | org.test.ts: edit resets approval, send binds hash, a 500 answer leaves RetryPending and the next send answers 200 with the test_receiver receipt |
 | T-16 | Submission happy path | Pass | intake.test.ts: 201 with labelled receipt and stored case |
 | T-17 | Lost acknowledgement retry | Pass | intake.test.ts: retry returns the original receipt, one case |
 | T-18 | Same id, changed bytes | Pass | intake.test.ts: 409 with security audit row |
 | T-19 | Bad signature or sender | Pass | intake.test.ts: stranger and tampered bodies refused |
-| T-20 | Failure before commit | Pass | intake.test.ts: bad org leaves no receipt, good leaves one case and one job |
+| T-20 | Failure before commit | Pass | intake.test.ts: bad org leaves no receipt, a key registered to another organisation answers 422 and writes one denied audit row, good leaves one case and one job |
 | T-21 | Worker after intake | Pass | alerts.test.ts: jobs lease, alerts open |
 | T-22 | Same inputs rerun | Pass | alerts.test.ts: refresh only, count unchanged |
 | T-23 | Snooze, resolve, recurrence | Pass | alerts.test.ts: ack, snooze, resolve with reasons |
@@ -40,7 +40,7 @@ Seeded baseline for every automated run: 7 cases, 6 notifications,
 | T-28 | Unsafe or oversized file | Pass | evidence.test.ts: exe refused, quarantine holds |
 | T-29 | Export authorised and not | Pass | evidence.test.ts: redacted export audited, admin denied |
 | T-30 | Audit failure behaviour | Pass | hardening.test.ts: mutation fails closed, zero silent rows |
-| T-31 | Audit tamper in a copy | Pass | hardening.test.ts: verify reports the altered row |
+| T-31 | Audit tamper in a copy | Pass | hardening.test.ts: 20 concurrent writes keep one chain with no repeated predecessor, verify reports the altered row after the tamper |
 | T-32 | Network reachability, plain HTTP | Pass manual | curl 16 Oct over plain HTTP: live 200, ready 200, cases 401, unknown 404. Reachability only. TLS undemonstrated and booked as Phase 12 work. |
 | T-33 | Backup restoration | Pass manual | exercises/restore-2026-10-16.md: 7/6/10 match, checksums clean |
 | T-34 | Mobile, labels, zoom, flows | Pass | test:e2e: 5 browser flows green on Chromium |
@@ -114,7 +114,7 @@ container from scripts/keycloak.sh.
 | T-67 | The Wazuh parser maps levels and descriptions | Pass | sensor.test.ts: level 5 gives low, level 12 gives medium, the signature is the rule description, the source is the agent name. Saved file only |
 | T-68 | Notify records a run, delivery counts and audit rows | Pass | org-notify.test.ts: 25 affected, 24 sent, 1 failed, run complete, org audit draft.notify.start and draft.notify.complete, delivery rows 24 sent and 1 failed, regulator affected_notices total 25 sent 24 failed 1, one AFFECTED-NOTICE-SHORTFALL alert with reason "24 of 25" at medium priority |
 | T-69 | Notify keeps the local record when the regulator is offline | Pass | org-notify.test.ts: regulator URL points at port 1, the run still completes with 12 sent, the response carries a warning, the stored regulatorStatus is failed |
-| T-70 | Notify stays scoped and gated | Pass | org-notify.test.ts: zero affected 400, steward 403, foreign draft 404 on both routes, a held sending run answers 409 |
+| T-70 | Notify stays scoped and gated | Pass | org-notify.test.ts: zero affected 400, steward 403, a submitted draft answers 409 before any notice, foreign draft 404 on both routes, a held sending run answers 409 |
 | T-71 | A signed affected notice is stored and mapped to its case | Pass | affected-notices.test.ts: 201 with the case reference, affected_notices total 10 sent 8 failed 2 attached to the case, one intake.affected_notice audit row, case detail carries affectedSent 8, affectedTotal 10, channel email and the completion time |
 | T-72 | A shortfall raises one medium alert | Pass | affected-notices.test.ts: first post 201, retry 200, one AFFECTED-NOTICE-SHORTFALL alert with reason "8 of 10", one notice row |
 | T-73 | Full delivery records without a shortfall alert | Pass | affected-notices.test.ts: 6 of 6 by sms stores the notice, zero shortfall alerts |
