@@ -1,0 +1,17 @@
+Upstream baseline (the commit this build starts from)
+=====================================================
+commit:  0c10f2f77f35b1c6897cefd8685294588961a50a
+date:    2026-10-15 21:09:46 +0200
+subject: Update breach.html
+repo:    https://github.com/MattLazarus007/Cyberserious.git (branch main)
+
+Upstream was moving while this plan was written (five commits on 15 Oct).
+Do not pull without an explicit instruction. Local work happens on the
+`build` branch. The push URL is disabled on purpose.
+
+Tracked files at the baseline (7):
+  README.md, index.html, notifications.html, alerts.html, breach.html,
+  js/app.js, css/style.css
+
+Note: css/styles.css (the duplicate stylesheet named in the spec) was
+removed upstream before this clone. That gap is already closed.
