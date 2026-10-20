@@ -17,8 +17,12 @@ function hashOf(prev: string | null, actor: string, action: string, resource: st
     .digest("hex");
 }
 
+// One lock key serialises every chain write in this database.
+const CHAIN_LOCK_KEY = 4711;
+
 export async function recordAudit(entry: AuditEntry): Promise<number> {
   return withTransaction(async (client) => {
+    await client.query("select pg_advisory_xact_lock($1)", [CHAIN_LOCK_KEY]);
     const last = await client.query("select entry_hash from audit_events order by seq desc limit 1");
     const prev = last.rows.length > 0 ? last.rows[0].entry_hash : null;
     const resource = entry.resource ?? "";
@@ -36,6 +40,7 @@ export async function recordAudit(entry: AuditEntry): Promise<number> {
 }
 
 export async function recordAuditTx(client: pg.PoolClient, entry: AuditEntry): Promise<number> {
+  await client.query("select pg_advisory_xact_lock($1)", [CHAIN_LOCK_KEY]);
   const last = await client.query("select entry_hash from audit_events order by seq desc limit 1");
   const prev = last.rows.length > 0 ? last.rows[0].entry_hash : null;
   const resource = entry.resource ?? "";
@@ -54,9 +59,9 @@ export async function verifyChain(): Promise<{ ok: boolean; checked: number; bro
   const rows = await query("select seq, actor, action, resource, result, prev_hash, entry_hash, created_at from audit_events order by seq asc");
   let prev: string | null = null;
   for (const row of rows.rows) {
-    if ((row.prev_hash ?? null) !== prev) return { ok: false, checked: row.seq, brokenAt: row.seq };
+    if ((row.prev_hash ?? null) !== prev) return { ok: false, checked: Number(row.seq), brokenAt: Number(row.seq) };
     const digest = hashOf(prev, row.actor, row.action, row.resource ?? "", row.result, new Date(row.created_at).toISOString());
-    if (digest !== row.entry_hash) return { ok: false, checked: row.seq, brokenAt: row.seq };
+    if (digest !== row.entry_hash) return { ok: false, checked: Number(row.seq), brokenAt: Number(row.seq) };
     prev = row.entry_hash;
   }
   return { ok: true, checked: rows.rows.length };
