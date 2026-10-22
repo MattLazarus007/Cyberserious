@@ -83,3 +83,23 @@ and zod. Scanning and the lab deployment review arrive in Phase 10.
 The build fetches nothing external. Sources are curated by hand into
 the research register. Any later fetcher gets destination controls
 before it ships.
+
+## Host posture, October 2026
+
+**R-14: the host firewall is off and the app listens on every interface.**
+Posture run on 22 October shows the application firewall disabled and
+both app servers bound to `*:8100` and `*:8200`. Treatment: bind to
+`127.0.0.1` by default with a bind test, supply a `pf` anchor that drops
+inbound except loopback, and enable the application firewall with an
+admin session. The bind test is the proof for the app half. The host
+half stays a manual step recorded in `docs/security/HOST_BASELINE.md`.
+
+**R-15: `pf` rules are supplied but not loaded.** The anchor and apply
+script exist and print mode is tested. Loading needs root and local
+access. Until then the host relies on the application firewall once it
+is enabled. Recorded rather than claimed.
+
+**R-16: host telemetry is incomplete without osquery.** The package
+installer needs an admin password. FIM and the audit chain cover file
+and action changes in the meantime. osquery stays optional and its
+absence is visible in the toolbox table and the install check.
