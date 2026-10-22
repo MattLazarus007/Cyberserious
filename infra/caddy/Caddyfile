@@ -1,0 +1,23 @@
+{
+	admin off
+	auto_https disable_redirects
+}
+
+https://localhost:8443 {
+	tls internal
+	encode zstd gzip
+
+	request_body {
+		max_size 12MB
+	}
+
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "DENY"
+		Referrer-Policy "no-referrer"
+		-Server
+	}
+
+	reverse_proxy 127.0.0.1:8100
+}
