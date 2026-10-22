@@ -7,6 +7,7 @@ import { query, withTransaction } from "../db.ts";
 import { can } from "../policy.ts";
 import { requireSession, type Actor } from "../session.ts";
 import { recordAuditTx, recordAudit } from "../audit.ts";
+import { scanBuffer } from "../scan.ts";
 
 export const evidenceRouter = Router();
 evidenceRouter.use(requireSession);
@@ -96,21 +97,43 @@ evidenceRouter.post("/cases/:id/evidence", async (req, res) => {
     res.status(404).json({ error: "not found" });
     return;
   }
+  const caseId = found.rows[0].id as string;
+  const scan = await scanBuffer(bytes);
+  if (scan.state === "infected") {
+    await recordAudit({
+      actor: actor.username, action: "evidence.scan", resource: caseId, result: "denied",
+      meta: { filename: parsed.data.filename, signature: scan.signature },
+    });
+    res.status(422).json({ error: "malware detected", signature: scan.signature });
+    return;
+  }
+  if (scan.state === "unavailable" && process.env.CLAMAV_REQUIRED === "1") {
+    await recordAudit({
+      actor: actor.username, action: "evidence.scan", resource: caseId, result: "denied",
+      meta: { filename: parsed.data.filename, reason: scan.reason },
+    });
+    res.status(503).json({ error: "scanner unavailable" });
+    return;
+  }
   const digest = createHash("sha256").update(bytes).digest("hex");
   const saved = await withTransaction(async (client) => {
     const row = await client.query(
       `insert into evidence (case_id, filename, mime, size_bytes, sha256, uploaded_by)
        values ($1, $2, $3, $4, $5, $6) returning id`,
-      [found.rows[0].id, parsed.data.filename, parsed.data.mime, bytes.length, digest, actor.userId]
+      [caseId, parsed.data.filename, parsed.data.mime, bytes.length, digest, actor.userId]
     );
     writeFileSync(join(evidenceDir(), `${row.rows[0].id}.bin`), bytes);
     await recordAuditTx(client, {
+      actor: actor.username, action: "evidence.scan", resource: caseId, result: "ok",
+      meta: { evidenceId: row.rows[0].id, scan: scan.state },
+    });
+    await recordAuditTx(client, {
       actor: actor.username, action: "evidence.upload", resource: found.rows[0].id, result: "ok",
-      meta: { evidenceId: row.rows[0].id, sha256: digest },
+      meta: { evidenceId: row.rows[0].id, sha256: digest, scan: scan.state },
     });
     return row.rows[0].id as string;
   });
-  res.status(201).json({ id: saved, sha256: digest, status: "quarantine" });
+  res.status(201).json({ id: saved, sha256: digest, status: "quarantine", scan: scan.state });
 });
 
 evidenceRouter.get("/evidence/:id", async (req, res) => {
