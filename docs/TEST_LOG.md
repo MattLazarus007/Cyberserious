@@ -149,6 +149,7 @@ starting point.
 | T-91 | The four scanners run and report clean | Pass | security-scan.sh all: gitleaks 0, osv-scanner 0 of 84 packages, trivy 0 high or critical, semgrep 0 ERROR; GCM tag length fixed before the clean run |
 | T-92 | The scan wrappers refuse unknown modes and name missing tools | Pass | security-scan.test.ts: 2 of 2 |
 
+| T-93 | Caddy validates and serves the app over TLS on loopback | Pass | caddy.sh validate: "Valid configuration"; live proxy answered {"ok":true} on 8443 with HSTS, nosniff and DENY headers and no Server header |
 ## Security stack baseline, 22 October 2026
 
 HEAD 79c3fa7. `npm test` 118 pass, 0 fail in 201 seconds. Postgres 16 up.
