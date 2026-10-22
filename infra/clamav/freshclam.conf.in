@@ -1,0 +1,6 @@
+DatabaseDirectory @REPO@/data/clamav/db
+UpdateLogFile @REPO@/data/clamav/freshclam.log
+LogFileMaxSize 10M
+DatabaseMirror database.clamav.net
+Checks 4
+NotifyClamd @REPO@/data/clamav/clamd.conf
