@@ -8,6 +8,7 @@ import { can } from "../policy.ts";
 import { requireSession, type Actor } from "../session.ts";
 import { recordAuditTx, recordAudit } from "../audit.ts";
 import { scanBuffer } from "../scan.ts";
+import { evidenceKey, openBuffer, sealBuffer } from "../encrypt.ts";
 
 export const evidenceRouter = Router();
 evidenceRouter.use(requireSession);
@@ -19,6 +20,21 @@ const ALLOWED: Record<string, string[]> = {
   "text/plain": [".txt"],
 };
 const MAX_BYTES = 10 * 1024 * 1024;
+
+function sniffMime(bytes: Buffer): string {
+  if (bytes.subarray(0, 5).toString() === "%PDF-") return "application/pdf";
+  if (bytes.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]))) return "image/png";
+  if (bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff) return "image/jpeg";
+  if (!bytes.includes(0)) {
+    try {
+      new TextDecoder("utf-8", { fatal: true }).decode(bytes);
+      return "text/plain";
+    } catch {
+      return "application/octet-stream";
+    }
+  }
+  return "application/octet-stream";
+}
 
 function evidenceDir(): string {
   const dir = process.env.EVIDENCE_DIR ?? join(process.cwd(), "data", "evidence");
@@ -82,6 +98,14 @@ evidenceRouter.post("/cases/:id/evidence", async (req, res) => {
     res.status(422).json({ error: "files must be non-empty and under 10 MiB" });
     return;
   }
+  if (sniffMime(bytes) !== parsed.data.mime) {
+    await recordAudit({
+      actor: actor.username, action: "evidence.magic", resource: req.params.id, result: "denied",
+      meta: { filename: parsed.data.filename, claimed: parsed.data.mime, detected: sniffMime(bytes) },
+    });
+    res.status(422).json({ error: "file content does not match the declared type" });
+    return;
+  }
   const params: unknown[] = [req.params.id];
   let scope = "";
   if (actor.orgId) {
@@ -116,13 +140,15 @@ evidenceRouter.post("/cases/:id/evidence", async (req, res) => {
     return;
   }
   const digest = createHash("sha256").update(bytes).digest("hex");
+  const key = evidenceKey();
+  const stored = key ? sealBuffer(bytes, key) : bytes;
   const saved = await withTransaction(async (client) => {
     const row = await client.query(
-      `insert into evidence (case_id, filename, mime, size_bytes, sha256, uploaded_by)
-       values ($1, $2, $3, $4, $5, $6) returning id`,
-      [caseId, parsed.data.filename, parsed.data.mime, bytes.length, digest, actor.userId]
+      `insert into evidence (case_id, filename, mime, size_bytes, sha256, uploaded_by, sealed)
+       values ($1, $2, $3, $4, $5, $6, $7) returning id`,
+      [caseId, parsed.data.filename, parsed.data.mime, bytes.length, digest, actor.userId, Boolean(key)]
     );
-    writeFileSync(join(evidenceDir(), `${row.rows[0].id}.bin`), bytes);
+    writeFileSync(join(evidenceDir(), `${row.rows[0].id}.bin`), stored);
     await recordAuditTx(client, {
       actor: actor.username, action: "evidence.scan", resource: caseId, result: "ok",
       meta: { evidenceId: row.rows[0].id, scan: scan.state },
@@ -133,7 +159,7 @@ evidenceRouter.post("/cases/:id/evidence", async (req, res) => {
     });
     return row.rows[0].id as string;
   });
-  res.status(201).json({ id: saved, sha256: digest, status: "quarantine", scan: scan.state });
+  res.status(201).json({ id: saved, sha256: digest, status: "quarantine", scan: scan.state, sealed: Boolean(key) });
 });
 
 evidenceRouter.get("/evidence/:id", async (req, res) => {
@@ -159,7 +185,7 @@ evidenceRouter.get("/evidence/:id", async (req, res) => {
   }
   const rows = await query(
     `select e.id, e.case_id as "caseId", e.filename, e.mime, e.size_bytes as "sizeBytes",
-            e.sha256, e.status, c.reference as "caseRef" from evidence e join cases c on c.id = e.case_id
+            e.sha256, e.status, e.sealed, c.reference as "caseRef" from evidence e join cases c on c.id = e.case_id
       where e.id = $1 ${scope}`,
     params
   );
@@ -171,7 +197,7 @@ evidenceRouter.get("/evidence/:id", async (req, res) => {
     res.status(404).json({ error: "not found" });
     return;
   }
-  const found = rows.rows[0] as { id: string; caseId: string; filename: string; mime: string; status: string; caseRef: string };
+  const found = rows.rows[0] as { id: string; caseId: string; filename: string; mime: string; status: string; caseRef: string; sealed: boolean };
   if (found.status !== "clean") {
     await noticeExtraction({
       id: found.id, actor: actor.username, what: found.filename,
@@ -197,9 +223,18 @@ evidenceRouter.get("/evidence/:id", async (req, res) => {
     id: found.id, actor: actor.username, what: found.filename,
     caseRef: found.caseRef, caseId: found.caseId, result: "ok", at,
   });
+  let payload = readFileSync(file);
+  if (found.sealed) {
+    const key = evidenceKey();
+    if (!key) {
+      res.status(503).json({ error: "evidence key is not loaded" });
+      return;
+    }
+    payload = openBuffer(payload, key);
+  }
   res.setHeader("content-type", found.mime);
   res.setHeader("content-disposition", `attachment; filename="${found.filename}"`);
-  res.send(readFileSync(file));
+  res.send(payload);
 });
 
 evidenceRouter.post("/evidence/:id/review", async (req, res) => {
