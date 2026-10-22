@@ -182,3 +182,10 @@ and 2 sealed evidence. The browser count grew by one security page test.
 | T-105 | Suricata capture starts on loopback with the lab rules | Partial | engine started, no eve alerts generated; replay detection remains the proven path |
 | T-106 | The application firewall and pf anchor are applied | Pass | socketfilterfw state 1; `pfctl -a cyberserious -sr` lists block and pass rules |
 | T-107 | The TLS edge is trusted for the logged-in user | Pass | `security find-certificate -c "Caddy Local Authority"` in login keychain; HTTPS 200 over HTTP/2 |
+
+### Final gate, 22 October 2026
+
+`bash scripts/verify.sh` at HEAD 63503c1: 8 passed, 0 failed in 272
+seconds. Gates: tool manifest, secrets, dependencies, static analysis,
+test suite, browser suite, audit chains, backup dry run. Posture is
+informational. This is the command to rerun before a demo.
