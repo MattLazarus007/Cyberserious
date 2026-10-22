@@ -1,0 +1,73 @@
+name: security
+
+on:
+  push:
+    branches: [build, main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    env:
+      DATABASE_URL: postgres://postgres:postgres@localhost:5432/cyberserious_dev
+      ORG_DATABASE_URL: postgres://postgres:postgres@localhost:5432/cyberserious_org_dev
+      RESEARCH_KEY: 0000000000000000000000000000000000000000000000000000000000000001
+      EVIDENCE_KEY: 0000000000000000000000000000000000000000000000000000000000000002
+      SESSION_SECRET: ci-session-secret-not-for-production
+      INTERNAL_TOKEN: ci-internal-token
+      OIDC_ISSUER: ""
+      CI: "1"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Create databases
+        run: |
+          PGPASSWORD=postgres createdb -h localhost -U postgres cyberserious_dev
+          PGPASSWORD=postgres createdb -h localhost -U postgres cyberserious_org_dev
+      - name: Migrate and seed
+        run: |
+          npm run db:migrate
+          npm run db:seed
+          npm run db:migrate:org
+          npm run db:seed:org
+      - name: Secrets
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Dependencies
+        run: |
+          npm audit --omit=dev --audit-level=high
+          npx --yes osv-scanner@2 --lockfile=package-lock.json
+      - name: Static analysis
+        uses: returntocorp/semgrep-action@v1
+        with:
+          config: >-
+            p/typescript
+            p/nodejs
+      - name: Test suite
+        run: npm test
+      - name: Browser suite
+        run: |
+          npx playwright install --with-deps chromium
+          npm run test:e2e

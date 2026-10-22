@@ -12,6 +12,16 @@ ORG_URL="${ORG_DATABASE_URL:-postgres://cyberserious:***@localhost:5432/cyberser
 EVIDENCE="${EVIDENCE_DIR:-$ROOT/data/evidence}"
 STAMP="$(date -u +%Y-%m-%dT%H%M%SZ)"
 
+if [ "${1:-}" = "--dry-run" ]; then
+  [ -f "$ROOT/data/backup.pub" ] || { echo "dry-run: no recipient key" >&2; exit 1; }
+  command -v pg_dump >/dev/null || { echo "dry-run: pg_dump missing" >&2; exit 1; }
+  command -v age >/dev/null || { echo "dry-run: age missing" >&2; exit 1; }
+  bash scripts/keychain.sh exists backup-key >/dev/null 2>&1 || { echo "dry-run: backup identity missing from keychain" >&2; exit 1; }
+  pg_dump "$DATABASE_URL" --schema-only --file=/dev/null
+  echo "dry-run: recipient, tools, identity and database reachable"
+  exit 0
+fi
+
 if mount | grep -q " on $ROOT/data/vault "; then
   OUT="${BACKUP_OUT:-$ROOT/data/vault/backups}"
 else

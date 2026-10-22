@@ -1,0 +1,42 @@
+# Suricata eve.json to the CyberSerious security event store.
+# The collector token comes from the environment; never put it here.
+
+[sources.suricata_eve]
+type = "file"
+include = ["data/logs/suricata/eve.json"]
+start_at_beginning = false
+
+[transforms.alerts_only]
+type = "filter"
+inputs = ["suricata_eve"]
+condition = '.event_type == "alert"'
+
+[transforms.to_security_event]
+type = "remap"
+inputs = ["alerts_only"]
+source = '''
+parsed = parse_json!(.message)
+severity = "low"
+level = to_int(parsed.alert.severity) ?? 3
+if level <= 1 { severity = "high" } else if level == 2 { severity = "medium" }
+. = {
+  "source": "suricata",
+  "kind": "alert",
+  "severity": severity,
+  "signature": to_string(parsed.alert.signature) ?? "unknown signature",
+  "src": to_string(parsed.src_ip) ?? null,
+  "dst": to_string(parsed.dest_ip) ?? null,
+  "observedAt": to_string(parsed.timestamp) ?? null,
+  "raw": parsed
+}
+'''
+
+[sinks.cyberserious]
+type = "http"
+inputs = ["to_security_event"]
+uri = "http://127.0.0.1:8100/api/v1/security/ingest"
+method = "post"
+encoding.codec = "json"
+framing.method = "newline_delimited"
+batch.max_events = 1
+request.headers.x-internal-token = "${INTERNAL_TOKEN}"
