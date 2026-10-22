@@ -6,6 +6,12 @@ export function securityHeaders(req: Request, res: Response, next: NextFunction)
   res.setHeader("Referrer-Policy", "no-referrer");
   res.setHeader("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
   res.setHeader("Content-Security-Policy", "default-src 'self'; base-uri 'self'; frame-ancestors 'none'");
+  res.setHeader("Cross-Origin-Opener-Policy", "same-origin");
+  res.setHeader("Cross-Origin-Resource-Policy", "same-origin");
+  res.setHeader("X-Permitted-Cross-Domain-Policies", "none");
+  if (req.secure) {
+    res.setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
+  }
   if (req.path.startsWith("/api/")) {
     res.setHeader("Cache-Control", "no-store");
     res.setHeader("Pragma", "no-cache");
