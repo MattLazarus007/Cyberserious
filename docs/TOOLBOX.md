@@ -40,3 +40,29 @@ and bibliography from the Deliverable 2 and 3 documents. Those
 sources feed the research register, and the diagrams hang in
 docs/figures with provenance plus rebuilt labelled versions in the
 regulator app.
+
+## Security stack, 22 October 2026
+
+`scripts/install-security-tools.sh --check` is the source of truth.
+Versions recorded after install on this host:
+
+| Tool | Version | Role |
+| --- | --- | --- |
+| ClamAV | 1.5.4 | antivirus, upload scanning |
+| semgrep | 1.182.0 | static analysis |
+| gitleaks | 8.30.1 | secret scanning |
+| trivy | 0.76.1 | filesystem and dependency scan |
+| osv-scanner | 2.7.0 | dependency advisories |
+| lynis | 3.1.7 | host audit |
+| Caddy | 2.11.7 | tls ingress |
+| syft | 1.55.0 | software bill of materials |
+| yq | 4.54.1 | yaml checks |
+| Suricata | 8.0.7 | network ids |
+| Vector | 0.60.0 | log pipeline |
+| age | 1.3.2 | optional file encryption |
+| osquery | not installed | needs an admin approval for the pkg, deferred |
+
+The install manifest is idempotent: `--check`, `--dry-run`, `--install`.
+osquery is optional and its installer needs a local admin password, so
+it stays pending until the owner approves the package. No tool is
+claimed as configured until its runbook check passes.
