@@ -6,22 +6,31 @@ service and both applications run from this repository.
 
 ## What a backup holds
 
-Each dated folder under data/backups keeps two database dumps, a
-tarball of the evidence directory and a SHA256SUMS file. The keys for
-sealed research notes live outside the backup, in the shell that runs
-the applications. Without the research key, sealed notes stay sealed.
+One age sealed file per run, named `cyberserious-<UTC>.tar.gz.age`, and
+its `.sha256`. Inside the sealed bundle: `regulator.dump`,
+`organisation.dump`, and `evidence.tar.gz` when the evidence directory
+exists. Archives go to `data/vault/backups` when the vault is mounted
+and to `data/backups` otherwise. The age identity lives in the keychain
+under `cyberserious.backup-key`; the recipient is `data/backup.pub`.
 
 ## Restore steps
 
-1. Check the checksums first: `cd data/backups/2026-10-16 && shasum -c SHA256SUMS`.
-2. Create a scratch database: `psql -d postgres -c "create database cyberserious_restore owner cyberserious;"`.
-3. Load the regulator dump: `pg_restore -d cyberserious_restore regulator.dump`.
-4. Reconcile: compare case, notification, alert and audit row counts
+1. Check the checksum from the folder holding the archive:
+   `shasum -a 256 -c cyberserious-2026-10-22T093547Z.tar.gz.age.sha256`.
+2. Unseal into a scratch directory:
+   `bash scripts/seal.sh unseal <archive> /tmp/bundle.tar.gz`.
+3. Unpack: `tar -xzf /tmp/bundle.tar.gz -C /tmp/restore`.
+4. Create a scratch database:
+   `createdb cyberserious_restore`.
+5. Load the regulator dump:
+   `pg_restore -d cyberserious_restore /tmp/restore/regulator.dump`.
+6. Reconcile: compare case, notification, alert and audit row counts
    against the numbers in the restore report. Verify the audit chain
-   through GET /api/v1/audit/verify.
-5. Unpack evidence beside the restored files and compare one sha256
-   by hand.
-6. Drop the scratch database when the exercise is done.
+   through GET /api/v1/audit/verify after pointing the app at the
+   scratch database.
+7. Unpack `evidence.tar.gz` and compare one sha256 by hand.
+8. Drop the scratch database and remove the scratch directory when the
+   exercise is done. `rm -rf` the unsealed bundle too.
 
 ## Recovery targets from the 16 October rehearsal
 

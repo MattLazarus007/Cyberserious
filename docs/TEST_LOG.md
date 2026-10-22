@@ -135,6 +135,10 @@ container from scripts/keycloak.sh.
 | T-86 | The ClamAV config renders private and the daemon is supervised | Pass | clamav.test.ts: config has no placeholders, mode 600, Foreground true; launchctl shows one pid owned by launchd |
 | T-87 | The EICAR test file is detected through the running daemon | Pass | clamav.sh test: "Eicar-Test-Signature FOUND", exit 0 with "EICAR detected as expected"; 3,628,191 signatures loaded |
 
+| T-88 | An infected upload is refused and leaves no evidence row | Pass | upload-scan.test.ts: EICAR as text/plain answers 422 with the signature, evidence count 0, audit evidence.scan denied |
+| T-89 | Clean uploads record the scan, and a required scanner that is down fails closed | Pass | upload-scan.test.ts: clean upload 201 with scan state and audit ok; CLAMAV_REQUIRED=1 with a bad config answers 503 and stores nothing |
+| T-90 | A sealed backup restores into a scratch database | Pass | backup.sh wrote a 48 KB age archive to the vault, checksum verified, bundle held both dumps and evidence, pg_restore produced 7 cases and 6 audit rows, scratch database dropped |
+
 ## Security stack baseline, 22 October 2026
 
 HEAD 79c3fa7. `npm test` 118 pass, 0 fail in 201 seconds. Postgres 16 up.
