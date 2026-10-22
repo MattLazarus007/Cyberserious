@@ -12,6 +12,8 @@ import { importsRouter } from "./routes/imports.ts";
 import { researchRouter } from "./routes/research.ts";
 import { intakeRouter } from "./routes/intake.ts";
 import { sensorRouter } from "./routes/sensor.ts";
+import { securityIngestRouter } from "./routes/security-ingest.ts";
+import { securityRouter } from "./routes/security.ts";
 import { evidenceRouter } from "./routes/evidence.ts";
 import { usersRouter } from "./routes/users.ts";
 import { verifyChain } from "./audit.ts";
@@ -19,6 +21,7 @@ import { requireSession } from "./session.ts";
 import { can } from "./policy.ts";
 import { securityHeaders } from "./security.ts";
 import { requestGuard } from "./request-guard.ts";
+import { waf } from "./waf.ts";
 import { securityTrip } from "./trip.ts";
 import { mtlsPortFromEnv, startMtls } from "./mtls.ts";
 import { hardenServer, hostFromEnv } from "./http.ts";
@@ -31,6 +34,7 @@ app.disable("x-powered-by");
 app.set("trust proxy", "loopback");
 app.use(express.json({ limit: "256kb" }));
 app.use(securityHeaders);
+app.use(waf);
 app.use(requestGuard);
 app.use(securityTrip);
 
@@ -59,6 +63,7 @@ app.use("/api/v1", authRouter);
 // secret replaces a cookie, and the routers below answer 401 to any
 // /api/v1 path that reaches them first.
 app.use("/api/v1", sensorRouter);
+app.use("/api/v1", securityIngestRouter);
 app.use(intakeRouter);
 // OpenID Connect lives at the root: the provider redirects the browser
 // to /auth/oidc/callback, outside the api prefix.
@@ -72,6 +77,7 @@ app.use("/api/v1", importsRouter);
 app.use("/api/v1", researchRouter);
 app.use("/api/v1", evidenceRouter);
 app.use("/api/v1", usersRouter);
+app.use("/api/v1", securityRouter);
 
 app.get("/api/v1/audit/verify", requireSession, async (req, res) => {
   const actor = (req as unknown as { actor: Actor }).actor;

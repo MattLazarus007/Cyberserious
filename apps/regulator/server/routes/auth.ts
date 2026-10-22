@@ -6,8 +6,12 @@ import { verifyPassword } from "../passwords.ts";
 import { createSession, destroySession, readCookie, sameCode, sessionCookieHeader, clearCookieHeader, SESSION_COOKIE } from "../session.ts";
 import { recordAudit } from "../audit.ts";
 import { oidcEnabled, startOidc, handleCallback } from "../oidc.ts";
+import { createIpRate } from "../rate-limit.ts";
 
 export const authRouter = Router();
+
+const loginRate = createIpRate(Number(process.env.LOGIN_IP_LIMIT) > 0 ? Number(process.env.LOGIN_IP_LIMIT) : 10, 5 * 60_000);
+export { loginRate };
 
 // The identity provider calls back at the site root, not under
 // /api/v1, so these two live on their own router. Both stay hidden
@@ -63,7 +67,7 @@ authRouter.get("/auth-mode", (req, res) => {
   });
 });
 
-authRouter.post("/login", async (req, res) => {
+authRouter.post("/login", loginRate, async (req, res) => {
   const { username, password } = req.body ?? {};
   if (typeof username !== "string" || typeof password !== "string") {
     res.status(401).json({ error: "invalid credentials" });
@@ -82,6 +86,7 @@ authRouter.post("/login", async (req, res) => {
     return;
   }
   failures.delete(username);
+  loginRate.clearIp(req.socket.remoteAddress ?? "unknown");
   const sid = await createSession(row.id);
   if (simpleLogin()) {
     await query("update sessions set mfa_ok = true where id = $1", [sid]);
@@ -100,7 +105,7 @@ authRouter.post("/login", async (req, res) => {
   res.json({ mfaRequired: true });
 });
 
-authRouter.post("/login/group", async (req, res) => {
+authRouter.post("/login/group", loginRate, async (req, res) => {
   // The group account lives in the regulator tables. The organisation app
   // has no regulator audit table, so the gate stays closed there.
   if (process.env.GROUP_LOGIN !== "1" || process.env.ORG_APP === "1") {
@@ -120,6 +125,7 @@ authRouter.post("/login/group", async (req, res) => {
     return;
   }
   failures.delete("group");
+  loginRate.clearIp(req.socket.remoteAddress ?? "unknown");
   await query(
     "insert into users (username, display_name, password_hash) values ('group', 'Group Sign-in', 'disabled-group-login') on conflict (username) do nothing"
   );
@@ -137,7 +143,7 @@ authRouter.post("/login/group", async (req, res) => {
   res.json({ ok: true, username: "group" });
 });
 
-authRouter.post("/login/otp", async (req, res) => {
+authRouter.post("/login/otp", loginRate, async (req, res) => {
   const sid = readCookie(req, SESSION_COOKIE);
   if (!sid) {
     res.status(401).json({ error: "unauthenticated" });
@@ -180,6 +186,7 @@ authRouter.post("/login/otp", async (req, res) => {
     [fresh, row.user_id, row.created_at]
   );
   await destroySession(sid);
+  loginRate.clearIp(req.socket.remoteAddress ?? "unknown");
   res.setHeader("Set-Cookie", sessionCookieHeader(fresh));
   res.json({ ok: true, username: row.username });
 });

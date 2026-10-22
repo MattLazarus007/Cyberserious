@@ -56,7 +56,11 @@ test("T-14 injection and mass assignment go nowhere", async () => {
     const injected = await fetch(`${srv.base}/api/v1/cases?q='; DROP TABLE cases;--&pageSize=50`, {
       headers: { cookie },
     });
-    assert.equal(injected.status, 200);
+    assert.equal(injected.status, 403, "the waf refuses the injection probe");
+    const quoted = await fetch(`${srv.base}/api/v1/cases?q=${encodeURIComponent("O'Brien")}&pageSize=50`, {
+      headers: { cookie },
+    });
+    assert.equal(quoted.status, 200, "an apostrophe is ordinary text, not an attack");
     const tables = await (async () => {
       const conn = new pg.Client({ connectionString: dbUrl });
       await conn.connect();

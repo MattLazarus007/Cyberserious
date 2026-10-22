@@ -107,6 +107,14 @@ var Api = (function () {
         return call("/api/v1/alerts");
     }
 
+    function getSecurityState() {
+        return call("/api/v1/security/state");
+    }
+
+    function verifySecurity() {
+        return call("/api/v1/security/verify");
+    }
+
     function getResearch() {
         return call("/api/v1/research");
     }
@@ -131,6 +139,8 @@ var Api = (function () {
         getCases: getCases,
         getCase: getCase,
         getAlerts: getAlerts,
+        getSecurityState: getSecurityState,
+        verifySecurity: verifySecurity,
         getResearch: getResearch,
         getCaseDuties: getCaseDuties,
         alertAction: alertAction,

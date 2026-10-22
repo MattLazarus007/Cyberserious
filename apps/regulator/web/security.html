@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Security control state for the CyberSerious demonstration environment.">
+    <title>Security | CyberSerious</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/page-styles.css">
+</head>
+<body data-page="security">
+<div class="app">
+    <aside class="sidebar">
+        <div class="logo">
+            <h1>CYBERSERIOUS</h1>
+            <p>Information Regulator</p>
+        </div>
+        <nav class="nav" aria-label="Main navigation">
+            <a href="index.html">
+                <span class="nav-icon" aria-hidden="true">▦</span>
+                Dashboard
+            </a>
+            <a href="notifications.html">
+                <span class="nav-icon" aria-hidden="true">▤</span>
+                Notifications
+            </a>
+            <a href="alerts.html">
+                <span class="nav-icon" aria-hidden="true">⚠</span>
+                Alerts
+            </a>
+            <a href="security.html" class="active" aria-current="page">
+                <span class="nav-icon" aria-hidden="true">◈</span>
+                Security
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            POPIA Section 22<br>
+            Breach Monitoring System
+        </div>
+    </aside>
+
+    <main class="main">
+        <header class="topbar">
+            <div class="topbar-title">Information Regulator / Security</div>
+            <div class="user">
+                <a href="login.html" id="accountLink"><div class="user-avatar">?</div><span>Sign in</span></a>
+            </div>
+        </header>
+
+        <section class="content">
+            <div class="page-intro">
+                <div>
+                    <span class="page-eyebrow">Assurance</span>
+                    <h2>Security Control State</h2>
+                    <p id="securityIntro">
+                        One view of log integrity, host and sensor heartbeats, open alerts,
+                        backup age and the trip wire. Restricted to audit and security roles.
+                    </p>
+                </div>
+                <div class="page-badges">
+                    <span class="prototype-badge">Demonstration environment</span>
+                </div>
+            </div>
+
+            <div class="stats-grid" id="securityStats">
+                <article class="stat-card">
+                    <span class="stat-label">Events</span>
+                    <strong class="stat-value" id="eventTotal">-</strong>
+                    <span class="stat-note" id="eventNote">Last 24 hours</span>
+                </article>
+                <article class="stat-card">
+                    <span class="stat-label">Chain</span>
+                    <strong class="stat-value" id="chainState">-</strong>
+                    <span class="stat-note" id="chainNote">Not checked</span>
+                </article>
+                <article class="stat-card">
+                    <span class="stat-label">Open alerts</span>
+                    <strong class="stat-value" id="alertTotal">-</strong>
+                    <span class="stat-note" id="alertNote">High, medium and low</span>
+                </article>
+                <article class="stat-card">
+                    <span class="stat-label">Backup age</span>
+                    <strong class="stat-value" id="backupAge">-</strong>
+                    <span class="stat-note" id="backupNote">Sealed archive</span>
+                </article>
+            </div>
+
+            <article class="dashboard-panel">
+                <div class="panel-heading">
+                    <div>
+                        <h3>Sensor and host heartbeats</h3>
+                        <p>Silence longer than fifteen minutes is marked as silent.</p>
+                    </div>
+                    <button class="btn-secondary" id="verifyButton" type="button">Verify chain</button>
+                </div>
+                <div class="table-wrap">
+                    <table class="data-table" aria-label="Heartbeats">
+                        <thead>
+                            <tr><th scope="col">Source</th><th scope="col">Last seen</th><th scope="col">Age</th><th scope="col">State</th></tr>
+                        </thead>
+                        <tbody id="heartbeatRows"></tbody>
+                    </table>
+                </div>
+            </article>
+
+            <article class="dashboard-panel">
+                <div class="panel-heading">
+                    <div>
+                        <h3>Control notes</h3>
+                        <p>What this page does not claim.</p>
+                    </div>
+                </div>
+                <ul class="detail-list" id="securityNotes">
+                    <li>Banned addresses are shown when the pf anchor is applied by the owner.</li>
+                    <li>Host telemetry depends on osquery approval and is reported as missing when absent.</li>
+                    <li>A green chain means this database still matches the stored hashes, not that the host is trusted.</li>
+                </ul>
+            </article>
+
+            <p class="form-error" id="securityError" role="alert" hidden></p>
+        </section>
+    </main>
+</div>
+<script src="js/api.js"></script>
+<script src="js/security.js"></script>
+</body>
+</html>
