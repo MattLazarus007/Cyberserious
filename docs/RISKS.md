@@ -103,3 +103,36 @@ is enabled. Recorded rather than claimed.
 installer needs an admin password. FIM and the audit chain cover file
 and action changes in the meantime. osquery stays optional and its
 absence is visible in the toolbox table and the install check.
+
+## Resolution, 22 October 2026
+
+**R-14 resolved for the host.** The application firewall is enabled and both
+servers rebind to loopback; the listening socket check shows 127.0.0.1 for
+8100 and 8200. macOS services still listen on wildcard addresses and stay host
+noise, not this app.
+
+**R-15 resolved.** The pf anchor is loaded with an admin prompt. The rule list
+shows a default block, a bad-address table drop, loopback passes for the four
+lab ports, and outbound pass.
+
+**R-16 partly resolved.** osquery 5.24 is installed and the daemon is loaded.
+Inventory queries work. Full Disk Access and EndpointSecurity approval remain
+an owner step, so endpoint event coverage is still partial.
+
+**R-17: live network detection is not proven.** Suricata starts on `lo0` but
+produced no eve alerts; the interface does not accept the capture caps. The
+lab proves detection by pcap replay. Treatment: keep the replay test as the
+evidence and do not claim live IDS coverage.
+
+**R-18: Keycloak-side MFA is optional.** The app enforces a per-session OTP,
+but the realm export does not require TOTP or WebAuthn. Treatment: document
+the app control, leave realm enrollment as an owner decision, and do not claim
+phishing-resistant MFA.
+
+**R-19: Wazuh is not available on this host.** The manager segfaults under
+qemu on arm64. Treatment: the local chained store and Vector fill the pattern;
+Wazuh stays a recorded failed attempt.
+
+**R-20: audit anchoring is not scheduled.** The verifier detects edits inside
+the database, but a database owner could rewrite the chain. Treatment: daily
+HMAC anchor with an immutable flag remains open and is listed in the checklist.

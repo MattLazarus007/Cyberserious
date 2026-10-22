@@ -53,3 +53,22 @@ bash scripts/posture.sh
 ```
 
 Paste the new table here with the date whenever a host setting changes.
+
+## Re-run, 22 October 2026 after the install
+
+| Setting | State | Evidence |
+|---|---|---|
+| Application firewall | PASS | `socketfilterfw --getglobalstate`: enabled (State = 1) |
+| pf anchor | PASS (applied) | `pfctl -a cyberserious -sr` shows block drop from the bad table, pass on lo0 for 8100, 8101, 8200, 8443, pass out |
+| Gatekeeper | INFO | assessments enabled |
+| Guest account | PASS | disabled |
+| Screen lock | INFO | immediate |
+| Listening services | PASS after rebind | regulator 8100 and organisation 8200 on 127.0.0.1; Postgres 5432 on 127.0.0.1 and ::1. Other listeners belong to macOS or the agent host |
+| Free disk | PASS | 11 GiB |
+| ClamAV | PASS | supervised daemon, local socket, EICAR detected |
+| osquery | PASS with owner step | daemon active, inventory queries work; Full Disk Access still needs UI approval |
+| Lynis | WARN | hardening index 75, 176 tests, 2 warnings, 16 suggestions |
+
+The earlier gaps are closed for the firewall, pf, loopback binding and
+osquery install. osquery endpoint events and system-keychain trust stay open
+and are listed in `docs/security/CONTROL_EQUIVALENCE.md`.
