@@ -26,3 +26,13 @@ Runbooks cover restore and incidents, each with dated exercise evidence.
 **Recover.** Nightly checksummed dumps and a timed restore rehearsal
 with reconciliation. A lost acknowledgement never creates a second
 case, because retries are idempotent.
+
+## Technical stack mapping, 22 October 2026
+
+| Function | Technical control | Evidence |
+|---|---|---|
+| Identify | Asset and tool inventory, osquery, host baseline | `scripts/install-security-tools.sh --check`, `scripts/osquery.sh`, `docs/security/HOST_BASELINE.md` |
+| Protect | pf and ALF, loopback bind, TLS edge, mTLS, WAF, CSP, roles, OTP, AES-GCM, vault, age backup | `docs/security/CONTROL_EQUIVALENCE.md` |
+| Detect | Suricata, security event chain, correlation, heartbeats, trip wire, ClamAV | `apps/regulator/server/securitylog.ts`, `GET /api/v1/security/state` |
+| Respond | Alert workflow, bans, incident runbook with severities | `docs/runbooks/incident.md` |
+| Recover | Sealed backup, restore rehearsal, chain verifier | `docs/runbooks/restore.md`, `scripts/verify.sh` |

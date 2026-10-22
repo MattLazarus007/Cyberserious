@@ -71,3 +71,16 @@ re-measured each run.
 **SR-10: honest time handling.** Precision labels, unknown stays
 unknown, internal timers labelled, no statutory countdown anywhere.
 Status: demonstrated by T-24 and the RULE-02 wording tests.
+
+## Technical additions, 22 October 2026
+
+- SR-01: Caddy TLS edge on 8443 with HSTS, mTLS listener on 8101, loopback app bind.
+- SR-02: AES-256-GCM evidence at rest, encrypted sparsebundle, age-sealed backups.
+- SR-03: Keycloak OIDC plus app OTP, session revocation, per-address login throttle.
+- SR-04: deny-by-default role matrix, org and assignment scope, mTLS intake token.
+- SR-05: audit hash chain, security event hash chain, WAF and ban audit rows.
+- SR-06: approval and submission roles remain separated; tests unchanged.
+- SR-07: immutability of submitted versions remains enforced; no new write path.
+- SR-08: zod intake, shared token, per-IP ingest rate, WAF signatures.
+- SR-09: backup dry run, sealed archive checksum, restore runbook.
+- SR-10: event timestamps are UTC; unknown stays unknown in the UI.

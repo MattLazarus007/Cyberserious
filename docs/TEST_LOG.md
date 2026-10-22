@@ -161,3 +161,24 @@ Free disk 20 GiB. Present: suricata, gitleaks, docker, colima, jq.
 Missing: clamav, semgrep, trivy, osv-scanner, lynis, caddy, age, yq,
 vector, osquery. These numbers are the starting point for the security
 stack work, not a claim about controls that do not exist yet.
+
+### Telemetry, WAF and evidence tranche, 22 October 2026
+
+`npm test` 164 pass, 0 fail in 257 seconds. Playwright 12 pass in 5.4
+seconds. The count grew by 12 tests: 5 security ingest, 5 WAF and ban,
+and 2 sealed evidence. The browser count grew by one security page test.
+
+| T-94 | Ingest refuses a bad token, extends the chain and records a heartbeat | Pass | security-ingest.test.ts: 401 without token with a denied audit row; 202 with sequence, chain verifier says intact |
+| T-95 | A high severity event opens one deduplicated SECURITY-EVENT alert | Pass | security-ingest.test.ts: second identical event did not open a second alert |
+| T-96 | Security state needs MFA and audit or security role, and tampering is detected | Pass | security-ingest.test.ts: analyst 403; reviewer 200; edited row fails at seq 2 |
+| T-97 | WAF refuses traversal, SQL injection and null byte probes and audits each block | Pass | waf-ban.test.ts: 403 plus waf.block audit and kind=waf event |
+| T-98 | A banned address is refused across routes and unban restores access | Pass | waf-ban.test.ts: 403 then 200 after DELETE |
+| T-99 | Login attempts are throttled per address across usernames | Pass | waf-ban.test.ts: 11th attempt 429, audit row, successful login clears the window |
+| T-100 | Evidence magic bytes must match the claimed type, and stored bytes are ciphertext | Pass | evidence-sealed.test.ts: 422 with evidence.magic audit; file did not start with plaintext; download round-trips |
+| T-101 | The security page shows an intact chain and refuses an analyst | Pass | Playwright T-99: reviewer sees Intact and heartbeats; analyst gets the lock |
+| T-102 | ZAP baseline finds no high or medium issue | Pass | docs/security/dast.json: 0 high, 0 medium, 6 low, 4 informational; each triaged in DAST_REPORT.md |
+| T-103 | Lynis audits the host and the result is recorded | Pass with warnings | LYNIS-2026-10-22.txt: index 75, 176 tests, 2 warnings, 16 suggestions |
+| T-104 | osquery is installed, loaded and answers inventory queries | Pass | `osqueryi` 5.24.0; launchctl shows io.osquery.agent active |
+| T-105 | Suricata capture starts on loopback with the lab rules | Partial | engine started, no eve alerts generated; replay detection remains the proven path |
+| T-106 | The application firewall and pf anchor are applied | Pass | socketfilterfw state 1; `pfctl -a cyberserious -sr` lists block and pass rules |
+| T-107 | The TLS edge is trusted for the logged-in user | Pass | `security find-certificate -c "Caddy Local Authority"` in login keychain; HTTPS 200 over HTTP/2 |
