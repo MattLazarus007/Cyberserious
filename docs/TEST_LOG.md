@@ -139,6 +139,13 @@ container from scripts/keycloak.sh.
 | T-89 | Clean uploads record the scan, and a required scanner that is down fails closed | Pass | upload-scan.test.ts: clean upload 201 with scan state and audit ok; CLAMAV_REQUIRED=1 with a bad config answers 503 and stores nothing |
 | T-90 | A sealed backup restores into a scratch database | Pass | backup.sh wrote a 48 KB age archive to the vault, checksum verified, bundle held both dumps and evidence, pg_restore produced 7 cases and 6 audit rows, scratch database dropped |
 
+### After the first security tranche, 22 October 2026
+
+HEAD 0e65b58. `npm test` 147 pass, 0 fail in 223 seconds. Playwright 11
+pass in 4.3 seconds. The count grew by 9 install, key, firewall, bind,
+origin, scanner, and backup tests. The baseline above stays as the
+starting point.
+
 ## Security stack baseline, 22 October 2026
 
 HEAD 79c3fa7. `npm test` 118 pass, 0 fail in 201 seconds. Postgres 16 up.
