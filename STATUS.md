@@ -11,9 +11,9 @@ vault, AES-GCM evidence, ClamAV upload scanning, encrypted age backups, a
 vector telemetry pipeline, osquery inventory, Suricata replay detection, a
 security page, a one-command verifier, and a CI workflow.
 
-Proof: `npm test` 164 pass, Playwright 12 pass, ZAP 0 high or medium, gitleaks,
-OSV, Trivy and Semgrep clean, Lynis index 75. See `docs/TEST_LOG.md` and
-`docs/security/`.
+Proof: `bash scripts/verify.sh` 8 gates pass at HEAD 63503c1, `npm test`
+164 pass, Playwright 12 pass, ZAP 0 high or medium, gitleaks, OSV, Trivy and
+Semgrep clean, Lynis index 75. See `docs/TEST_LOG.md` and `docs/security/`.
 
 ## What is partial
 
