@@ -3,7 +3,7 @@
 	auto_https disable_redirects
 }
 
-https://localhost:8443 {
+https://localhost:8443, https://host.docker.internal:8443 {
 	tls internal
 	encode zstd gzip
 
