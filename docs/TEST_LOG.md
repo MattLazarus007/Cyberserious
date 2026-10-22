@@ -146,6 +146,9 @@ pass in 4.3 seconds. The count grew by 9 install, key, firewall, bind,
 origin, scanner, and backup tests. The baseline above stays as the
 starting point.
 
+| T-91 | The four scanners run and report clean | Pass | security-scan.sh all: gitleaks 0, osv-scanner 0 of 84 packages, trivy 0 high or critical, semgrep 0 ERROR; GCM tag length fixed before the clean run |
+| T-92 | The scan wrappers refuse unknown modes and name missing tools | Pass | security-scan.test.ts: 2 of 2 |
+
 ## Security stack baseline, 22 October 2026
 
 HEAD 79c3fa7. `npm test` 118 pass, 0 fail in 201 seconds. Postgres 16 up.

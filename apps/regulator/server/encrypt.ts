@@ -4,7 +4,7 @@ export function seal(plain: string, keyHex: string): string {
   const key = Buffer.from(keyHex, "hex");
   if (key.length !== 32) throw new Error("research key must be 32 bytes in hex");
   const iv = randomBytes(12);
-  const cipher = createCipheriv("aes-256-gcm", key, iv);
+  const cipher = createCipheriv("aes-256-gcm", key, iv, { authTagLength: 16 });
   const body = Buffer.concat([cipher.update(plain, "utf8"), cipher.final()]);
   const tag = cipher.getAuthTag();
   return JSON.stringify({
@@ -18,7 +18,7 @@ export function open(sealed: string, keyHex: string): string {
   const key = Buffer.from(keyHex, "hex");
   if (key.length !== 32) throw new Error("research key must be 32 bytes in hex");
   const parts = JSON.parse(sealed) as { iv: string; tag: string; data: string };
-  const decipher = createDecipheriv("aes-256-gcm", key, Buffer.from(parts.iv, "base64"));
+  const decipher = createDecipheriv("aes-256-gcm", key, Buffer.from(parts.iv, "base64"), { authTagLength: 16 });
   decipher.setAuthTag(Buffer.from(parts.tag, "base64"));
   return Buffer.concat([
     decipher.update(Buffer.from(parts.data, "base64")),
