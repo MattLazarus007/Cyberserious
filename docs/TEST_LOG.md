@@ -132,6 +132,9 @@ container from scripts/keycloak.sh.
 | T-84 | Cross-site and foreign-origin mutations are refused | Pass | csrf.test.ts: cross-site 403, wrong origin 403, same-origin and headerless requests reach the route |
 | T-85 | Response headers carry the isolation and permissions policy | Pass | csrf.test.ts: COOP, CORP and cross-domain policies present |
 
+| T-86 | The ClamAV config renders private and the daemon is supervised | Pass | clamav.test.ts: config has no placeholders, mode 600, Foreground true; launchctl shows one pid owned by launchd |
+| T-87 | The EICAR test file is detected through the running daemon | Pass | clamav.sh test: "Eicar-Test-Signature FOUND", exit 0 with "EICAR detected as expected"; 3,628,191 signatures loaded |
+
 ## Security stack baseline, 22 October 2026
 
 HEAD 79c3fa7. `npm test` 118 pass, 0 fail in 201 seconds. Postgres 16 up.

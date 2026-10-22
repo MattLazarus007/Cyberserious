@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.cyberserious.clamd</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/opt/homebrew/opt/clamav/sbin/clamd</string>
+    <string>--config-file=@REPO@/data/clamav/clamd.conf</string>
+  </array>
+  <key>RunAtLoad</key>
+  <true/>
+  <key>KeepAlive</key>
+  <true/>
+  <key>StandardOutPath</key>
+  <string>@REPO@/data/clamav/launchd.out</string>
+  <key>StandardErrorPath</key>
+  <string>@REPO@/data/clamav/launchd.out</string>
+</dict>
+</plist>
