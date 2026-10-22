@@ -18,16 +18,20 @@ import { verifyChain } from "./audit.ts";
 import { requireSession } from "./session.ts";
 import { can } from "./policy.ts";
 import { securityHeaders } from "./security.ts";
+import { requestGuard } from "./request-guard.ts";
 import { securityTrip } from "./trip.ts";
 import { mtlsPortFromEnv, startMtls } from "./mtls.ts";
+import { hardenServer, hostFromEnv } from "./http.ts";
 import type { Actor } from "./session.ts";
 
 const here = dirname(fileURLToPath(import.meta.url));
 
 export const app = express();
 app.disable("x-powered-by");
+app.set("trust proxy", "loopback");
 app.use(express.json({ limit: "256kb" }));
 app.use(securityHeaders);
+app.use(requestGuard);
 app.use(securityTrip);
 
 app.get("/health/live", (_req, res) => {
@@ -80,12 +84,19 @@ app.get("/api/v1/audit/verify", requireSession, async (req, res) => {
 
 app.use(express.static(join(here, "..", "web")));
 
-const port = Number(process.env.PORT ?? 8100);
+export function startRegulator(port = Number(process.env.PORT ?? 8100)) {
+  const host = hostFromEnv();
+  const server = hardenServer(
+    app.listen(port, host, () => {
+      console.log(`regulator listening on ${host}:${port}`);
+    })
+  );
+  return server;
+}
+
 const direct = process.argv[1] === fileURLToPath(import.meta.url);
 if (direct) {
-  app.listen(port, () => {
-    console.log(`regulator listening on ${port}`);
-  });
+  startRegulator();
   // The mutual tls intake listener is opt in. Nothing starts until
   // MTLS_PORT carries a value, so the plain port keeps serving the
   // lab UI and every existing test exactly as before.

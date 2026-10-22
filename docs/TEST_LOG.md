@@ -123,6 +123,15 @@ container from scripts/keycloak.sh.
 | T-76 | Portal records a dispatch and the case shows the counts | Pass | notify.spec.ts: io1 creates a draft with 25 affected, submits, approves, signs and sends, then records an email dispatch. The page shows "Recorded dispatch (lab simulation): 24 of 25" and the run list. The analyst case detail shows "24 of 25 notified by email" and "Shortfall: 1." |
 | T-77 | The documented restart block ends in a full demo walk-through | Pass manual | Reseeded both dev databases, `node tools/org-sender.ts --register`, then the three commands in SESSION_HANDOFF.md. health/ready answered on 8100 with an empty queue and on 8200. io1 created SUB-2026-0001 with 25 affected, submitted, approved, signed and sent (case BR-2026-0107), then recorded an email dispatch: run complete, 24 sent, 1 failed, regulatorStatus sent. Org rows: 24 sent and 1 failed deliveries, audit draft.notify.start and draft.notify.complete. Regulator rows: affected_notices 25/24/1 email, one intake.affected_notice audit, one open medium AFFECTED-NOTICE-SHORTFALL alert with reason "sent 24 of 25 by email, 1 short, 1 failed". The worker printed "1 jobs, 1 alerts opened". Browser: the case page shows "24 of 25 notified by email" and "Shortfall: 1", the portal shows the run history and the recorded dispatch label. Screenshots /tmp/rehearsal-regulator.png and /tmp/rehearsal-org.png. Both databases were reseeded after the run |
 
+| T-78 | The install manifest names required and optional tools | Pass | install-manifest.test.ts: 3 of 3 |
+| T-79 | A generated secret round trips through the keychain and is removed | Pass | keychain.test.ts: 2 of 2, generated value is 64 hex characters, empty secret refused |
+| T-80 | The vault reports absence without creating state | Pass | vault.test.ts: 2 of 2, unknown command exits 2 |
+| T-81 | Sourcing env.sh sets umask 0077 | Pass | permissions.test.ts: 1 of 1 |
+| T-82 | The pf anchor prints default deny and loopback ports, and refuses unconfirmed apply | Pass | pf-firewall.test.ts: 3 of 3 |
+| T-83 | Both apps bind loopback by default and timeouts are finite | Pass | bind.test.ts and org-bind.test.ts: address 127.0.0.1, request 30 s, headers 20 s, keep alive 5 s |
+| T-84 | Cross-site and foreign-origin mutations are refused | Pass | csrf.test.ts: cross-site 403, wrong origin 403, same-origin and headerless requests reach the route |
+| T-85 | Response headers carry the isolation and permissions policy | Pass | csrf.test.ts: COOP, CORP and cross-domain policies present |
+
 ## Security stack baseline, 22 October 2026
 
 HEAD 79c3fa7. `npm test` 118 pass, 0 fail in 201 seconds. Postgres 16 up.
