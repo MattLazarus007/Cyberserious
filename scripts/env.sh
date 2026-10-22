@@ -1,5 +1,6 @@
 #!/bin/bash
 # Pins the toolchain for this repo. Source me, do not execute.
+umask 077
 export PATH="$HOME/.local/node24/bin:/opt/homebrew/opt/postgresql@16/bin:$PATH"
 export PGDATA="${PGDATA:-/opt/homebrew/var/postgresql@16}"
 # Dev and test databases. Local only, never used outside this machine.
