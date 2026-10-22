@@ -146,6 +146,10 @@ pass in 4.3 seconds. The count grew by 9 install, key, firewall, bind,
 origin, scanner, and backup tests. The baseline above stays as the
 starting point.
 
+After the scan wrappers and the TLS front, HEAD 8262088: `npm test` 152
+pass, 0 fail in 223 seconds, Playwright 11 pass. The five new tests cover
+the four scanners and the Caddyfile. ClamAV stayed up through the run.
+
 | T-91 | The four scanners run and report clean | Pass | security-scan.sh all: gitleaks 0, osv-scanner 0 of 84 packages, trivy 0 high or critical, semgrep 0 ERROR; GCM tag length fixed before the clean run |
 | T-92 | The scan wrappers refuse unknown modes and name missing tools | Pass | security-scan.test.ts: 2 of 2 |
 
