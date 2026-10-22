@@ -1,0 +1,40 @@
+env:
+  contexts:
+  - excludePaths: []
+    name: baseline
+    urls:
+    - https://host.docker.internal:8443
+  parameters:
+    failOnError: true
+    progressToStdout: true
+jobs:
+- parameters:
+    enableTags: false
+    maxAlertsPerRule: 10
+  type: passiveScan-config
+- parameters:
+    maxDuration: 2
+    url: https://host.docker.internal:8443
+  type: spider
+- parameters:
+    maxDuration: 0
+  type: passiveScan-wait
+- parameters:
+    format: Long
+    summaryFile: /home/zap/zap_out.json
+  rules: []
+  type: outputSummary
+- parameters:
+    reportDescription: ''
+    reportDir: /zap/wrk/
+    reportFile: dast.html
+    reportTitle: ZAP Scanning Report
+    template: traditional-html
+  type: report
+- parameters:
+    reportDescription: ''
+    reportDir: /zap/wrk/
+    reportFile: dast.json
+    reportTitle: ZAP Scanning Report
+    template: traditional-json
+  type: report
