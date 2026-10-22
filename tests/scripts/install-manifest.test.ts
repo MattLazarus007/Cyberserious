@@ -4,8 +4,8 @@ import { spawnSync } from "node:child_process";
 
 const script = "scripts/install-security-tools.sh";
 
-function run(args: string[]) {
-  return spawnSync("bash", [script, ...args], { encoding: "utf8" });
+function run(args: string[], env: NodeJS.ProcessEnv = process.env) {
+  return spawnSync("bash", [script, ...args], { encoding: "utf8", env });
 }
 
 test("the manifest lists the required security tools", () => {
@@ -17,7 +17,7 @@ test("the manifest lists the required security tools", () => {
 });
 
 test("dry run prints an install command and changes nothing", () => {
-  const out = run(["--dry-run"]);
+  const out = run(["--dry-run"], { ...process.env, PATH: "/usr/bin:/bin" });
   assert.equal(out.status, 0);
   assert.match(out.stdout, /brew install/);
   assert.doesNotMatch(out.stdout, /^installing /m);
