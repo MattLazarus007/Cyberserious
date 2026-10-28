@@ -3,16 +3,16 @@
   "Trivy": {
     "Version": "0.76.1"
   },
-  "ReportID": "01a18236-191f-74e2-a246-d142017ad631",
-  "CreatedAt": "2026-10-28T13:12:25.887321+02:00",
-  "ArtifactID": "sha256:3baf76bb3674362894c78306fbbcc362c8a9562c67b9a585f9aa3005ffda449a",
+  "ReportID": "01a18257-2da5-7a12-8247-90115a6d74f6",
+  "CreatedAt": "2026-10-28T13:48:33.829661+02:00",
+  "ArtifactID": "sha256:cbda83349b49c696eeb6486309a96ee8434054e61d46a767906e96de0322d142",
   "ArtifactName": ".",
   "ArtifactType": "repository",
   "Metadata": {
     "RepoURL": "https://github.com/MattLazarus007/Cyberserious.git",
     "Branch": "build",
-    "Commit": "9d286f615f2f52c251d6ab4cfb663ee541af0085",
-    "CommitMsg": "map each obligation to a control and a test",
+    "Commit": "f6396ffba9d3049d93e2cfd2167718ea2238880e",
+    "CommitMsg": "record the assessment and compliance evidence",
     "Author": "Andile Mushwana \u003candilemushwana@Mac.home\u003e",
     "Committer": "Andile Mushwana \u003candilemushwana@Mac.home\u003e"
   },

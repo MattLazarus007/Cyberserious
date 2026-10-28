@@ -62,4 +62,7 @@ bash scripts/vulnerability-assessment.sh
 bash scripts/zap.sh
 bash scripts/va-probes.sh
 bash scripts/va-auth-probes.sh
+bash scripts/va-counts.sh
+bash scripts/va-patch-posture.sh
+bash scripts/va-network-sweep.sh
 ```

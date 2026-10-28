@@ -32,11 +32,19 @@ const browser = await chromium.launch();
 const zap = await browser.newPage({ viewport: { width: 1400, height: 1000 }, deviceScaleFactor: 2 });
 await zap.goto(pathToFileURL(ZAP).href);
 await zap.waitForTimeout(800);
-// The report stamps its own generation time. The pack carries no dates, so
-// that one metadata line is hidden at render time. Nothing else is touched.
-await zap.addStyleTag({ content: "h2 + h3 { display: none; }" });
-await zap.waitForTimeout(200);
-await zap.screenshot({ path: `${OUT}/fig-10-zap-report.png`, clip: { x: 0, y: 0, width: 1400, height: 760 } });
+// Frame the report from the line below its generation stamp. Nothing in the
+// page is changed. The stamp simply sits outside the crop.
+const stampBottom = await zap.evaluate(() => {
+  const heading = [...document.querySelectorAll("h3")]
+    .find((h) => h.textContent.includes("Generated on"));
+  if (!heading) return 0;
+  const rect = heading.getBoundingClientRect();
+  return rect.bottom + window.scrollY;
+});
+await zap.screenshot({
+  path: `${OUT}/fig-10-zap-report.png`,
+  clip: { x: 0, y: Math.ceil(stampBottom) + 6, width: 1400, height: 780 },
+});
 console.log("zap report captured");
 await zap.close();
 
