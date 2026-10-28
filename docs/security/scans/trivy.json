@@ -3,16 +3,16 @@
   "Trivy": {
     "Version": "0.76.1"
   },
-  "ReportID": "01a18257-2da5-7a12-8247-90115a6d74f6",
-  "CreatedAt": "2026-10-28T13:48:33.829661+02:00",
-  "ArtifactID": "sha256:cbda83349b49c696eeb6486309a96ee8434054e61d46a767906e96de0322d142",
+  "ReportID": "01a18269-0417-72da-90ed-a24f912d516c",
+  "CreatedAt": "2026-10-28T14:08:02.839191+02:00",
+  "ArtifactID": "sha256:be06faacb7ef13fa801b0a8542295f9407fc10e89532caa92dafbe61989ba070",
   "ArtifactName": ".",
   "ArtifactType": "repository",
   "Metadata": {
     "RepoURL": "https://github.com/MattLazarus007/Cyberserious.git",
     "Branch": "build",
-    "Commit": "f6396ffba9d3049d93e2cfd2167718ea2238880e",
-    "CommitMsg": "record the assessment and compliance evidence",
+    "Commit": "a8af1207de8d519e99761bd4d6113075e8397154",
+    "CommitMsg": "add the network sweep and the count helpers",
     "Author": "Andile Mushwana \u003coperator@example.invalid\u003e",
     "Committer": "Andile Mushwana \u003coperator@example.invalid\u003e"
   },
