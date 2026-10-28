@@ -160,6 +160,25 @@ Caddy binds every interface. The pf anchor carries `block drop in quick on
 !lo0 all` and passes only the four application ports on loopback. The edge is
 therefore not reachable from another host.
 
+### 2.7 Network sweep
+
+`scripts/va-network-sweep.sh` walks ports 8000 to 8500 on loopback and then
+lists every listening socket. It found three application ports and nothing
+else in that range.
+
+| Port | Service | Bind | Result |
+|---|---|---|---|
+| 8100 | regulator API | loopback | open |
+| 8200 | organisation portal | loopback | open |
+| 8443 | TLS edge | every interface | open, filtered by the packet filter |
+| 8101 | mutual TLS intake | none | closed outside a test run |
+
+The edge is the only listener on every interface. The packet filter carries
+`block drop in quick on !lo0 all`, so another host cannot reach it. No
+forgotten debug port sits beside the application in that range.
+
+Raw output: `scans/network.txt`.
+
 ## 3. Findings register
 
 | ID | Finding | Class | Priority | Evidence | Decision |
@@ -244,5 +263,9 @@ no scanner replaces one.
 | `scans/probes.txt` | live probe transcript |
 | `scans/brew-outdated.txt` | package drift |
 | `scans/softwareupdate.txt` | system patch level |
+| `scripts/va-counts.sh` | prints every count from the artefacts |
+| `scripts/va-patch-posture.sh` | package drift and pending updates |
+| `scripts/va-network-sweep.sh` | port sweep and listener list |
+| `scans/network.txt` | the sweep result |
 | `scans/finding-F01.txt` | the dependency finding and its close-out |
 | `docs/security/dast.json` | ZAP result |

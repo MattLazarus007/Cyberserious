@@ -1,0 +1,22 @@
+# port sweep on 127.0.0.1, range 8000-8500
+open  8100
+open  8200
+open  8443
+
+open ports found: 3
+
+# listening sockets, all interfaces
+ControlCe 629 TCP *:5000
+ControlCe 629 TCP *:7000
+Python 702 TCP 127.0.0.1:8787
+caddy 710 TCP *:8443
+node 38671 TCP 127.0.0.1:8789
+node 727 TCP 127.0.0.1:8100
+node 74418 TCP 127.0.0.1:8200
+postgres 736 TCP 127.0.0.1:5432
+postgres 736 TCP [::1]:5432
+python3.1 1026 TCP 127.0.0.1:49233
+rapportd 624 TCP *:55672
+rapportd 624 TCP *:62293
+rapportd 624 TCP *:62294
+vector 966 TCP 127.0.0.1:8686
