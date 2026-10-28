@@ -7,11 +7,22 @@ import { createSession, destroySession, readCookie, sameCode, sessionCookieHeade
 import { recordAudit } from "../audit.ts";
 import { oidcEnabled, startOidc, handleCallback } from "../oidc.ts";
 import { createIpRate } from "../rate-limit.ts";
+import { recordSecurityEvent } from "../securitylog.ts";
 
 export const authRouter = Router();
 
 const loginRate = createIpRate(Number(process.env.LOGIN_IP_LIMIT) > 0 ? Number(process.env.LOGIN_IP_LIMIT) : 10, 5 * 60_000);
 export { loginRate };
+
+async function authFailure(req: { socket: { remoteAddress?: string } }, reason: string): Promise<void> {
+  await recordSecurityEvent({
+    source: "app",
+    kind: "auth.failed",
+    severity: "medium",
+    signature: reason,
+    src: req.socket.remoteAddress ?? "unknown",
+  }).catch(() => undefined);
+}
 
 // The identity provider calls back at the site root, not under
 // /api/v1, so these two live on their own router. Both stay hidden
@@ -70,10 +81,12 @@ authRouter.get("/auth-mode", (req, res) => {
 authRouter.post("/login", loginRate, async (req, res) => {
   const { username, password } = req.body ?? {};
   if (typeof username !== "string" || typeof password !== "string") {
+    await authFailure(req, "malformed login");
     res.status(401).json({ error: "invalid credentials" });
     return;
   }
   if (recentFailures(username).length >= 5) {
+    await authFailure(req, "username attempt limit");
     res.status(429).json({ error: "too many attempts, try again later" });
     return;
   }
@@ -82,6 +95,7 @@ authRouter.post("/login", loginRate, async (req, res) => {
   const ok = row && row.enabled && (await verifyPassword(password, row.password_hash));
   if (!ok) {
     recentFailures(username).push(Date.now());
+    await authFailure(req, "bad credentials");
     res.status(401).json({ error: "invalid credentials" });
     return;
   }
@@ -146,11 +160,13 @@ authRouter.post("/login/group", loginRate, async (req, res) => {
 authRouter.post("/login/otp", loginRate, async (req, res) => {
   const sid = readCookie(req, SESSION_COOKIE);
   if (!sid) {
+    await authFailure(req, "otp without session");
     res.status(401).json({ error: "unauthenticated" });
     return;
   }
   const { code } = req.body ?? {};
   if (typeof code !== "string") {
+    await authFailure(req, "otp malformed");
     res.status(401).json({ error: "invalid code" });
     return;
   }
@@ -160,10 +176,12 @@ authRouter.post("/login/otp", loginRate, async (req, res) => {
   );
   const row = found.rows[0];
   if (!row || row.mfa_ok) {
+    await authFailure(req, "otp bad session");
     res.status(401).json({ error: "invalid code" });
     return;
   }
   if (new Date(row.otp_expires_at).getTime() < Date.now() || row.otp_attempts >= 3) {
+    await authFailure(req, "otp expired");
     await destroySession(sid);
     res.setHeader("Set-Cookie", clearCookieHeader());
     res.status(401).json({ error: "code expired" });
@@ -171,6 +189,7 @@ authRouter.post("/login/otp", loginRate, async (req, res) => {
   }
   if (!row.otp_hash || !sameCode(hashCode(code.trim()), row.otp_hash)) {
     await query("update sessions set otp_attempts = otp_attempts + 1 where id = $1", [sid]);
+    await authFailure(req, "otp wrong code");
     const left = 2 - row.otp_attempts;
     if (left <= 0) {
       await destroySession(sid);
