@@ -230,3 +230,5 @@ JSON artefact under `docs/security/scans/` and close clean.
 | T-123 | A notice that misses a required particular is refused | Pass | `compliance.test.ts` C-02, answer 400 |
 | T-124 | Every statutory delivery channel is accepted and an unknown one refused | Pass | `compliance.test.ts` C-03, letter and e-mail and website and news accepted, unknown refused |
 | T-125 | Every "Met" row in the obligation matrix names a test that runs | Pass | `docs/security/COMPLIANCE.md` P-01 to P-16, E-01 to E-04, X-01 |
+| T-126 | Both applications are reachable only over TLS 1.3 | Pass | `scans/probes.txt`: 8443 and 8444 answer 200 on 1.3, refuse 1.0, 1.1 and 1.2 |
+| T-127 | The session cookie carries Secure behind TLS and stays usable on loopback http | Pass | `tests/unit/session-cookie.test.ts` 3 of 3; live set-cookie on 8443 and 8444 shows Secure, loopback 8100 does not |
