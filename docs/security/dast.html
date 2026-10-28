@@ -218,7 +218,7 @@ td {
 	</h2>
 
 	<h3>
-		Generated on Thu, 22 Oct 2026 12:48:48
+		Generated on Wed, 28 Oct 2026 10:40:46
 	</h3>
 
 	<h3>
@@ -719,7 +719,7 @@ td {
 							<div>passwordParam=password</div>
 							<br />
 						
-							<div>referer=https://host.docker.internal:8443/login.html?otp=ZAP&amp;password=ZAP&amp;username=analyst1</div>
+							<div>referer=https://host.docker.internal:8443/login.html?otp=ZAP&amp;passphrase=ZAP</div>
 							
 						</td>
 					</tr>
@@ -767,7 +767,7 @@ td {
 							<div>passwordParam=password</div>
 							<br />
 						
-							<div>referer=https://host.docker.internal:8443/login.html?password=ZAP&amp;username=analyst1</div>
+							<div>referer=https://host.docker.internal:8443/login.html?otp=ZAP</div>
 							
 						</td>
 					</tr>
@@ -926,6 +926,48 @@ td {
 					<tr>
 						<td width="20%"
 							class="indent1">URL</td>
+						<td width="80%"><a href="https://host.docker.internal:8443/login.html?otp=ZAP&amp;passphrase=ZAP">https://host.docker.internal:8443/login.html?otp=ZAP&amp;passphrase=ZAP</a></td>
+					</tr>
+					<tr>
+						<td width="20%"
+							class="indent2">Node Name</td>
+						<td width="80%">https://host.docker.internal:8443/login.html (otp,passphrase)</td>
+					</tr>
+					<tr>
+						<td width="20%"
+							class="indent2">Method</td>
+						<td width="80%">GET</td>
+					</tr>
+					<tr>
+						<td width="20%"
+							class="indent2">Parameter</td>
+						<td width="80%">passphrase</td>
+					</tr>
+					<tr>
+						<td width="20%"
+							class="indent2">Attack</td>
+						<td width="80%"></td>
+					</tr>
+					<tr>
+						<td width="20%"
+							class="indent2">Evidence</td>
+						<td width="80%">passphrase</td>
+					</tr>
+					<tr>
+						<td width="20%"
+							class="indent2">Other Info</td>
+						<td width="80%">
+							<div>The URL contains potentially sensitive information. The following string was found via the pattern: pass</div>
+							<br />
+						
+							<div>passphrase</div>
+							
+						</td>
+					</tr>
+				
+					<tr>
+						<td width="20%"
+							class="indent1">URL</td>
 						<td width="80%"><a href="https://host.docker.internal:8443/login.html?otp=ZAP&amp;password=ZAP&amp;username=analyst1">https://host.docker.internal:8443/login.html?otp=ZAP&amp;password=ZAP&amp;username=analyst1</a></td>
 					</tr>
 					<tr>
@@ -961,48 +1003,6 @@ td {
 							<br />
 						
 							<div>password</div>
-							
-						</td>
-					</tr>
-				
-					<tr>
-						<td width="20%"
-							class="indent1">URL</td>
-						<td width="80%"><a href="https://host.docker.internal:8443/login.html?otp=ZAP&amp;password=ZAP&amp;username=analyst1">https://host.docker.internal:8443/login.html?otp=ZAP&amp;password=ZAP&amp;username=analyst1</a></td>
-					</tr>
-					<tr>
-						<td width="20%"
-							class="indent2">Node Name</td>
-						<td width="80%">https://host.docker.internal:8443/login.html (otp,password,username)</td>
-					</tr>
-					<tr>
-						<td width="20%"
-							class="indent2">Method</td>
-						<td width="80%">GET</td>
-					</tr>
-					<tr>
-						<td width="20%"
-							class="indent2">Parameter</td>
-						<td width="80%">username</td>
-					</tr>
-					<tr>
-						<td width="20%"
-							class="indent2">Attack</td>
-						<td width="80%"></td>
-					</tr>
-					<tr>
-						<td width="20%"
-							class="indent2">Evidence</td>
-						<td width="80%">username</td>
-					</tr>
-					<tr>
-						<td width="20%"
-							class="indent2">Other Info</td>
-						<td width="80%">
-							<div>The URL contains potentially sensitive information. The following string was found via the pattern: user</div>
-							<br />
-						
-							<div>username</div>
 							
 						</td>
 					</tr>

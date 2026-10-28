@@ -1,8 +1,8 @@
 {
 	"@programName": "ZAP",
 	"@version": "2.17.0",
-	"@generated": "Thu, 22 Oct 2026 12:48:48",
-	"created": "2026-10-22T12:48:48.255937129Z",
+	"@generated": "Wed, 28 Oct 2026 10:40:46",
+	"created": "2026-10-28T10:40:46.849827343Z",
 	"insights":[
 		{
 			"level": "Info",
@@ -127,27 +127,27 @@
 					"desc": "<p>The given request has been identified as an authentication request. The 'Other Info' field contains a set of key=value lines which identify any relevant fields. If the request is in a context which has an Authentication Method set to \"Auto-Detect\" then this rule will change the authentication to match the request identified.</p>",
 					"instances":[ 
 						{
-							"id": "25",
+							"id": "30",
 							"uri": "https://host.docker.internal:8443/login.html?otp=ZAP&passphrase=ZAP&password=ZAP&username=analyst1",
 							"nodeName": "https:\/\/host.docker.internal:8443\/login.html (otp,passphrase,password,username)",
 							"method": "GET",
 							"param": "username",
 							"attack": "",
 							"evidence": "password",
-							"otherinfo": "userParam=username\nuserValue=analyst1\npasswordParam=password\nreferer=https://host.docker.internal:8443/login.html?otp=ZAP&password=ZAP&username=analyst1"
+							"otherinfo": "userParam=username\nuserValue=analyst1\npasswordParam=password\nreferer=https://host.docker.internal:8443/login.html?otp=ZAP&passphrase=ZAP"
 						},
 						{
-							"id": "17",
+							"id": "20",
 							"uri": "https://host.docker.internal:8443/login.html?otp=ZAP&password=ZAP&username=analyst1",
 							"nodeName": "https:\/\/host.docker.internal:8443\/login.html (otp,password,username)",
 							"method": "GET",
 							"param": "username",
 							"attack": "",
 							"evidence": "password",
-							"otherinfo": "userParam=username\nuserValue=analyst1\npasswordParam=password\nreferer=https://host.docker.internal:8443/login.html?password=ZAP&username=analyst1"
+							"otherinfo": "userParam=username\nuserValue=analyst1\npasswordParam=password\nreferer=https://host.docker.internal:8443/login.html?otp=ZAP"
 						},
 						{
-							"id": "22",
+							"id": "19",
 							"uri": "https://host.docker.internal:8443/login.html?passphrase=ZAP&password=ZAP&username=analyst1",
 							"nodeName": "https:\/\/host.docker.internal:8443\/login.html (passphrase,password,username)",
 							"method": "GET",
@@ -157,7 +157,7 @@
 							"otherinfo": "userParam=username\nuserValue=analyst1\npasswordParam=password\nreferer=https://host.docker.internal:8443/login.html?passphrase=ZAP"
 						},
 						{
-							"id": "9",
+							"id": "12",
 							"uri": "https://host.docker.internal:8443/login.html?password=ZAP&username=analyst1",
 							"nodeName": "https:\/\/host.docker.internal:8443\/login.html (password,username)",
 							"method": "GET",
@@ -170,7 +170,7 @@
 					"count": "4",
 					"systemic": false,
 					"solution": "<p>This is an informational alert rather than a vulnerability and so there is nothing to fix.</p>",
-					"otherinfo": "<p>userParam=username</p><p>userValue=analyst1</p><p>passwordParam=password</p><p>referer=https://host.docker.internal:8443/login.html?otp=ZAP&password=ZAP&username=analyst1</p>",
+					"otherinfo": "<p>userParam=username</p><p>userValue=analyst1</p><p>passwordParam=password</p><p>referer=https://host.docker.internal:8443/login.html?otp=ZAP&passphrase=ZAP</p>",
 					"reference": "<p>https://www.zaproxy.org/docs/desktop/addons/authentication-helper/auth-req-id/</p>",
 					"cweid": "-1",
 					"wascid": "-1",
@@ -187,7 +187,17 @@
 					"desc": "<p>The request appeared to contain sensitive information leaked in the URL. This can violate PCI and most organizational compliance policies. You can configure the list of strings for this check to add or remove values specific to your environment.</p>",
 					"instances":[ 
 						{
-							"id": "19",
+							"id": "18",
+							"uri": "https://host.docker.internal:8443/login.html?otp=ZAP&passphrase=ZAP",
+							"nodeName": "https:\/\/host.docker.internal:8443\/login.html (otp,passphrase)",
+							"method": "GET",
+							"param": "passphrase",
+							"attack": "",
+							"evidence": "passphrase",
+							"otherinfo": "The URL contains potentially sensitive information. The following string was found via the pattern: pass\npassphrase"
+						},
+						{
+							"id": "23",
 							"uri": "https://host.docker.internal:8443/login.html?otp=ZAP&password=ZAP&username=analyst1",
 							"nodeName": "https:\/\/host.docker.internal:8443\/login.html (otp,password,username)",
 							"method": "GET",
@@ -197,17 +207,7 @@
 							"otherinfo": "The URL contains potentially sensitive information. The following string was found via the pattern: pass\npassword"
 						},
 						{
-							"id": "20",
-							"uri": "https://host.docker.internal:8443/login.html?otp=ZAP&password=ZAP&username=analyst1",
-							"nodeName": "https:\/\/host.docker.internal:8443\/login.html (otp,password,username)",
-							"method": "GET",
-							"param": "username",
-							"attack": "",
-							"evidence": "username",
-							"otherinfo": "The URL contains potentially sensitive information. The following string was found via the pattern: user\nusername"
-						},
-						{
-							"id": "15",
+							"id": "11",
 							"uri": "https://host.docker.internal:8443/login.html?passphrase=ZAP",
 							"nodeName": "https:\/\/host.docker.internal:8443\/login.html (passphrase)",
 							"method": "GET",
@@ -217,7 +217,7 @@
 							"otherinfo": "The URL contains potentially sensitive information. The following string was found via the pattern: pass\npassphrase"
 						},
 						{
-							"id": "11",
+							"id": "14",
 							"uri": "https://host.docker.internal:8443/login.html?password=ZAP&username=analyst1",
 							"nodeName": "https:\/\/host.docker.internal:8443\/login.html (password,username)",
 							"method": "GET",
@@ -227,7 +227,7 @@
 							"otherinfo": "The URL contains potentially sensitive information. The following string was found via the pattern: pass\npassword"
 						},
 						{
-							"id": "12",
+							"id": "15",
 							"uri": "https://host.docker.internal:8443/login.html?password=ZAP&username=analyst1",
 							"nodeName": "https:\/\/host.docker.internal:8443\/login.html (password,username)",
 							"method": "GET",
@@ -240,11 +240,11 @@
 					"count": "5",
 					"systemic": true,
 					"solution": "<p>Do not pass sensitive information in URIs.</p>",
-					"otherinfo": "<p>The URL contains potentially sensitive information. The following string was found via the pattern: pass</p><p>password</p>",
+					"otherinfo": "<p>The URL contains potentially sensitive information. The following string was found via the pattern: pass</p><p>passphrase</p>",
 					"reference": "",
 					"cweid": "598",
 					"wascid": "13",
-					"sourceid": "44"
+					"sourceid": "45"
 				},
 				{
 					"pluginid": "10015",
@@ -267,7 +267,7 @@
 							"otherinfo": ""
 						},
 						{
-							"id": "5",
+							"id": "6",
 							"uri": "https://host.docker.internal:8443/alerts.html",
 							"nodeName": "https:\/\/host.docker.internal:8443\/alerts.html",
 							"method": "GET",
@@ -287,7 +287,7 @@
 							"otherinfo": ""
 						},
 						{
-							"id": "6",
+							"id": "5",
 							"uri": "https://host.docker.internal:8443/notifications.html",
 							"nodeName": "https:\/\/host.docker.internal:8443\/notifications.html",
 							"method": "GET",
@@ -314,7 +314,7 @@
 					"reference": "<p>https://cheatsheetseries.owasp.org/cheatsheets/Session_Management_Cheat_Sheet.html#web-content-caching</p><p>https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Cache-Control</p><p>https://grayduck.mn/2021/09/13/cache-control-recommendations/</p>",
 					"cweid": "525",
 					"wascid": "13",
-					"sourceid": "6"
+					"sourceid": "1"
 				},
 				{
 					"pluginid": "10031",
@@ -327,7 +327,7 @@
 					"desc": "<p>This check looks at user-supplied input in query string parameters and POST data to identify where certain HTML attribute values might be controlled. This provides hot-spot detection for XSS (cross-site scripting) that will require further review by a security analyst to determine exploitability.</p>",
 					"instances":[ 
 						{
-							"id": "33",
+							"id": "34",
 							"uri": "https://host.docker.internal:8443/login.html?otp=ZAP&passphrase=ZAP&password=ZAP&username=analyst1",
 							"nodeName": "https:\/\/host.docker.internal:8443\/login.html (otp,passphrase,password,username)",
 							"method": "GET",
@@ -337,7 +337,7 @@
 							"otherinfo": "User-controlled HTML attribute values were found. Try injecting special characters to see if XSS might be possible. The page at the following URL:\n\nhttps://host.docker.internal:8443/login.html?otp=ZAP&passphrase=ZAP&password=ZAP&username=analyst1\n\nappears to include user input in:\na(n) [input] tag [value] attribute\n\nThe user input found was:\nusername=analyst1\n\nThe user-controlled value was:\nanalyst1"
 						},
 						{
-							"id": "21",
+							"id": "27",
 							"uri": "https://host.docker.internal:8443/login.html?otp=ZAP&password=ZAP&username=analyst1",
 							"nodeName": "https:\/\/host.docker.internal:8443\/login.html (otp,password,username)",
 							"method": "GET",
@@ -357,7 +357,7 @@
 							"otherinfo": "User-controlled HTML attribute values were found. Try injecting special characters to see if XSS might be possible. The page at the following URL:\n\nhttps://host.docker.internal:8443/login.html?passphrase=ZAP&password=ZAP&username=analyst1\n\nappears to include user input in:\na(n) [input] tag [value] attribute\n\nThe user input found was:\nusername=analyst1\n\nThe user-controlled value was:\nanalyst1"
 						},
 						{
-							"id": "13",
+							"id": "16",
 							"uri": "https://host.docker.internal:8443/login.html?password=ZAP&username=analyst1",
 							"nodeName": "https:\/\/host.docker.internal:8443\/login.html (password,username)",
 							"method": "GET",
