@@ -205,3 +205,15 @@ integration coverage:
 | T-115 | A live loopback probe raises the sensor rule and the alert reaches the app store | Pass | `curl http://127.0.0.1:8100/waf-test`; `infra/sensor/out/eve.json` SID 9000004; `security_events` row "LAB controlled waf-test probe" source suricata |
 | T-116 | Vector ships a parsed eve alert to the ingest route with the Keychain token | Pass | sink answered 200; row seq 2; the token is rendered into a private runtime config, not committed |
 | T-117 | All lab services are under launchd | Pass | `launchctl print` shows regulator, organisation, caddy, vector, worker, clamd, freshclam and the Suricata root daemon |
+| T-118 | The lockfile carries no known advisory | Pass | osv-scanner reported GHSA-27r3-jxmh-p828 on body-parser 2.3.0; an npm override lifts it to 2.4.0; the dependency gate is clean |
+
+### Sprint gate, 28 October 2026
+
+`bash scripts/verify.sh` at HEAD 1590d14: 8 passed, 0 failed in 302
+seconds. Gates: tool manifest, secrets, dependencies, static analysis,
+test suite, browser suite, audit chains, backup dry run. Posture is
+informational.
+
+`node scripts/verify-chain.mjs` returns audit 1676 rows intact and
+security 60 rows intact. `node scripts/anchor.mjs --verify` returns
+`{"ok":true,"checked":7}`.
