@@ -189,3 +189,19 @@ and 2 sealed evidence. The browser count grew by one security page test.
 seconds. Gates: tool manifest, secrets, dependencies, static analysis,
 test suite, browser suite, audit chains, backup dry run. Posture is
 informational. This is the command to rerun before a demo.
+
+### Correlation, anchor, DLP and supervision tranche, 22 October 2026
+
+`npm test` 178 pass, 0 fail in 294 seconds. Playwright 12 pass. New
+integration coverage:
+
+| T-108 | Correlation opens AUTH-BURST, RBAC-PROBE and EXTRACT-BURST alerts with stable dedupe keys | Pass | correlation.test.ts: 5 of 5 |
+| T-109 | The daily HMAC anchor writes once and the CLI verifies it | Pass | anchor.test.ts: 4 of 4; `bash scripts/anchor.mjs verify` printed `{"ok":true,"checked":1}` |
+| T-110 | An export manifest records counts, not values, and refuses a 5001 row export | Pass | dlp.test.ts: 4 of 4, including the 5 MiB size cap |
+| T-111 | The retention sweep removes expired sessions, resolved alerts and terminal jobs and leaves cases and audit rows alone | Pass | retention.test.ts: 2 of 2 |
+| T-112 | A job that reaches 8 attempts becomes dead and raises one DEAD-LETTER alert | Pass | retention.test.ts: state dead, one alert for the job |
+| T-113 | launchd restarts Caddy and Vector after a forced kill | Pass | killed both PIDs; `launchctl print` showed new PIDs; `https://localhost:8443/health/live` answered `{"ok":true}` |
+| T-114 | The worker agent runs correlation, the anchor check and the sweep | Pass | `launchctl print gui/$(id -u)/com.cyberserious.worker` running; log line "anchor current, 52 expired rows swept" |
+| T-115 | A live loopback probe raises the sensor rule and the alert reaches the app store | Pass | `curl http://127.0.0.1:8100/waf-test`; `infra/sensor/out/eve.json` SID 9000004; `security_events` row "LAB controlled waf-test probe" source suricata |
+| T-116 | Vector ships a parsed eve alert to the ingest route with the Keychain token | Pass | sink answered 200; row seq 2; the token is rendered into a private runtime config, not committed |
+| T-117 | All lab services are under launchd | Pass | `launchctl print` shows regulator, organisation, caddy, vector, worker, clamd, freshclam and the Suricata root daemon |
