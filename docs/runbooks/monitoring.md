@@ -14,8 +14,15 @@ bash scripts/osquery.sh status
 sudo bash scripts/pf-firewall.sh status
 ```
 
-Start and stop: `caddy run` is foreground. ClamAV and osquery use launchd.
-Vector starts with `vector --config infra/vector/vector.toml`.
+Start and stop: the regulator, organisation, Caddy, Vector and worker are
+launchd agents:
+`bash scripts/regulator.sh install|uninstall`, `bash
+scripts/organisation.sh install|uninstall`, `bash scripts/caddy.sh
+install|uninstall`, `bash scripts/vector.sh install|uninstall`, `bash
+scripts/worker.sh install|uninstall`. ClamAV and
+osquery use launchd as well. Suricata is a root daemon:
+`sudo bash scripts/suricata.sh install|uninstall`. Agents start at login and
+the Suricata daemon starts at boot. Logs land in `data/logs/*.launchd.log`.
 Logs: `data/logs/caddy.log`, `data/logs/suricata/`, `data/clamav/`,
 `/var/log/osquery/`.
 Verification: ingest one event and see it on the security page; stop a source

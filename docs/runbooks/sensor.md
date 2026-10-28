@@ -44,11 +44,13 @@ The kernel gives the BPF device to root only. A normal user gets
 "permission denied" on `lo0`. The live run is a demonstration step, not a
 test:
 
-    sudo suricata -c infra/sensor/suricata.yaml -S infra/sensor/local.rules \
-      -i lo0 -l infra/sensor/out
+    sudo bash scripts/suricata.sh install
 
-Stop it with Ctrl C. Suricata writes `eve.json` and `suricata.log` under
-`infra/sensor/out/`.
+The launch daemon runs at boot and keeps the process alive. On this host the
+kernel answers `ioctl: lo0: unable to set caps: Operation not supported on
+socket`. The engine still starts. Stop it with
+`sudo bash scripts/suricata.sh uninstall`. Suricata writes `eve.json` and
+`suricata.log` under `infra/sensor/out/`; Vector watches that file.
 
 A browser that opens several keep-alive connections can trip the syn rule
 (SID 9000003). That is expected on `lo0`. Read the alert. Do not treat it
