@@ -106,6 +106,40 @@
             <article class="dashboard-panel">
                 <div class="panel-heading">
                     <div>
+                        <h3>Recent exports</h3>
+                        <p>What left the register, how much and how many identifier patterns matched.</p>
+                    </div>
+                </div>
+                <div class="table-wrap">
+                    <table class="data-table" aria-label="Recent exports">
+                        <thead>
+                            <tr><th scope="col">When</th><th scope="col">Actor</th><th scope="col">Resource</th><th scope="col">Rows</th><th scope="col">Bytes</th><th scope="col">PII hits</th></tr>
+                        </thead>
+                        <tbody id="exportRows"></tbody>
+                    </table>
+                </div>
+            </article>
+
+            <article class="dashboard-panel">
+                <div class="panel-heading">
+                    <div>
+                        <h3>Banned addresses</h3>
+                        <p>The application ban list. The pf table is applied separately by the owner.</p>
+                    </div>
+                </div>
+                <div class="table-wrap">
+                    <table class="data-table" aria-label="Banned addresses">
+                        <thead>
+                            <tr><th scope="col">Address</th><th scope="col">Reason</th><th scope="col">Banned at</th><th scope="col">Until</th><th scope="col">Action</th></tr>
+                        </thead>
+                        <tbody id="banRows"></tbody>
+                    </table>
+                </div>
+            </article>
+
+            <article class="dashboard-panel">
+                <div class="panel-heading">
+                    <div>
                         <h3>Control notes</h3>
                         <p>What this page does not claim.</p>
                     </div>

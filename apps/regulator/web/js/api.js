@@ -115,6 +115,10 @@ var Api = (function () {
         return call("/api/v1/security/verify");
     }
 
+    function unbanIp(ip) {
+        return call("/api/v1/security/bans/" + encodeURIComponent(ip), { method: "DELETE" });
+    }
+
     function getResearch() {
         return call("/api/v1/research");
     }
@@ -141,6 +145,7 @@ var Api = (function () {
         getAlerts: getAlerts,
         getSecurityState: getSecurityState,
         verifySecurity: verifySecurity,
+        unbanIp: unbanIp,
         getResearch: getResearch,
         getCaseDuties: getCaseDuties,
         alertAction: alertAction,

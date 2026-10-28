@@ -8,6 +8,7 @@ import { securitySummary, verifySecurityChain } from "../securitylog.ts";
 import { TRIP_FLAG } from "../trip.ts";
 import { banIp, listBans, unbanIp } from "../ban.ts";
 import { recordAudit } from "../audit.ts";
+import { recentExports } from "../dlp.ts";
 
 export const securityRouter = Router();
 securityRouter.use(requireSession);
@@ -59,6 +60,7 @@ securityRouter.get("/security/state", async (req, res) => {
     backup: backupAge(),
     trip: { locked: existsSync(TRIP_FLAG) },
     bannedIps: await listBans(),
+    exports: await recentExports(10),
   });
 });
 
