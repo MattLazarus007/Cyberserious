@@ -1,17 +1,5 @@
-==> Auto-updating Homebrew...
-Adjust how often this is run with `$HOMEBREW_AUTO_UPDATE_SECS` or disable with
-`$HOMEBREW_NO_AUTO_UPDATE=1`. Hide these hints with `$HOMEBREW_NO_ENV_HINTS=1` (see `man brew`).
-==> Downloading https://ghcr.io/v2/homebrew/core/portable-ruby/blobs/sha256:43ff285a82f48c84a06d0676a3800815a19d290d32e44182ddd7a6e95478e18e
-#=#=#                                                                          #####                                                                      7.9%################################                                          45.5%#############################################################             86.0%######################################################################## 100.0%
-==> Pouring portable-ruby-4.0.9.arm64_big_sur.bottle.tar.gz
-==> Auto-updated Homebrew!
-Updated 1 tap (homebrew/cask).
-==> New Casks
-diri: Terminal workspace for running coding agents in parallel
-keyboop: Keyboard layout switcher with local voice dictation
-nvalt: Note taking app, fork of Notational Velocity
-prusaslicer@preview: G-code generator for 3D printers (RepRap, Makerbot, Ultimaker etc.)
-
+==> Downloading Homebrew API data
+✔︎ JSON API packages.arm64_tahoe.jws.json
 ada-url
 brotli
 c-ares
