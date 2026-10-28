@@ -6,6 +6,6 @@ table <cyberserious_bad> persist
 block drop in quick from <cyberserious_bad> to any
 block drop in quick on !lo0 all
 
-pass in quick on lo0 proto tcp from any to 127.0.0.1 port { 8100, 8101, 8200, 8443 }
+pass in quick on lo0 proto tcp from any to 127.0.0.1 port { 8100, 8101, 8200, 8443, 8444 }
 
 pass out quick all keep state

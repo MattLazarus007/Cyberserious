@@ -301,7 +301,7 @@ export async function handleCallback(req: Request, res: Response): Promise<void>
     await query("update sessions set mfa_ok = true where id = $1", [sid]);
     await recordAudit({ actor: name, action: "auth.oidc", resource: name, result: "ok" });
     console.log(`[oidc] ${name} signed in through ${issuerBase()}`);
-    res.append("Set-Cookie", sessionCookieHeader(sid));
+    res.append("Set-Cookie", sessionCookieHeader(sid, req.secure));
     res.append("Set-Cookie", clearStateCookieHeader());
     res.redirect(302, "/index.html");
   } catch (err) {

@@ -29,13 +29,16 @@ export function readCookie(req: Request, name: string): string | null {
   return null;
 }
 
-export function sessionCookieHeader(sid: string): string {
-  // Localhost runs plain http, so no Secure flag here. The TLS deployment sets it.
-  return `${SESSION_COOKIE}=${encodeURIComponent(sid)}; Path=/; HttpOnly; SameSite=Lax`;
+export function sessionCookieHeader(sid: string, secure = false): string {
+  // The attribute follows the transport. A TLS request gets Secure. A loopback
+  // plain http request does not, so the browser suite keeps working.
+  const flag = secure ? "; Secure" : "";
+  return `${SESSION_COOKIE}=${encodeURIComponent(sid)}; Path=/; HttpOnly; SameSite=Lax${flag}`;
 }
 
-export function clearCookieHeader(): string {
-  return `${SESSION_COOKIE}=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0`;
+export function clearCookieHeader(secure = false): string {
+  const flag = secure ? "; Secure" : "";
+  return `${SESSION_COOKIE}=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0${flag}`;
 }
 
 export async function createSession(userId: string): Promise<string> {

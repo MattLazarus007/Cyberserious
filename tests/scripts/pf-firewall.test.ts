@@ -7,7 +7,7 @@ test("print shows default deny and the loopback ports", () => {
   assert.equal(out.status, 0, out.stderr);
   assert.match(out.stdout, /block drop in quick on !lo0 all/);
   assert.match(out.stdout, /cyberserious_bad/);
-  for (const port of ["8100", "8101", "8200", "8443"]) {
+  for (const port of ["8100", "8101", "8200", "8443", "8444"]) {
     assert.match(out.stdout, new RegExp(port));
   }
 });
