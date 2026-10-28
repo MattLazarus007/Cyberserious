@@ -1,15 +1,17 @@
+data_dir = "data/vector"
+
 # Suricata eve.json to the CyberSerious security event store.
 # The collector token comes from the environment; never put it here.
 
 [sources.suricata_eve]
 type = "file"
-include = ["data/logs/suricata/eve.json"]
-start_at_beginning = false
+include = ["data/logs/suricata/eve.json", "infra/sensor/out/eve.json"]
+read_from = "beginning"
 
 [transforms.alerts_only]
 type = "filter"
 inputs = ["suricata_eve"]
-condition = '.event_type == "alert"'
+condition = 'contains(string!(.message), "\"event_type\":\"alert\"")'
 
 [transforms.to_security_event]
 type = "remap"
@@ -39,4 +41,9 @@ method = "post"
 encoding.codec = "json"
 framing.method = "newline_delimited"
 batch.max_events = 1
-request.headers.x-internal-token = "${INTERNAL_TOKEN}"
+request.headers."x-internal-token" = "__INTERNAL_TOKEN__"
+request.headers."content-type" = "application/json"
+
+[api]
+enabled = true
+address = "127.0.0.1:8686"

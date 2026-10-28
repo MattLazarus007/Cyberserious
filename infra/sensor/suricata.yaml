@@ -31,6 +31,11 @@ outputs:
       filename: eve.json
       types:
         - alert
+        - http
+        - dns
+        - tls
+        - flow
+        - stats
 
 # af-packet is Linux only and stays out. The pcap section is the
 # cross platform path and carries the lo0 live capture on this machine.
