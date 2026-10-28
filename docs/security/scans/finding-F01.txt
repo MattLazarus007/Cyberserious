@@ -1,0 +1,67 @@
+Finding F-01: one known advisory in the dependency graph
+
+Stage: first full gate run after the sprint commits
+Gate: dependencies (osv-scanner 2.7.0 over package-lock.json)
+
+Observed output:
+
+    Scanned /Users/andilemushwana/cyberserious/package-lock.json file and found 84 packages
+    Total 1 package affected by 1 known vulnerability
+    (0 Critical, 1 High, 0 Medium, 0 Low, 0 Unknown) from 1 ecosystem.
+    1 vulnerability can be fixed.
+
+    +-------------------------------------+------+-----------+-------------+---------+
+    | OSV URL                             | CVSS | ECOSYSTEM | PACKAGE     | VERSION |
+    +-------------------------------------+------+-----------+-------------+---------+
+    | https://osv.dev/GHSA-27r3-jxmh-p828 | 7.5  | npm       | body-parser | 2.3.0   |
+    +-------------------------------------+------+-----------+-------------+---------+
+
+    fixed version: 2.4.0
+
+    security scan: findings above
+
+    Gates: 7 passed, 1 failed, 306s
+
+Advisory:
+
+- Identifiers: CVE-2026-111181, GHSA-27r3-jxmh-p828.
+- CVSS: 7.5, High.
+- Cause: body-parser stops listening for errors on its decompression stream.
+  A request that carries a gzip Content-Encoding can therefore crash the
+  process. The default configuration has inflate enabled.
+- Reach: any route that accepts a request body, including the login route.
+- Fixed in: 1.20.9 and 2.4.0.
+
+Path into this tree: body-parser is not a direct dependency. Express 5.3.0
+depends on it, and the lockfile resolved 2.3.0.
+
+    cyberserious@ /Users/andilemushwana/cyberserious
+    └─┬ express@5.3.0
+      └── body-parser@2.3.0
+
+Fix: an overrides entry in package.json pins the transitive package.
+
+    "overrides": {
+      "body-parser": "^2.4.0"
+    }
+
+After the install the tree resolves 2.4.0:
+
+    └─┬ express@5.3.0
+      └── body-parser@2.4.0
+
+Verification of the close-out, against the running regulator on port 8100:
+
+1. The dependency gate answers clean.
+   `bash scripts/security-scan.sh deps` prints "No issues found" and
+   "security scan: clean".
+2. The crash path is closed. A request with a gzip Content-Encoding and a
+   body that is not gzip answers 400.
+   `curl -X POST .../api/v1/login -H 'content-encoding: gzip' --data-binary 'not-a-gzip-stream'`
+3. The process survives. The regulator pid is 727 before the request and 727
+   after it, and `/health/live` answers `{"ok":true}`.
+4. The replay of the same request against 2.3.0 was not performed. The
+   advisory states the crash. The fixed version answers 400 instead of
+   stopping the service, which is the observable difference.
+
+Commit: "lift body-parser past the known advisory".

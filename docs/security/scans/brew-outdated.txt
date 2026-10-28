@@ -1,0 +1,90 @@
+==> Auto-updating Homebrew...
+Adjust how often this is run with `$HOMEBREW_AUTO_UPDATE_SECS` or disable with
+`$HOMEBREW_NO_AUTO_UPDATE=1`. Hide these hints with `$HOMEBREW_NO_ENV_HINTS=1` (see `man brew`).
+==> Downloading https://ghcr.io/v2/homebrew/core/portable-ruby/blobs/sha256:43ff285a82f48c84a06d0676a3800815a19d290d32e44182ddd7a6e95478e18e
+#=#=#                                                                          #####                                                                      7.9%################################                                          45.5%#############################################################             86.0%######################################################################## 100.0%
+==> Pouring portable-ruby-4.0.9.arm64_big_sur.bottle.tar.gz
+==> Auto-updated Homebrew!
+Updated 1 tap (homebrew/cask).
+==> New Casks
+diri: Terminal workspace for running coding agents in parallel
+keyboop: Keyboard layout switcher with local voice dictation
+nvalt: Note taking app, fork of Notational Velocity
+prusaslicer@preview: G-code generator for 3D printers (RepRap, Makerbot, Ultimaker etc.)
+
+ada-url
+brotli
+c-ares
+cairo
+certifi
+dav1d
+deno
+docker
+ffmpeg
+fmt
+fontconfig
+freetype
+fribidi
+gh
+ghostscript
+glib
+gnupg
+go
+gpgme
+gpgmepp
+graphite2
+harfbuzz
+hdrhistogram_c
+icu4c@78
+jpeg-turbo
+krb5
+lame
+libarchive
+libgcrypt
+libksba
+libngtcp2
+libomp
+libpng
+libtiff
+libunistring
+libuv
+libvmaf
+libvpx
+libx11
+libxrender
+lima
+little-cms2
+llhttp
+merve
+mpg123
+node
+nspr
+nss
+openjpeg
+openssl@3
+openssl@4
+p11-kit
+pango
+pinentry
+poppler
+postgresql@16
+pycparser
+python@3.11
+python@3.14
+python@3.15
+qpdf
+redis
+ripgrep
+sdl2-compat
+sdl3
+simdjson
+simdutf
+supabase/tap/supabase
+svt-av1
+tesseract
+whisper.cpp
+x265
+xorgproto
+yt-dlp
+drawio
+libreoffice
