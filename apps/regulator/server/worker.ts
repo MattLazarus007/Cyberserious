@@ -3,6 +3,9 @@ import pg from "pg";
 import { query, withTransaction } from "./db.ts";
 import { evaluateAll, type RuleInput } from "./rules/index.ts";
 import { recordAuditTx } from "./audit.ts";
+import { runCorrelation } from "./correlation.ts";
+import { anchorIfDue } from "./anchor.ts";
+import { sweepRetention } from "./retention.ts";
 
 const BATCH = 10;
 
@@ -41,9 +44,10 @@ export async function finishJob(id: number, err?: Error): Promise<void> {
   const attempts = rows.rows[0]?.attempts ?? 1;
   const waitSecs = Math.min(3600, attempts * attempts * 30);
   const jitter = Math.floor(Math.random() * 30);
+  const state = attempts >= 8 ? "dead" : "failed";
   await query(
-    "update outbox_jobs set state = 'failed', last_error = $2, next_attempt_at = now() + ($3 || ' seconds')::interval where id = $1",
-    [id, err.message.slice(0, 500), String(waitSecs + jitter)]
+    "update outbox_jobs set state = $4, last_error = $2, next_attempt_at = now() + ($3 || ' seconds')::interval where id = $1",
+    [id, err.message.slice(0, 500), String(waitSecs + jitter), state]
   );
 }
 
@@ -171,7 +175,7 @@ export async function openExtractionNotice(job: Lease): Promise<number> {
   });
 }
 
-export async function runOnce(): Promise<{ jobs: number; opened: number; reopened: number }> {
+export async function runOnce(): Promise<{ jobs: number; opened: number; reopened: number; correlated: number; anchored: boolean; swept: number }> {
   const jobs = await leaseJobs();
   let opened = 0;
   for (const job of jobs) {
@@ -188,7 +192,17 @@ export async function runOnce(): Promise<{ jobs: number; opened: number; reopene
     }
   }
   const reopened = await sweepSnoozes();
-  return { jobs: jobs.length, opened, reopened };
+  const correlation = await runCorrelation();
+  const anchored = await anchorIfDue();
+  const swept = await sweepRetention();
+  return {
+    jobs: jobs.length,
+    opened,
+    reopened,
+    correlated: correlation.opened,
+    anchored,
+    swept: swept.sessions + swept.alerts + swept.jobs,
+  };
 }
 
 const direct = process.argv[1] === new URL(import.meta.url).pathname;
@@ -197,8 +211,8 @@ if (direct) {
   for (;;) {
     try {
       const done = await runOnce();
-      if (done.jobs > 0 || done.reopened > 0) {
-        console.log(`worker: ${done.jobs} jobs, ${done.opened} alerts opened, ${done.reopened} snoozes reopened`);
+      if (done.jobs > 0 || done.reopened > 0 || done.correlated > 0 || done.anchored || done.swept > 0) {
+        console.log(`worker: ${done.jobs} jobs, ${done.opened} alerts opened, ${done.reopened} snoozes reopened, ${done.correlated} correlated, anchor ${done.anchored ? "written" : "current"}, ${done.swept} expired rows swept`);
       }
     } catch (err) {
       console.error("worker loop failed", (err as Error).message);
