@@ -43,8 +43,8 @@ deadlines.
 
 | Side | Address | Accounts | Job |
 |---|---|---|---|
-| Regulator workspace | http://localhost:8100 | analyst1, supervisor1, reviewer1, admin1 | triage, notes, transitions, audit, alerts |
-| Organisation portal | http://localhost:8200 | steward1, io1, so1 | draft, approve, sign, send, notify |
+| Regulator workspace | https://localhost:8443 | analyst1, supervisor1, reviewer1, admin1 | triage, notes, transitions, audit, alerts |
+| Organisation portal | https://localhost:8444 | steward1, io1, so1 | draft, approve, sign, send, notify |
 | Rules worker | no address | none | leases outbox jobs, evaluates the rules, opens alerts |
 
 The two applications keep separate databases. The regulator database holds

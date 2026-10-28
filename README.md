@@ -69,8 +69,9 @@ The three organisation roles exist in the regulator database for the shared
 fixtures. The regulator screens refuse them, because the permission table
 gives those roles nothing on that side.
 
-Organisation portal, port 8200. It has its own database, so only these three
-accounts exist there:
+Organisation portal, https://localhost:8444. The application listens on
+loopback 8200 and the TLS edge fronts it. It has its own database, so only
+these three accounts exist there:
 
 | Username | Password | What it can do |
 |---|---|---|
