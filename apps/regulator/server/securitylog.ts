@@ -45,6 +45,13 @@ export async function recordSecurityEventTx(
   await client.query("select pg_advisory_xact_lock($1)", [CHAIN_LOCK_KEY]);
   const last = await client.query("select entry_hash from security_events order by seq desc limit 1");
   const prev = last.rows.length > 0 ? (last.rows[0].entry_hash as string) : null;
+  // Store one timestamp shape. A source may send an offset; hashing the raw
+  // string and verifying the normalised value would break the chain later.
+  let observedAt: string | null = null;
+  if (event.observedAt) {
+    const parsed = new Date(event.observedAt);
+    if (!Number.isNaN(parsed.getTime())) observedAt = parsed.toISOString();
+  }
   const inserted = await client.query(
     `insert into security_events
        (source, kind, severity, signature, src, dst, observed_at, raw, prev_hash, entry_hash)
@@ -57,14 +64,14 @@ export async function recordSecurityEventTx(
       event.signature,
       event.src ?? null,
       event.dst ?? null,
-      event.observedAt ?? null,
+      observedAt,
       JSON.stringify(event.raw ?? {}),
       prev,
     ]
   );
   const row = inserted.rows[0];
   const createdAt = new Date(row.created_at).toISOString();
-  const entryHash = hashOf(prev, event, createdAt);
+  const entryHash = hashOf(prev, { ...event, observedAt }, createdAt);
   await client.query("update security_events set entry_hash = $1 where seq = $2", [entryHash, row.seq]);
   await client.query(
     `insert into security_heartbeats (source, last_seen_at, detail)
