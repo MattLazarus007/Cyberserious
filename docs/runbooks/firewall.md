@@ -20,7 +20,7 @@ installs the LaunchDaemon so the rules return after a reboot.
 ## Rules
 
 - Default drop inbound on every interface other than loopback.
-- Pass loopback on 8100, 8101, 8200, and 8443 only.
+- Pass loopback on 8100, 8101, 8200, 8443, and 8444 only.
 - Allow outbound and established traffic.
 - Keep a `cyberserious_bad` table for confirmed hostile addresses.
 

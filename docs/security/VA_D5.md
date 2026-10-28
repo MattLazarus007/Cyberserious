@@ -115,8 +115,8 @@ recording both work.
 |---|---|
 | TLS 1.0 | refused, alert 70 protocol version |
 | TLS 1.1 | refused, alert 70 protocol version |
-| TLS 1.2 | accepted |
-| TLS 1.3 | accepted |
+| TLS 1.2 | refused on both edges, protocol version alert |
+| TLS 1.3 | accepted on both edges |
 | `strict-transport-security` | `max-age=31536000; includeSubDomains` |
 | `content-security-policy` | named directives for script, style, img, connect, object, frame, form-action, base-uri, frame-ancestors |
 | `x-content-type-options` | `nosniff` |
@@ -152,7 +152,7 @@ The export carries a manifest, not values:
 
 | Process | Bind | Port |
 |---|---|---|
-| caddy | `*` | 8443 |
+| caddy | `*` | 8443 and 8444 |
 | node | 127.0.0.1 | 8200 |
 | node | 127.0.0.1 | 8100 |
 
@@ -169,8 +169,9 @@ else in that range.
 | Port | Service | Bind | Result |
 |---|---|---|---|
 | 8100 | regulator API | loopback | open |
-| 8200 | organisation portal | loopback | open |
-| 8443 | TLS edge | every interface | open, filtered by the packet filter |
+| 8200 | portal API | loopback | open |
+| 8443 | regulator edge | every interface | open, TLS 1.3, filtered by the packet filter |
+| 8444 | portal edge | every interface | open, TLS 1.3, filtered by the packet filter |
 | 8101 | mutual TLS intake | none | closed outside a test run |
 
 The edge is the only listener on every interface. The packet filter carries
@@ -187,7 +188,9 @@ Raw output: `scans/network.txt`.
 | F-02 | ZAP reports a CSP fallback gap on two 404 paths | Configuration | P3 | `dast.json` alert 10055 | Accepted. The 404 handler sends `default-src 'none'` and renders no data. Application pages name every directive |
 | F-03 | ZAP reports four informational items | Configuration | P3 | `dast.json` alerts 10111, 10024, 10015, 10031 | Triaged. One is the scanner finding the login form. Three are false positives on scanner-injected parameters. The hostile-string test stores markup inertly |
 | F-04 | The host carries patch drift: 74 formulae behind, 4 pending system updates, 2 of them need a restart | Configuration | P2 | `scans/brew-outdated.txt`, `scans/softwareupdate.txt` | Open, owner step. The application pins its own runtime and its dependency tree is clean, so the drift affects the host, not the app |
-| F-05 | The TLS edge accepts TLS 1.2 | Cryptographic | P3 | `scans/probes.txt` | Accepted. TLS 1.0 and 1.1 are refused. No requirement in scope forces 1.3 only |
+| F-05 | The TLS edge accepted TLS 1.2 | Cryptographic | P2 | `scans/probes.txt` | Closed. Both edges allow TLS 1.3 only |
+| F-08 | The session cookie carried no Secure attribute behind TLS | Configuration | P2 | `scans/probes.txt`, `tests/unit/session-cookie.test.ts` | Closed. The attribute follows the request transport |
+| F-09 | The organisation portal had no TLS edge | Configuration | P2 | `scans/probes.txt` | Closed. The portal sits behind a TLS 1.3 edge on 8444 |
 | F-06 | The edge listens on every interface | Configuration | P3 | `scans/probes.txt` | Accepted with a control. pf drops all inbound on non-loopback. The rule sits in `infra/pf/cyberserious.anchor` |
 | F-07 | Four scanner claims had no artefact, and `SCANS.md` said no DAST ran while `DAST_REPORT.md` described a run | Documentation | P2 | `git log`, `scans/` | Closed. The four scanners now write JSON artefacts and the contradiction is gone |
 

@@ -10,8 +10,9 @@ that fronts the app with a local proxy, and it logs the address it used.
 | --- | --- | --- | --- |
 | 8100 | regulator UI and API | loopback | demo traffic |
 | 8101 | regulator mTLS intake | loopback | certificate required |
-| 8200 | organisation portal | loopback | demo traffic |
-| 8443 | Caddy, when started | loopback | planned TLS front |
+| 8200 | organisation portal | loopback | serves the TLS edge only |
+| 8443 | Caddy, regulator edge | every interface | TLS 1.3 front, filtered by pf |
+| 8444 | Caddy, portal edge | every interface | TLS 1.3 front, filtered by pf |
 | 5432 | Postgres | loopback | local only |
 
 ## Request path

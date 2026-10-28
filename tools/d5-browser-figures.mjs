@@ -9,7 +9,7 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const OUT = process.env.D5_FIGURES ?? resolve(process.env.HOME ?? ".", "cyberserious-notes/d5-figures");
 const LOG = resolve(ROOT, "data/logs/organisation.launchd.log");
 const ZAP = resolve(ROOT, "docs/security/dast.html");
-const PORTAL = process.env.ORG_PORTAL ?? "http://127.0.0.1:8200";
+const PORTAL = process.env.ORG_PORTAL ?? "https://localhost:8444";
 
 function codes(user) {
   const text = readFileSync(LOG, "utf8");

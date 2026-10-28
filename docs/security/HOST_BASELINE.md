@@ -59,7 +59,7 @@ Paste the new table here with the date whenever a host setting changes.
 | Setting | State | Evidence |
 |---|---|---|
 | Application firewall | PASS | `socketfilterfw --getglobalstate`: enabled (State = 1) |
-| pf anchor | PASS (applied) | `pfctl -a cyberserious -sr` shows block drop from the bad table, pass on lo0 for 8100, 8101, 8200, 8443, pass out |
+| pf anchor | PASS (applied) | `pfctl -a cyberserious -sr` shows block drop from the bad table, pass on lo0 for 8100, 8101, 8200, 8443, 8444, pass out |
 | Gatekeeper | INFO | assessments enabled |
 | Guest account | PASS | disabled |
 | Screen lock | INFO | immediate |

@@ -39,7 +39,8 @@ npm run dev
 The regulator answers on port 8100. Sign in as analyst1 and read
 the one-time code from this same terminal. Every account, password
 and sign-in path is listed in README.md. The portal runs with
-npm run dev:org on port 8200. The worker runs with npm run worker.
+npm run dev:org on port 8200. In the served deployment the portal sits behind
+the TLS edge on https://localhost:8444. The worker runs with npm run worker.
 Tests run with npm test, browser flows with npm run test:e2e.
 
 When the whole group tests together, start the servers with
