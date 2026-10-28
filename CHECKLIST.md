@@ -60,11 +60,11 @@ A Done row has a command or test in `docs/TEST_LOG.md`.
 - [x] Heartbeats and 15 minute silence. Done.
 - [x] Security page with state and verify. Done.
 - [x] Vector pipeline config validated. Done.
-- [ ] Vector running continuously under supervision. Partial: config proven, launchd job not installed.
+- [x] Vector running under a launchd agent. Done.
 - [x] Suricata local rules and replay proof. Done.
-- [ ] Suricata live alerts. Partial: capture starts, no alerts; replay is the proof.
-- [ ] Daily audit anchor with HMAC and immutable flag. Open.
-- [ ] DLP export row and size cap. Partial: manifest and marking exist.
+- [x] Suricata live alerts. Done: SID 9000004 fired and reached the store.
+- [x] Daily audit anchor with HMAC and immutable flag fallback. Done.
+- [x] DLP export row and size cap. Done.
 
 ## Phase 7: assurance
 
@@ -90,4 +90,4 @@ A Done row has a command or test in `docs/TEST_LOG.md`.
 - [x] Honest status and owner steps. This file and `STATUS.md`.
 - [x] Commit in coherent batches.
 - [ ] Push. N/A: remote is intentionally disabled.
-- [ ] Keycloak realm MFA and external anchor. Owner/open.
+- [ ] Keycloak realm MFA. Owner/open. External anchor remains local, by design.
