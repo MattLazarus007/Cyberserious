@@ -21,5 +21,8 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.64.1"
+  },
+  "overrides": {
+    "body-parser": "^2.4.0"
   }
 }
