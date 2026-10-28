@@ -105,7 +105,7 @@ authRouter.post("/login", loginRate, async (req, res) => {
   if (simpleLogin()) {
     await query("update sessions set mfa_ok = true where id = $1", [sid]);
     console.log(`[login] ${username} signed in without a code (lab simple sign-in)`);
-    res.setHeader("Set-Cookie", sessionCookieHeader(sid));
+    res.setHeader("Set-Cookie", sessionCookieHeader(sid, req.secure));
     res.json({ ok: true, username });
     return;
   }
@@ -115,7 +115,7 @@ authRouter.post("/login", loginRate, async (req, res) => {
     [hashCode(code), sid]
   );
   console.log(`[otp] code for ${username}: ${code} (5 min)`);
-  res.setHeader("Set-Cookie", sessionCookieHeader(sid));
+  res.setHeader("Set-Cookie", sessionCookieHeader(sid, req.secure));
   res.json({ mfaRequired: true });
 });
 
@@ -153,7 +153,7 @@ authRouter.post("/login/group", loginRate, async (req, res) => {
   await query("update sessions set mfa_ok = true where id = $1", [sid]);
   await recordAudit({ actor: "group", action: "auth.group", resource: "group", result: "ok" });
   console.log("[login] group sign-in used (shared credential)");
-  res.setHeader("Set-Cookie", sessionCookieHeader(sid));
+  res.setHeader("Set-Cookie", sessionCookieHeader(sid, req.secure));
   res.json({ ok: true, username: "group" });
 });
 
@@ -183,7 +183,7 @@ authRouter.post("/login/otp", loginRate, async (req, res) => {
   if (new Date(row.otp_expires_at).getTime() < Date.now() || row.otp_attempts >= 3) {
     await authFailure(req, "otp expired");
     await destroySession(sid);
-    res.setHeader("Set-Cookie", clearCookieHeader());
+    res.setHeader("Set-Cookie", clearCookieHeader(req.secure));
     res.status(401).json({ error: "code expired" });
     return;
   }
@@ -193,7 +193,7 @@ authRouter.post("/login/otp", loginRate, async (req, res) => {
     const left = 2 - row.otp_attempts;
     if (left <= 0) {
       await destroySession(sid);
-      res.setHeader("Set-Cookie", clearCookieHeader());
+      res.setHeader("Set-Cookie", clearCookieHeader(req.secure));
     }
     res.status(401).json({ error: "invalid code" });
     return;
@@ -206,13 +206,13 @@ authRouter.post("/login/otp", loginRate, async (req, res) => {
   );
   await destroySession(sid);
   loginRate.clearIp(req.socket.remoteAddress ?? "unknown");
-  res.setHeader("Set-Cookie", sessionCookieHeader(fresh));
+  res.setHeader("Set-Cookie", sessionCookieHeader(fresh, req.secure));
   res.json({ ok: true, username: row.username });
 });
 
 authRouter.post("/logout", async (req, res) => {
   const sid = readCookie(req, SESSION_COOKIE);
   if (sid) await destroySession(sid);
-  res.setHeader("Set-Cookie", clearCookieHeader());
+  res.setHeader("Set-Cookie", clearCookieHeader(req.secure));
   res.json({ ok: true });
 });
