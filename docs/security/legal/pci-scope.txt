@@ -1,0 +1,29 @@
+PCI DSS scope test for CyberSerious
+
+Question: does the Payment Card Industry Data Security Standard apply?
+
+The standard applies to an entity that stores, processes or transmits
+cardholder data, or that can affect the security of such an environment.
+
+Evidence gathered from this tree:
+
+1. No cardholder data element in the schema or the code.
+   Command:
+   grep -rniE "\b(card|pan|cvv|cvc|expiry|visa|mastercard|payment)\b" \
+     --include=*.ts --include=*.sql apps db packages | grep -viE "discard|cardinal"
+   Result: no matching line.
+
+2. No payment processor, no checkout, no merchant account and no card entry
+   field in either web application.
+
+3. The only money-shaped concept in the system is a case record about a data
+   breach. It carries no card data.
+
+4. The dashboard, portal, API and database are loopback bound. There is no
+   internet-facing payment path.
+
+Verdict: PCI DSS is not applicable. The scope test finds no account data
+environment.
+
+Condition to revisit: if any future screen collects a card number, or if a
+payment provider is added, this test must run again and the verdict changes.
