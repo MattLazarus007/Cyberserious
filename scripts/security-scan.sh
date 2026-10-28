@@ -34,7 +34,7 @@ run_secrets() {
 
 run_deps() {
   echo "== osv-scanner (package-lock.json) =="
-  osv-scanner --lockfile=package-lock.json
+  osv-scanner --lockfile=package-lock.json | sed "s|$PWD/||g"
 }
 
 run_fs() {
