@@ -81,6 +81,24 @@ test("a high severity event opens one alert for repeats", async () => {
   assert.equal(alerts.rows[0].n, 1);
 });
 
+test("an offset timestamp is normalised before it enters the chain", async () => {
+  const res = await post(
+    {
+      source: "suricata",
+      kind: "alert",
+      severity: "low",
+      signature: "LAB controlled waf-test probe",
+      observedAt: "2026-10-22T14:06:51.123+0200",
+    },
+    TOKEN
+  );
+  assert.equal(res.status, 201);
+  const reviewer = await loginFull(app.base, "reviewer1", "demo-reviewer-pass");
+  const verify = await fetch(`${app.base}/api/v1/security/verify`, { headers: { cookie: reviewer } });
+  const body = (await verify.json()) as { ok: boolean };
+  assert.equal(body.ok, true);
+});
+
 test("the security state is gated and reports an intact chain", async () => {
   const analyst = await loginFull(app.base, "analyst1", "demo-analyst-pass");
   const refused = await fetch(`${app.base}/api/v1/security/state`, { headers: { cookie: analyst } });
@@ -94,9 +112,9 @@ test("the security state is gated and reports an intact chain", async () => {
     heartbeats: Array<{ source: string; silent: boolean }>;
     trip: { locked: boolean };
   };
-  assert.equal(body.events.total, 3);
+  assert.equal(body.events.total, 4);
   assert.equal(body.events.chain.ok, true);
-  assert.equal(body.events.chain.checked, 3);
+  assert.equal(body.events.chain.checked, 4);
   assert.equal(body.heartbeats.length, 2);
   assert.equal(body.trip.locked, false);
 });
