@@ -5,7 +5,7 @@ B=http://127.0.0.1:8100
 JAR="$(mktemp -t va-jar.XXXXXX)"
 LOG=$HOME/cyberserious/data/logs/regulator.launchd.log
 
-before=$(grep -c "code for analyst1" "$LOG" 2>/dev/null || echo 0)
+before=$(grep -c "code for analyst1" "$LOG" 2>/dev/null)
 curl -s -c "$JAR" -o /dev/null -m 5 -X POST "$B/api/v1/login" \
   -H 'content-type: application/json' \
   -d '{"username":"analyst1","password":"demo-analyst-pass"}'
@@ -30,6 +30,7 @@ p "GET /api/v1/cases/BR-2026-0001"     "$B/api/v1/cases/BR-2026-0001"
 p "GET /api/v1/users (needs admin)"    "$B/api/v1/users"
 p "GET /api/v1/audit/verify (reviewer only)" "$B/api/v1/audit/verify"
 p "GET export for one case"            "$B/api/v1/cases/BR-2026-0001/export"
-echo "--- export manifest"
-curl -s -b "$JAR" -m 5 "$B/api/v1/cases/BR-2026-0001/export" | head -c 600; echo
+echo "--- export manifest, counts only"
+curl -s -b "$JAR" -m 5 "$B/api/v1/cases/BR-2026-0001/export" \
+  | jq -c '{marking, manifest}'
 rm -f "$JAR"

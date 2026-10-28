@@ -25,10 +25,14 @@ echo "# transport"
 curl -s -o /dev/null -m 4 -w 'plain HTTP on 8100 stays loopback  %{http_code}\n' "$B/health/live"
 curl -s -o /dev/null -m 4 -w 'TLS edge on 8443                    %{http_code}\n' "$E/health/live"
 for v in tls1 tls1_1 tls1_2 tls1_3; do
-  printf '%-10s ' "$v"
-  openssl s_client -connect localhost:8443 -servername localhost -"$v" </dev/null 2>&1 \
-    | grep -m1 -E 'alert protocol|alert internal|alert handshake|^ *Protocol *:' \
-    | sed 's/^ *//'
+  out=$(openssl s_client -connect localhost:8443 -servername localhost -"$v" </dev/null 2>&1)
+  if printf '%s' "$out" | grep -q 'alert protocol version'; then
+    printf '%-10s refused: protocol version\n' "$v"
+  elif printf '%s' "$out" | grep -q 'alert internal error'; then
+    printf '%-10s refused: internal error\n' "$v"
+  else
+    printf '%-10s %s\n' "$v" "$(printf '%s' "$out" | grep -m1 -E '^ *Protocol *:' | sed 's/^ *//')"
+  fi
 done
 
 echo

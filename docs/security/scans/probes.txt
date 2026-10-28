@@ -11,8 +11,8 @@ unknown path                                   404
 # transport
 plain HTTP on 8100 stays loopback  200
 TLS edge on 8443                    200
-tls1       8405163648:error:1404B42E:SSL routines:ST_CONNECT:tlsv1 alert protocol version:/AppleInternal/Library/BuildRoots/4~CNqEugB7-7yoTeHDwKLZ0PRIsI79y9XP33qXeIo/Library/Caches/com.apple.xbs/TemporaryDirectory.MoIAiI/Sources/libressl/libressl-3.3/ssl/tls13_lib.c:129:SSL alert number 70
-tls1_1     8405163648:error:1404B42E:SSL routines:ST_CONNECT:tlsv1 alert protocol version:/AppleInternal/Library/BuildRoots/4~CNqEugB7-7yoTeHDwKLZ0PRIsI79y9XP33qXeIo/Library/Caches/com.apple.xbs/TemporaryDirectory.MoIAiI/Sources/libressl/libressl-3.3/ssl/tls13_lib.c:129:SSL alert number 70
+tls1       refused: protocol version
+tls1_1     refused: protocol version
 tls1_2     Protocol  : TLSv1.2
 tls1_3     Protocol  : TLSv1.3
 
@@ -29,8 +29,8 @@ page cache     cache-control: public, max-age=0
 
 # listeners
 caddy 710 TCP *:8443
-node 712 TCP 127.0.0.1:8200
 node 727 TCP 127.0.0.1:8100
+node 74418 TCP 127.0.0.1:8200
 code read: 6 digits
 # authenticated probes as analyst1
 GET /api/v1/cases                            200
@@ -38,5 +38,5 @@ GET /api/v1/cases/BR-2026-0001               200
 GET /api/v1/users (needs admin)              403
 GET /api/v1/audit/verify (reviewer only)     403
 GET export for one case                      200
---- export manifest
-{"reference":"BR-2026-0001","orgName":"Karoo Retail Holdings","state":"UnderReview","severity":"high","priority":"urgent","openedAt":"2026-05-05T08:00:00.000Z","closedAt":null,"category":"unauthorised access","breachStatus":"reported","affectedCount":2450,"noteCount":11,"exportedAt":"2026-10-28T10:38:38.080Z","marking":"synthetic academic export","manifest":{"id":4,"rows":1,"bytes":349,"pii":{"email":0,"phone":0,"idNumber":0}}}
+--- export manifest, counts only
+{"marking":"synthetic academic export","manifest":{"id":10,"rows":1,"bytes":349,"pii":{"email":0,"phone":0,"idNumber":0}}}

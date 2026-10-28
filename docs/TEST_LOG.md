@@ -217,3 +217,16 @@ informational.
 `node scripts/verify-chain.mjs` returns audit 1676 rows intact and
 security 60 rows intact. `node scripts/anchor.mjs --verify` returns
 `{"ok":true,"checked":7}`.
+
+### Vulnerability and compliance tranche, 28 October 2026
+
+`npm test` 184 pass, 0 fail. Playwright 12 pass. The four scanners write a
+JSON artefact under `docs/security/scans/` and close clean.
+
+| T-119 | The four scanners keep an artefact and close clean | Pass | `bash scripts/vulnerability-assessment.sh` printed "assessment scan: clean"; gitleaks 0, osv 0, trivy 0, semgrep 0 |
+| T-120 | A malformed gzip body cannot stop the regulator | Pass | request answered 400; regulator pid stayed 727; `/health/live` answered ok |
+| T-121 | The probe scripts print a transcript for the record | Pass | `docs/security/scans/probes.txt` holds the unauth and auth runs |
+| T-122 | The affected notice carries the four section 22(5) particulars | Pass | `compliance.test.ts` C-01 |
+| T-123 | A notice that misses a required particular is refused | Pass | `compliance.test.ts` C-02, answer 400 |
+| T-124 | Every statutory delivery channel is accepted and an unknown one refused | Pass | `compliance.test.ts` C-03, letter and e-mail and website and news accepted, unknown refused |
+| T-125 | Every "Met" row in the obligation matrix names a test that runs | Pass | `docs/security/COMPLIANCE.md` P-01 to P-16, E-01 to E-04, X-01 |

@@ -3,16 +3,16 @@
   "Trivy": {
     "Version": "0.76.1"
   },
-  "ReportID": "01a18212-d2a0-78cd-b089-700761661528",
-  "CreatedAt": "2026-10-28T12:33:54.080578+02:00",
-  "ArtifactID": "sha256:92939c679da797ec10830ddc60a3778fa9604ca65560cffe732f4008f7424f55",
+  "ReportID": "01a18236-191f-74e2-a246-d142017ad631",
+  "CreatedAt": "2026-10-28T13:12:25.887321+02:00",
+  "ArtifactID": "sha256:3baf76bb3674362894c78306fbbcc362c8a9562c67b9a585f9aa3005ffda449a",
   "ArtifactName": ".",
   "ArtifactType": "repository",
   "Metadata": {
     "RepoURL": "https://github.com/MattLazarus007/Cyberserious.git",
     "Branch": "build",
-    "Commit": "ba8f6481eeb45c2abfa2370e314ebc7c8ad085d1",
-    "CommitMsg": "record the gate result for the sprint",
+    "Commit": "9d286f615f2f52c251d6ab4cfb663ee541af0085",
+    "CommitMsg": "map each obligation to a control and a test",
     "Author": "Andile Mushwana \u003coperator@example.invalid\u003e",
     "Committer": "Andile Mushwana \u003coperator@example.invalid\u003e"
   },
