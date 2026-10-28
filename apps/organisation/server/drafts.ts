@@ -223,9 +223,26 @@ draftsRouter.post("/drafts/:id/send", async (req, res) => {
 });
 
 const notifyInput = z.object({
-  channel: z.enum(["email", "sms", "phone", "letter"]).default("email"),
-  templateText: z.string().min(1).max(2000).optional(),
+  channel: z.enum(["email", "sms", "phone", "letter", "website", "news"]).default("email"),
+  consequencesText: z.string().min(10).max(1000),
+  measuresText: z.string().min(10).max(1000),
+  adviceText: z.string().min(10).max(1000),
+  unauthorisedIdentity: z.string().max(300).optional(),
 });
+
+// Section 22(5) asks for four particulars. The notice carries all four, and
+// says plainly when the responsible person is not yet known.
+function noticeBody(publicId: string, parts: z.infer<typeof notifyInput>): string {
+  return [
+    `POPIA section 22(5) notice for submission ${publicId}.`,
+    `Possible consequences of the compromise: ${parts.consequencesText}`,
+    `Measures taken or intended to address the compromise: ${parts.measuresText}`,
+    `What you should do to reduce the risk: ${parts.adviceText}`,
+    parts.unauthorisedIdentity
+      ? `Identity of the person believed responsible: ${parts.unauthorisedIdentity}`
+      : "Identity of the person responsible: not known at the time of this notice.",
+  ].join("\n");
+}
 
 const RUN_COLUMNS = `id, channel, status, affected_total as "affectedTotal",
   sent_count as "sentCount", failed_count as "failedCount",
@@ -272,7 +289,9 @@ draftsRouter.post("/drafts/:id/notify", async (req, res) => {
   }
   const parsed = notifyInput.safeParse(req.body);
   if (!parsed.success) {
-    res.status(400).json({ error: "choose a channel from email, sms, phone or letter" });
+    res.status(400).json({
+      error: "provide the section 22(5) particulars and choose a channel from email, sms, phone, letter, website or news",
+    });
     return;
   }
   const found = await query(
@@ -318,8 +337,7 @@ draftsRouter.post("/drafts/:id/notify", async (req, res) => {
 
   const targeted = affected;
   const channel = parsed.data.channel;
-  const template = parsed.data.templateText
-    ?? `Synthetic POPIA section 22 affected-person notice for ${draft.public_id}. Recorded dispatch only, lab simulation.`;
+  const template = noticeBody(draft.public_id as string, parsed.data);
   let runId: string;
   try {
     runId = await withTransaction(async (client) => {
