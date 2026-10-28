@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { recordExport } from "../dlp.ts";
 import { createHash } from "node:crypto";
 import { mkdirSync, writeFileSync, readFileSync, existsSync } from "node:fs";
 import { join } from "node:path";
@@ -316,5 +317,28 @@ evidenceRouter.get("/cases/:id/export", async (req, res) => {
   });
   const { caseId, ...body } = record;
   void caseId;
-  res.json({ ...body, noteCount: notes.rows[0].n, exportedAt: new Date().toISOString(), marking: "synthetic academic export" });
+  const payload = {
+    ...body,
+    noteCount: notes.rows[0].n,
+    exportedAt: new Date().toISOString(),
+    marking: "synthetic academic export",
+  };
+  let manifest;
+  try {
+    manifest = await recordExport({
+      actor: actor.username,
+      kind: "case",
+      resource: String(body.reference),
+      body: payload,
+      destination: req.get("x-export-destination") ?? "browser download",
+    });
+  } catch (err) {
+    const status = (err as { status?: number }).status;
+    if (status === 413) {
+      res.status(413).json({ error: (err as Error).message });
+      return;
+    }
+    throw err;
+  }
+  res.json({ ...payload, manifest: { id: manifest.id, rows: manifest.rows, bytes: manifest.bytes, pii: manifest.pii } });
 });

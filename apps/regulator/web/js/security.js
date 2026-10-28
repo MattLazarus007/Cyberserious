@@ -42,6 +42,83 @@
         }
     }
 
+    function renderExports(items) {
+        const body = document.getElementById("exportRows");
+        if (!body) return;
+        body.replaceChildren();
+        if (!items.length) {
+            const row = document.createElement("tr");
+            const cell = document.createElement("td");
+            cell.colSpan = 6;
+            cell.textContent = "No export recorded yet.";
+            row.append(cell);
+            body.append(row);
+            return;
+        }
+        for (const item of items) {
+            const row = document.createElement("tr");
+            const when = document.createElement("td");
+            when.textContent = new Date(item.createdAt).toLocaleString();
+            const actor = document.createElement("td");
+            actor.textContent = item.actor;
+            const resource = document.createElement("td");
+            resource.textContent = item.kind + " " + item.resource;
+            const rows = document.createElement("td");
+            rows.textContent = String(item.rows);
+            const bytes = document.createElement("td");
+            bytes.textContent = String(item.bytes);
+            const pii = document.createElement("td");
+            pii.textContent = Object.entries(item.pii || {}).map(function (pair) {
+                return pair[0] + " " + pair[1];
+            }).join(", ") || "none";
+            row.append(when, actor, resource, rows, bytes, pii);
+            body.append(row);
+        }
+    }
+
+    function renderBans(items) {
+        const body = document.getElementById("banRows");
+        if (!body) return;
+        body.replaceChildren();
+        if (!items.length) {
+            const row = document.createElement("tr");
+            const cell = document.createElement("td");
+            cell.colSpan = 5;
+            cell.textContent = "No address is banned.";
+            row.append(cell);
+            body.append(row);
+            return;
+        }
+        for (const item of items) {
+            const row = document.createElement("tr");
+            const ip = document.createElement("td");
+            ip.textContent = item.ip;
+            const reason = document.createElement("td");
+            reason.textContent = item.reason || "not stated";
+            const at = document.createElement("td");
+            at.textContent = item.createdAt ? new Date(item.createdAt).toLocaleString() : "unknown";
+            const until = document.createElement("td");
+            until.textContent = item.expiresAt ? new Date(item.expiresAt).toLocaleString() : "manual";
+            const action = document.createElement("td");
+            const button = document.createElement("button");
+            button.type = "button";
+            button.className = "btn-secondary";
+            button.textContent = "Unban";
+            button.addEventListener("click", async function () {
+                button.disabled = true;
+                try {
+                    await Api.unbanIp(item.ip);
+                    await load();
+                } catch (err) {
+                    button.disabled = false;
+                }
+            });
+            action.append(button);
+            row.append(ip, reason, at, until, action);
+            body.append(row);
+        }
+    }
+
     async function load() {
         const error = document.getElementById("securityError");
         try {
@@ -56,6 +133,8 @@
             text("backupAge", hourLabel(state.backup.ageHours));
             text("backupNote", state.backup.latest || "No sealed archive found");
             renderHeartbeats(state.heartbeats || []);
+            renderExports(state.exports || []);
+            renderBans(state.bannedIps || []);
             if (state.trip.locked) {
                 const note = document.createElement("li");
                 note.textContent = "The trip wire is locked. Normal routes answer 503 until an operator clears it.";
