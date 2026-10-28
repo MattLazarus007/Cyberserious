@@ -1,8 +1,8 @@
 # DAST report: ZAP baseline
 
-Date: 22 October 2026
 Target: `https://host.docker.internal:8443` (Caddy TLS edge to the regulator on 127.0.0.1:8100)
 Tool: OWASP ZAP stable container, baseline scan, 2 minute spider
+Runner: `bash scripts/zap.sh`
 Artifacts: `docs/security/dast.html`, `docs/security/dast.json`
 
 ## Result
@@ -28,10 +28,9 @@ external reviewer would start.
 | Re-examine Cache-control Directives | 5 | Accepted. Static HTML and CSS are cacheable by design and contain no personal data. API responses send `no-store` |
 | User Controllable HTML Element Attribute (Potential XSS) | 4 | False positive from ZAP's reflected test parameters. The UI writes with `textContent`; CSP blocks inline script; the hostile-string test stores markup inertly |
 
-The scan was re-run on 22 October 2026 at 14:54 after the CSP work. The
-artifact in this directory is that run. The earlier draft of this page listed
-zero medium and six low items, which did not match the artifact. The table
-above is the corrected reading.
+The table above is read from `dast.json`. A re-run changes the instance counts
+and never the five alert names. Regenerate both files with
+`bash scripts/zap.sh`, then correct any page that repeats a count.
 
 ## What this does not prove
 
