@@ -18,6 +18,9 @@ alertsRouter.get("/alerts", async (req, res) => {
   if (actor.orgId) {
     params.push(actor.orgId);
     conds.push("a.case_id in (select id from cases where org_id = $1)");
+  } else if (actor.role === "regulator_analyst") {
+    params.push(actor.userId);
+    conds.push("(a.case_id is null or a.case_id in (select id from cases where assigned_to is null or assigned_to = $1::uuid))");
   }
   const scope = `where ${conds.join(" and ")}`;
   const rows = await query(

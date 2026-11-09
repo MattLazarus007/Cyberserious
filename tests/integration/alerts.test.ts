@@ -229,3 +229,31 @@ test("T-26 triage clock opens RULE-06 only for unnotified overdue cases", async 
     await srv.close();
   }
 });
+
+test("an analyst sees alerts for unassigned cases and their own only", async () => {
+  resetDb();
+  const srv = await startApp();
+  const conn = new pg.Client({ connectionString: dbUrl });
+  try {
+    await conn.connect();
+    await conn.query(
+      "update cases set assigned_to = (select id from users where username = 'supervisor1') where reference = 'BR-2026-0001'"
+    );
+    await conn.query(
+      `insert into alerts (case_id, rule_id, rule_version, dedupe_key, priority, reason, input_hash, state)
+       values
+        ((select id from cases where reference = 'BR-2026-0001'), 'RULE-TEST-A', 1, 'scope-a', 'high', 'owned by the supervisor', 'h1', 'open'),
+        ((select id from cases where reference = 'BR-2026-0002'), 'RULE-TEST-B', 1, 'scope-b', 'medium', 'nobody owns this case', 'h2', 'open')`
+    );
+    const analyst = await loginFull(srv.base, "analyst1", "demo-analyst-pass");
+    const mine = await openAlerts(srv.base, analyst);
+    assert.ok(mine.some((a) => a.ruleId === "RULE-TEST-B"), "unassigned case alerts stay visible");
+    assert.ok(!mine.some((a) => a.ruleId === "RULE-TEST-A"), "another analyst's case alerts stay hidden");
+    const supervisor = await loginFull(srv.base, "supervisor1", "demo-supervisor-pass");
+    const all = await openAlerts(srv.base, supervisor);
+    assert.ok(all.some((a) => a.ruleId === "RULE-TEST-A"), "a supervisor sees every case alert");
+  } finally {
+    await conn.end().catch(() => {});
+    await srv.close();
+  }
+});
