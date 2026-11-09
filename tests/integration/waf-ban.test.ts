@@ -65,6 +65,23 @@ test("an operator can ban, see and unban an address", async () => {
   assert.equal(removed.status, 200);
 });
 
+test("a negative ban window falls back to the default hour", async () => {
+  const reviewer = await loginFull(app.base, "reviewer1", "demo-reviewer-pass");
+  const created = await fetch(`${app.base}/api/v1/security/bans`, {
+    method: "POST",
+    headers: { "content-type": "application/json", cookie: reviewer },
+    body: JSON.stringify({ ip: "203.0.113.11", reason: "audit probe", minutes: -5 }),
+  });
+  assert.equal(created.status, 201);
+  const state = await fetch(`${app.base}/api/v1/security/state`, { headers: { cookie: reviewer } });
+  const summary = (await state.json()) as { bannedIps: Array<{ ip: string; expiresAt: string | null }> };
+  const row = summary.bannedIps.find((item) => item.ip === "203.0.113.11");
+  assert.ok(row, "the ban is listed");
+  assert.ok(row.expiresAt, "a negative window never becomes a permanent ban");
+  assert.ok(new Date(row.expiresAt).getTime() > Date.now() + 50 * 60_000, "the default hour applies");
+  await fetch(`${app.base}/api/v1/security/bans/203.0.113.11`, { method: "DELETE", headers: { cookie: reviewer } });
+});
+
 test("a banned address is refused before authentication", async () => {
   await banIp("::1", "test lock", "reviewer1", 5);
   const res = await fetch(`${app.base}/api/v1/me`);
