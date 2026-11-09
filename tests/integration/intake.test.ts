@@ -149,3 +149,20 @@ test("T-20 failures leave no receipt, success leaves one case and one job", asyn
     await srv.close();
   }
 });
+
+test("T-21 a signed body above the cap answers 413", async () => {
+  resetDb();
+  const srv = await startApp();
+  try {
+    const res = await fetch(`${srv.base}/intake/v1/submissions`, {
+      method: "POST",
+      headers: { "content-type": "application/jose" },
+      body: "x".repeat(300_000),
+    });
+    assert.equal(res.status, 413);
+    const body = (await res.json()) as { error: string };
+    assert.match(body.error, /too large/);
+  } finally {
+    await srv.close();
+  }
+});
