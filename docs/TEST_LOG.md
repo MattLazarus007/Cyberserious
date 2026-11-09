@@ -253,8 +253,8 @@ measured 90.50 percent lines against a floor of 90.
 
 ### Gate, 9 November 2026
 
-`bash scripts/verify.sh` on the closure tree: 8 passed, 0 failed in 342
-seconds. Gates: tool manifest, secrets, dependencies, static analysis, test
-suite, browser suite, audit chains, backup dry run. Posture is
-informational. The run started at HEAD f9ee105 and carried the uncommitted
-closure change set.
+`bash scripts/verify.sh` on the closure tree: 8 passed, 0 failed in 353
+seconds at HEAD b881775. Gates: tool manifest, secrets, dependencies, static
+analysis, test suite, browser suite, audit chains, backup dry run. Posture is
+informational.
+| T-139 | A standing condition keeps one alert | Pass | `correlation.test.ts` "a stale heartbeat raises SENSOR-SILENT": a second run eleven minutes later opens no new alert. 4,129 duplicate SENSOR-SILENT rows were resolved in the dev database in the same pass |
