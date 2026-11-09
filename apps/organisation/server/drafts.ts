@@ -77,8 +77,8 @@ draftsRouter.post("/drafts", async (req, res) => {
     return;
   }
   const org = await query("select reference from organisations where id = $1", [actor.orgId]);
-  const count = await query("select count(*)::int as n from drafts");
-  const publicId = `SUB-2026-${String(count.rows[0].n + 1).padStart(4, "0")}`;
+  const next = await query("select nextval('draft_reference_seq')::int as n");
+  const publicId = `SUB-2026-${String(next.rows[0].n).padStart(4, "0")}`;
   const row = await query(
     `insert into drafts (public_id, org_ref, category, narrative, severity, priority, affected_count, created_by)
      values ($1, $2, $3, $4, $5, $6, $7, $8) returning public_id as "publicId", revision, status`,

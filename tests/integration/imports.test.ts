@@ -85,3 +85,31 @@ test("capture rejects unknown organisations and short narratives", async () => {
     await srv.close();
   }
 });
+
+test("concurrent captures get distinct references", async () => {
+  resetDb();
+  const srv = await startApp();
+  try {
+    const cookie = await loginFull(srv.base, "analyst1", "demo-analyst-pass");
+    const calls = Array.from({ length: 5 }, (_, i) =>
+      fetch(`${srv.base}/api/v1/imports`, {
+        method: "POST",
+        headers: { "content-type": "application/json", cookie },
+        body: JSON.stringify({
+          orgRef: "DEMO-ORG-01",
+          category: "unauthorised access",
+          narrative: `Concurrent capture ${i} names a misdirected statement run.`,
+          severity: "medium",
+          priority: "routine",
+          affectedCount: 10,
+        }),
+      }).then(async (res) => ({ status: res.status, body: (await res.json()) as { reference?: string } }))
+    );
+    const done = await Promise.all(calls);
+    assert.deepEqual(done.map((row) => row.status), [201, 201, 201, 201, 201]);
+    const refs = done.map((row) => row.body.reference);
+    assert.equal(new Set(refs).size, 5, "the sequence gives every capture its own number");
+  } finally {
+    await srv.close();
+  }
+});
