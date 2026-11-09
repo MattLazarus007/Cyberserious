@@ -250,6 +250,7 @@ measured 90.50 percent lines against a floor of 90.
 | T-136 | The Docker lab builds and serves both apps | Pass | `docker build` exit 0; `docker compose up -d`; `curl` on 9100 and 9200 answered 200; `/health/ready` answered ok on both |
 | T-137 | A real sign-in works through the Docker regulator | Pass | analyst1 password then the code read from `docker compose logs regulator`; `/api/v1/me` showed mfaOk true; the dashboard read 7 cases and 11 alerts |
 | T-138 | The trip drill runs in the Docker lab | Pass | `docs/project/exercises/incident-2026-11-09.md`: 429 warning, second-burst 503 lock, sessions 0, both alerts, both audit rows, flag present |
+| T-139 | A standing condition keeps one alert | Pass | `correlation.test.ts` "a stale heartbeat raises SENSOR-SILENT": a second run eleven minutes later opens no new alert. 4,129 duplicate SENSOR-SILENT rows were resolved in the dev database in the same pass |
 
 ### Gate, 9 November 2026
 
@@ -257,4 +258,3 @@ measured 90.50 percent lines against a floor of 90.
 seconds at HEAD b881775. Gates: tool manifest, secrets, dependencies, static
 analysis, test suite, browser suite, audit chains, backup dry run. Posture is
 informational.
-| T-139 | A standing condition keeps one alert | Pass | `correlation.test.ts` "a stale heartbeat raises SENSOR-SILENT": a second run eleven minutes later opens no new alert. 4,129 duplicate SENSOR-SILENT rows were resolved in the dev database in the same pass |
