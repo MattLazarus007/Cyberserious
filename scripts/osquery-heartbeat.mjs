@@ -36,6 +36,8 @@ const body = {
   raw: { listeningPorts: ports, agent: "osqueryd" },
 };
 
+// Loopback only. The request never leaves the host, and the token stays local.
+// nosemgrep: typescript.react.security.react-insecure-request.react-insecure-request
 const res = await fetch("http://127.0.0.1:8100/api/v1/security/ingest", {
   method: "POST",
   headers: { "content-type": "application/json", "x-internal-token": token },
