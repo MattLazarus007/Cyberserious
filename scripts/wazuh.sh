@@ -158,6 +158,12 @@ start_agent() {
         echo "agent key issued for $agent_name_lab"
         break
       fi
+      # A fresh manager may log a different enrollment line. The agent list
+      # is the authority: an active row means the key exists.
+      if docker exec "$manager_name" /var/ossec/bin/agent_control -l 2>/dev/null | grep -q "$agent_name_lab"; then
+        echo "agent $agent_name_lab is registered"
+        break
+      fi
       if [ "$_" = 45 ]; then
         echo "no agent key within 90 seconds" >&2
         manager_log_tail 30 >&2 || true
