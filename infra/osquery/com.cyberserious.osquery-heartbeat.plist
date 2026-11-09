@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.cyberserious.osquery-heartbeat</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/bash</string>
+    <string>-lc</string>
+    <string>cd /Users/andilemushwana/cyberserious &amp;&amp; bash scripts/osquery-heartbeat.sh</string>
+  </array>
+  <key>StartInterval</key>
+  <integer>900</integer>
+  <key>RunAtLoad</key>
+  <true/>
+  <key>StandardOutPath</key>
+  <string>/Users/andilemushwana/cyberserious/data/logs/osquery-heartbeat.log</string>
+  <key>StandardErrorPath</key>
+  <string>/Users/andilemushwana/cyberserious/data/logs/osquery-heartbeat.log</string>
+</dict>
+</plist>
