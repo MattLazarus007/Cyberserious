@@ -81,18 +81,19 @@ securityRouter.post("/security/bans", async (req, res) => {
   }
   const ip = typeof req.body?.ip === "string" ? req.body.ip.trim() : "";
   const reason = typeof req.body?.reason === "string" ? req.body.reason.trim() : "";
-  const minutes = Number(req.body?.minutes);
+  const requested = Number(req.body?.minutes);
+  const minutes = Number.isFinite(requested) && requested > 0 ? Math.min(requested, 43_200) : 60;
   if (!ip || ip.length > 60 || !reason || reason.length > 300) {
     res.status(400).json({ error: "expected an address and a reason" });
     return;
   }
-  await banIp(ip, reason, actor.username, Number.isFinite(minutes) ? minutes : 60);
+  await banIp(ip, reason, actor.username, minutes);
   await recordAudit({
     actor: actor.username,
     action: "security.ban",
     resource: ip,
     result: "ok",
-    meta: { reason, minutes: Number.isFinite(minutes) ? minutes : 60 },
+    meta: { reason, minutes },
   });
   res.status(201).json({ ok: true, ip });
 });
