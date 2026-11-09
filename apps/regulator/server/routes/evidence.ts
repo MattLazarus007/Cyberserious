@@ -166,6 +166,15 @@ evidenceRouter.post("/cases/:id/evidence", async (req, res) => {
 evidenceRouter.get("/evidence/:id", async (req, res) => {
   const actor = (req as unknown as { actor: Actor }).actor;
   const at = new Date().toISOString();
+  // A malformed id would reach Postgres as a bad uuid and answer 500.
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(req.params.id)) {
+    await noticeExtraction({
+      id: req.params.id, actor: actor.username, what: req.params.id,
+      caseRef: "unknown case", caseId: null, result: "blocked", at,
+    });
+    res.status(404).json({ error: "not found" });
+    return;
+  }
   if (!actor.mfaOk || !can(actor.role, "read_case")) {
     await noticeExtraction({
       id: req.params.id, actor: actor.username, what: req.params.id,
@@ -234,7 +243,10 @@ evidenceRouter.get("/evidence/:id", async (req, res) => {
     payload = openBuffer(payload, key);
   }
   res.setHeader("content-type", found.mime);
-  res.setHeader("content-disposition", `attachment; filename="${found.filename}"`);
+  // A filename from an upload can carry a quote or a newline. Keep the header
+  // a single safe token; the original stays in the record and the page.
+  const safeName = found.filename.replace(/[^A-Za-z0-9._ -]/g, "_");
+  res.setHeader("content-disposition", `attachment; filename="${safeName}"`);
   res.send(payload);
 });
 
