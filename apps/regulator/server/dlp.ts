@@ -1,7 +1,12 @@
 import { query } from "./db.ts";
 
-export const EXPORT_ROW_LIMIT = Number(process.env.EXPORT_ROW_LIMIT ?? 5000);
-export const EXPORT_BYTE_LIMIT = Number(process.env.EXPORT_BYTE_LIMIT ?? 5 * 1024 * 1024);
+function envLimit(name: string, fallback: number): number {
+  const value = Number(process.env[name]);
+  return Number.isFinite(value) && value > 0 ? value : fallback;
+}
+
+export const EXPORT_ROW_LIMIT = envLimit("EXPORT_ROW_LIMIT", 5000);
+export const EXPORT_BYTE_LIMIT = envLimit("EXPORT_BYTE_LIMIT", 5 * 1024 * 1024);
 
 const PATTERNS = {
   email: /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g,

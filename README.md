@@ -193,12 +193,15 @@ YadavSingh, RynhardtVanNiekerk and AndileMushwana.
 
 ## Limits, stated plainly
 
-The console code is not real multi-factor authentication, and the Keycloak
-path is a lab provider. The shared group passphrase carries no attribution.
-The timers pace the work and never claim legal force. The system computes no
-verdicts. Everything runs on one machine over plain HTTP, except the optional
-mTLS listener. The sensor is Suricata with three rules. The Wazuh manager does
-not run on this arm64 host, and no Wazuh claim is made.
+The console code is a second factor with single-use codes, not a hardware
+token. Keycloak runs as a lab provider and the realm can require TOTP for a
+marked user. A provider sign-in trusts the provider for the second factor, so
+the provider's MFA policy is the control there. The shared group passphrase
+carries no attribution. The timers pace the work and never claim legal force.
+The system computes no verdicts. The host deployment serves both apps behind a
+TLS 1.3 edge; the Docker lab speaks plain HTTP inside its own network. The
+sensor is Suricata with four lab rules. Wazuh runs natively on arm64 with one
+manager and one agent.
 
 Every account in this file is synthetic and lab only. The seed files carry
 them on purpose. Never reuse them anywhere else.
