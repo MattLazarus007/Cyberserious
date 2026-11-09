@@ -40,8 +40,12 @@
       "rootUrl": "http://localhost:8100",
       "baseUrl": "/login.html",
       "adminUrl": "http://localhost:8100",
-      "redirectUris": ["http://localhost:8100/auth/oidc/callback"],
-      "webOrigins": ["http://localhost:8100"],
+      "redirectUris": [
+        "http://localhost:8100/auth/oidc/callback"
+      ],
+      "webOrigins": [
+        "http://localhost:8100"
+      ],
       "attributes": {
         "pkce.code.challenge.method": "S256",
         "pkce.required": "true",
@@ -49,8 +53,19 @@
         "backchannel.logout.session.required": "true",
         "display.on.consent.screen": "false"
       },
-      "defaultClientScopes": ["web-origins", "acr", "roles", "profile", "email"],
-      "optionalClientScopes": ["address", "phone", "offline_access", "microprofile-jwt"]
+      "defaultClientScopes": [
+        "web-origins",
+        "acr",
+        "roles",
+        "profile",
+        "email"
+      ],
+      "optionalClientScopes": [
+        "address",
+        "phone",
+        "offline_access",
+        "microprofile-jwt"
+      ]
     }
   ],
   "users": [
@@ -62,7 +77,9 @@
       "lastName": "Analyst",
       "email": "analyst1@cyberserious.example",
       "attributes": {
-        "lab_password": ["kc-analyst-pass-2026"]
+        "lab_password": [
+          "kc-analyst-pass-2026"
+        ]
       },
       "credentials": [
         {
@@ -101,6 +118,41 @@
           "temporary": false
         }
       ]
+    },
+    {
+      "username": "mfa1",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Lab",
+      "lastName": "MFA",
+      "email": "mfa1@cyberserious.example",
+      "requiredActions": [
+        "CONFIGURE_TOTP"
+      ],
+      "attributes": {
+        "lab_password": [
+          "kc-mfa-pass-2026"
+        ]
+      },
+      "credentials": [
+        {
+          "type": "password",
+          "value": "kc-mfa-pass-2026",
+          "temporary": false
+        }
+      ]
     }
+  ],
+  "otpPolicyType": "totp",
+  "otpPolicyAlgorithm": "HmacSHA1",
+  "otpPolicyInitialCounter": 0,
+  "otpPolicyDigits": 6,
+  "otpPolicyLookAheadWindow": 1,
+  "otpPolicyPeriod": 30,
+  "otpPolicyCodeReusable": false,
+  "otpSupportedApplications": [
+    "totpAppGoogleName",
+    "totpAppMicrosoftAuthenticatorName",
+    "totpAppFreeOTPName"
   ]
 }
