@@ -257,6 +257,14 @@ measured 90.50 percent lines against a floor of 90.
 | T-143 | Keycloak requires TOTP setup for the marked user | Pass manual | Admin API: `otpPolicyType totp`, `HmacSHA1`, 6 digits, period 30, lookAhead 1, and mfa1 `requiredActions [CONFIGURE_TOTP]`. Playwright: mfa1 lands on `login-actions/required-action?execution=CONFIGURE_TOTP` with `Mobile Authenticator Setup`; analyst1 reaches the account console with no code. Code acceptance is not claimed: a scripted TOTP entry did not complete |
 | T-144 | osquery inventory runs and posts a heartbeat | Pass manual | `com.cyberserious.osquery` is loaded with pid 94513; the heartbeat agent wrote ingest 201 and `security_heartbeats` shows osquery at 18:16 |
 | T-145 | A machine channel never trips the wire | Pass | security.test.ts "a request with the internal token does not count toward the wire": ten token requests answer 401, no flag file |
+| T-146 | An idle database client cannot stop the process | Pass | `db.ts` attaches a pool `error` listener; the suite and the live service keep serving through the run |
+| T-147 | A user with two memberships acts under the least privileged role | Pass | casework.test.ts "a user with two memberships acts under the least privileged one": the session role stays `regulator_analyst` after a supervisor row is added |
+| T-148 | A malformed evidence id answers not found | Pass | evidence-sealed.test.ts "a malformed evidence id answers not found": 404, never a bad-uuid 500 |
+| T-149 | A negative ban window becomes the default hour | Pass | waf-ban.test.ts "a negative ban window falls back to the default hour": 201, a listed ban with an expiry about an hour out |
+| T-150 | A text receipt never strands a draft | Pass | org.test.ts T-15: an intake answer of `text/plain` is stored as `{raw}` and the draft reaches Acknowledged |
+| T-151 | A bad config value falls back to the safe default | Pass manual | `dlp.ts` and `retention.ts` parse limits with a finite guard; a NaN value cannot remove a cap |
+| T-152 | A multi-audience token must name this client | Pass manual | `oidc.ts` compares `azp` to the client id when the audience holds more than one value |
+| T-153 | A hostile filename cannot break the download header | Pass manual | `evidence.ts` strips quotes and newlines from the content-disposition name |
 
 ### Gate, 9 November 2026
 
