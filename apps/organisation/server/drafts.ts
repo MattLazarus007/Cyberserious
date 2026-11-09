@@ -3,7 +3,7 @@ import { createHash } from "node:crypto";
 import { z } from "zod";
 import { query, withTransaction } from "../../regulator/server/db.ts";
 import { requireSession, type Actor } from "../../regulator/server/session.ts";
-import { postSigned } from "./send.ts";
+import { postSigned, receiptBody } from "./send.ts";
 import { recordOrgAuditTx } from "./audit.ts";
 
 export const draftsRouter = Router();
@@ -196,13 +196,13 @@ draftsRouter.post("/drafts/:id/send", async (req, res) => {
     return;
   }
   if (answer.status === 201 || answer.status === 200) {
-    const receipt = await answer.json();
+    const receipt = await receiptBody(answer);
     await query("update drafts set status = 'Acknowledged', receipt = $1::jsonb where public_id = $2 and org_ref = (select reference from organisations where id = $3)", [JSON.stringify(receipt), req.params.id, actor.orgId]);
     res.json({ ok: true, receipt });
     return;
   }
   if (answer.status === 409) {
-    await query("update drafts set status = 'RetryPending', receipt = $1::jsonb where public_id = $2 and org_ref = (select reference from organisations where id = $3)", [JSON.stringify(await answer.json()), req.params.id, actor.orgId]);
+    await query("update drafts set status = 'RetryPending', receipt = $1::jsonb where public_id = $2 and org_ref = (select reference from organisations where id = $3)", [JSON.stringify(await receiptBody(answer)), req.params.id, actor.orgId]);
     res.status(409).json({ error: "same identity, different bytes" });
     return;
   }
