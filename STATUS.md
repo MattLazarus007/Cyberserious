@@ -1,21 +1,22 @@
 # Status
 
-Date: 22 October 2026. Branch `build`.
+Date: 9 November 2026. Branch `build`.
 
 ## What works
 
 The lab runs a POPIA breach register with a TLS edge, Keycloak and local OTP,
-role-scoped access, a WAF, per-address login limits, IP bans, hash-chained
-audit and security events, six correlation rules, heartbeats, a daily HMAC
-anchor, retention and dead-letter handling, an encrypted vault, AES-GCM
-evidence, export manifests with row and size caps, ClamAV upload scanning,
-encrypted age backups, a supervised Vector telemetry pipeline, osquery
-inventory, Suricata replay detection, a security page, a one-command
-verifier, and a CI workflow.
+role-scoped access, a WAF, per-address login limits, IP bans, a two-stage
+trip wire, hash-chained audit and security events, six correlation rules,
+heartbeats, a daily HMAC anchor, retention and dead-letter handling, an
+encrypted vault, AES-GCM evidence, export manifests with row and size caps,
+ClamAV upload scanning, encrypted age backups, a supervised Vector telemetry
+pipeline, osquery inventory, Suricata replay detection, a security page, a
+one-command verifier, a CI workflow and a Docker lab stack.
 
-Proof: `npm test` 178 pass, Playwright 12 pass, ZAP 0 high or medium,
-gitleaks, OSV, Trivy and Semgrep clean, Lynis index 75, ZAP 0 high and 1 accepted medium. See
-`docs/TEST_LOG.md` and `docs/security/`.
+Proof: `npm test` 198 pass, Playwright 12 pass, `npm run test:coverage` 90.50
+percent lines with a floor of 90, ZAP 0 high and 1 accepted medium, gitleaks,
+OSV, Trivy and Semgrep clean, Lynis index 75. See `docs/TEST_LOG.md` and
+`docs/security/`.
 
 ## What is partial
 
@@ -30,6 +31,8 @@ gitleaks, OSV, Trivy and Semgrep clean, Lynis index 75, ZAP 0 high and 1 accepte
   app enforces its own OTP step.
 - The daily anchor is local HMAC, not an external timestamp authority.
 - Security events are chained, so retention reports age but does not delete.
+- The Docker lab seeds both databases on every `up`, and both apps speak plain HTTP inside the compose network. It is a test lab, not the TLS deployment.
+- The two-stage trip wire counts one address and one process. A distributed burst does not trip it.
 
 ## What is blocked
 
@@ -44,3 +47,4 @@ gitleaks, OSV, Trivy and Semgrep clean, Lynis index 75, ZAP 0 high and 1 accepte
 2. Decide whether Keycloak should require TOTP or WebAuthn at the realm.
 3. Run `bash scripts/verify.sh` before a demo and keep the output.
 4. Do not present the local controls as a commercial SOC, EDR, SIEM or DLP.
+5. Start the Docker lab with `docker compose -f infra/docker-compose.yml up --build` and open http://localhost:9100 and http://localhost:9200.

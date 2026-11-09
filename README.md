@@ -46,6 +46,15 @@ Reset the demo state at any time with
 `node db/seed.ts --reset && node db/seed_org.ts --reset && node tools/org-sender.ts --register`.
 The last step renews the sender key.
 
+### Run the whole lab in Docker
+
+    docker compose -f infra/docker-compose.yml up --build
+
+Regulator: http://localhost:9100/login.html. Portal: http://localhost:9200/login.html.
+The stack creates both databases, seeds them, registers the sender key and
+starts the worker. infra/README.md covers the reset, the limits and the
+network rule.
+
 ## Every way to sign in
 
 A normal account takes two steps. Username and password first. Then a
