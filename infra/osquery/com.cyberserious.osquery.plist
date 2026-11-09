@@ -14,6 +14,7 @@
     <string>--logger_path=/Users/andilemushwana/cyberserious/data/logs/osquery</string>
     <string>--disable_events=true</string>
     <string>--ephemeral=false</string>
+    <string>--disable_extensions=true</string>
   </array>
   <key>WorkingDirectory</key>
   <string>/Users/andilemushwana/cyberserious</string>
