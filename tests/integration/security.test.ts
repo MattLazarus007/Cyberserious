@@ -100,7 +100,33 @@ test("four unauthenticated requests under the threshold do not trip", async () =
   }
 });
 
-test("an unauthenticated burst past the threshold trips the service", async () => {
+test("a signed intake burst counts toward the trip wire", async () => {
+  clearTripFlag();
+  securityTrip.resetWindows();
+  process.env.TRIP_THRESHOLD = "5";
+  resetDb();
+  const srv = await startApp();
+  try {
+    const statuses: number[] = [];
+    for (let i = 0; i < 5; i++) {
+      const res = await fetch(`${srv.base}/intake/v1/submissions`, {
+        method: "POST",
+        headers: { "content-type": "application/jose" },
+        body: "not-a-token",
+      });
+      statuses.push(res.status);
+    }
+    assert.deepEqual(statuses.slice(0, 4), [401, 401, 401, 401], "bad tokens answer 401");
+    assert.equal(statuses[4], 429, "the fifth request warns");
+    assert.equal(existsSync(TRIP_FLAG), false, "a warning does not lock the service");
+  } finally {
+    delete process.env.TRIP_THRESHOLD;
+    clearTripFlag();
+    await srv.close();
+  }
+});
+
+test("a repeated burst locks the service after one warning", async () => {
   clearTripFlag();
   securityTrip.resetWindows();
   process.env.TRIP_THRESHOLD = "5";
@@ -109,11 +135,15 @@ test("an unauthenticated burst past the threshold trips the service", async () =
   try {
     await addSession("session-to-be-revoked");
     const statuses: number[] = [];
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < 10; i++) {
       const res = await fetch(`${srv.base}/api/v1/me`);
       statuses.push(res.status);
     }
-    assert.deepEqual(statuses, [401, 401, 401, 401, 503], "the fifth request crosses the line");
+    assert.deepEqual(
+      statuses,
+      [401, 401, 401, 401, 429, 401, 401, 401, 401, 503],
+      "the first burst warns, the second burst locks"
+    );
     const after = await fetch(`${srv.base}/api/v1/me`);
     assert.equal(after.status, 503);
     assert.equal(await after.text(), "service locked");
@@ -122,17 +152,23 @@ test("an unauthenticated burst past the threshold trips the service", async () =
     assert.equal(await countSessions(), 0, "every session row is revoked");
     assert.equal(existsSync(TRIP_FLAG), true, "the flag file is written");
     await withConn(async (conn) => {
-      const audits = await conn.query("select actor, result from audit_events where action = 'security.trip'");
-      assert.equal(audits.rows.length, 1);
-      assert.ok(audits.rows[0].actor.length > 0);
-      assert.equal(audits.rows[0].result, "denied");
+      const audits = await conn.query("select actor, result, action from audit_events where action in ('security.trip','security.trip_warn') order by action");
+      assert.equal(audits.rows.length, 2);
+      assert.ok(audits.rows.every((row: { actor: string }) => row.actor.length > 0));
+      assert.ok(audits.rows.every((row: { result: string }) => row.result === "denied"));
+      const warned = await conn.query(
+        "select priority, state, reason from alerts where rule_id = 'SECURITY-TRIP-WARN'"
+      );
+      assert.equal(warned.rows.length, 1);
+      assert.equal(warned.rows[0].priority, "medium");
+      assert.match(warned.rows[0].reason, /crossed the warning threshold/);
       const alerts = await conn.query(
         "select priority, state, reason from alerts where rule_id = 'SECURITY-TRIP'"
       );
       assert.equal(alerts.rows.length, 1);
       assert.equal(alerts.rows[0].priority, "high");
       assert.equal(alerts.rows[0].state, "open");
-      assert.match(alerts.rows[0].reason, /unauthenticated request burst from .+ tripped the service/);
+      assert.match(alerts.rows[0].reason, /repeated unauthenticated request bursts from .+ tripped the service/);
     });
   } finally {
     delete process.env.TRIP_THRESHOLD;
