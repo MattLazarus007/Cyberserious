@@ -1,74 +1,147 @@
-# Lab deployment for CyberSerious. The daemon was down when this file
-# was written, so image digests are pinned on first pull by the person
-# who starts the lab: replace each tag with image@digest and record it
-# here. Until then tags stay explicit and minor-pinned.
+# Lab deployment for CyberSerious. One compose run brings up the database,
+# seeds both apps, registers the portal sender key, then starts the regulator,
+# the portal and the worker. The database password and the lab keys are dev
+# values, never production ones. Read docs/security/CI.md before a change.
+name: cyberserious
+
 services:
   db:
     image: postgres:16.15
     environment:
       POSTGRES_USER: cyberserious
-      POSTGRES_PASSWORD_FILE: /run/secrets/db_password
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-cyberserious_dev_only}
       POSTGRES_DB: cyberserious_dev
-    secrets:
-      - db_password
     volumes:
       - pgdata:/var/lib/postgresql/data
+      - ../db/docker/init-org-db.sql:/docker-entrypoint-initdb.d/10-org-db.sql:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U cyberserious"]
-      interval: 10s
+      test: ["CMD-SHELL", "pg_isready -U cyberserious -d cyberserious_dev"]
+      interval: 5s
       timeout: 5s
-      retries: 5
+      retries: 20
     networks:
       store:
+
+  seed:
+    image: cyberserious-lab:local
+    command:
+      - sh
+      - -c
+      - npm run db:migrate && npm run db:seed -- --reset && npm run db:migrate:org && npm run db:seed:org -- --reset
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://cyberserious:${DB_PASSWORD:-cyberserious_dev_only}@db:5432/cyberserious_dev
+      ORG_DATABASE_URL: postgres://cyberserious:${DB_PASSWORD:-cyberserious_dev_only}@db:5432/cyberserious_org_dev
+      RESEARCH_KEY: "0000000000000000000000000000000000000000000000000000000000000001"
+      FIXTURE_NOW: 2026-10-13T08:00:00Z
+    restart: "no"
+    networks:
+      store:
+
+  register:
+    image: cyberserious-lab:local
+    command: ["node", "tools/org-sender.ts", "--register"]
+    depends_on:
+      seed:
+        condition: service_completed_successfully
+    environment:
+      DATABASE_URL: postgres://cyberserious:${DB_PASSWORD:-cyberserious_dev_only}@db:5432/cyberserious_dev
+      ORG_SENDER_KEY: /app/keys/org-sender.json
+      REGULATOR_INTAKE_URL: http://regulator:8100/intake/v1/submissions
+    volumes:
+      - senderkeys:/app/keys
+    restart: "no"
+    networks:
+      store:
+
   regulator:
-    build: ../.
+    build: ..
+    image: cyberserious-lab:local
     command: ["node", "apps/regulator/server/index.ts"]
     depends_on:
-      db:
-        condition: service_healthy
+      seed:
+        condition: service_completed_successfully
     environment:
-      DATABASE_URL: postgres://cyberserious@db:5432/cyberserious_dev
+      DATABASE_URL: postgres://cyberserious:${DB_PASSWORD:-cyberserious_dev_only}@db:5432/cyberserious_dev
       PORT: "8100"
+      HOST: 0.0.0.0
+      GROUP_LOGIN: ${GROUP_LOGIN:-1}
+      GROUP_PASSPHRASE: ${GROUP_PASSPHRASE:-group-demo-2026}
+      RESEARCH_KEY: "0000000000000000000000000000000000000000000000000000000000000001"
+      EVIDENCE_KEY: "0000000000000000000000000000000000000000000000000000000000000002"
+      ANCHOR_KEY: "0000000000000000000000000000000000000000000000000000000000000003"
+      INTERNAL_TOKEN: lab-internal-token
+    ports:
+      - "9100:8100"
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:8100/health/live').then((r) => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
     networks:
-      public:
       store:
+      edge:
+
   organisation:
-    build: ../.
+    image: cyberserious-lab:local
     command: ["node", "apps/organisation/server/index.ts"]
     depends_on:
-      db:
-        condition: service_healthy
+      seed:
+        condition: service_completed_successfully
+      register:
+        condition: service_completed_successfully
     environment:
-      DATABASE_URL: postgres://cyberserious@db:5432/cyberserious_org_dev
+      ORG_DATABASE_URL: postgres://cyberserious:${DB_PASSWORD:-cyberserious_dev_only}@db:5432/cyberserious_org_dev
+      DATABASE_URL: postgres://cyberserious:${DB_PASSWORD:-cyberserious_dev_only}@db:5432/cyberserious_org_dev
       ORG_PORT: "8200"
+      HOST: 0.0.0.0
       REGULATOR_INTAKE_URL: http://regulator:8100/intake/v1/submissions
+      RESEARCH_KEY: "0000000000000000000000000000000000000000000000000000000000000001"
+      ORG_SENDER_ID: org-karoo-01
+      ORG_SENDER_KEY: /app/keys/org-sender.json
+    volumes:
+      - senderkeys:/app/keys
+    ports:
+      - "9200:8200"
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:8200/health/live').then((r) => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
     networks:
       public:
       store:
+
   worker:
-    build: ../.
+    image: cyberserious-lab:local
     command: ["node", "apps/regulator/server/worker.ts"]
     depends_on:
+      seed:
+        condition: service_completed_successfully
       regulator:
         condition: service_started
     environment:
-      DATABASE_URL: postgres://cyberserious@db:5432/cyberserious_dev
+      DATABASE_URL: postgres://cyberserious:${DB_PASSWORD:-cyberserious_dev_only}@db:5432/cyberserious_dev
+      ANCHOR_KEY: "0000000000000000000000000000000000000000000000000000000000000003"
+      INTERNAL_TOKEN: lab-internal-token
+      WORKER_PAUSE_MS: "5000"
     networks:
       store:
 
-# One-way rule, enforced by topology: only the organisation side opens
-# submission connections to the regulator. The database network (store)
-# is unreachable from outside. The regulator never opens connections
-# outward. T-32 checks this from inside the lab (see TEST_LOG).
-
+# Network rule: the database network (store) is internal, so no host route
+# reaches Postgres. The regulator carries no public network, so only the
+# published port exposes it to the host. The portal joins store and public,
+# so it reaches the regulator intake and the host. The submission direction
+# is enforced by configuration and tests, not by the bridge: a shared Docker
+# network allows traffic both ways.
 networks:
   public:
+  edge:
   store:
     internal: true
 
 volumes:
   pgdata:
-
-secrets:
-  db_password:
-    file: ./secrets/db_password.txt
+  senderkeys:
