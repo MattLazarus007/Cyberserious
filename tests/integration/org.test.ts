@@ -236,6 +236,23 @@ test("strangers cannot draft on the organisation side", async () => {
   }
 });
 
+function startRawStub(status: number, text: string): Promise<{ url: string; close: () => Promise<void> }> {
+  const srv: Server = createServer((_req, res) => {
+    res.writeHead(status, { "content-type": "text/plain" });
+    res.end(text);
+  });
+  return new Promise((resolve) => {
+    srv.listen(0, () => {
+      const addr = srv.address();
+      const port = typeof addr === "object" && addr ? addr.port : 0;
+      resolve({
+        url: `http://localhost:${port}/intake/v1/submissions`,
+        close: () => new Promise<void>((done) => srv.close(() => done())),
+      });
+    });
+  });
+}
+
 function startStub(status: number, body: unknown): Promise<{ url: string; close: () => Promise<void> }> {
   const srv: Server = createServer((_req, res) => {
     res.writeHead(status, { "content-type": "application/json" });
@@ -347,6 +364,23 @@ test("intake 422 marks draft Rejected, 5xx and network stay RetryPending", async
       assert.equal(after.status, "Acknowledged");
     } finally {
       await good.close();
+    }
+
+    const plain = await startRawStub(201, "accepted by proxy");
+    try {
+      process.env.REGULATOR_INTAKE_URL = plain.url;
+      const plainId = await approvedDraft("A courier list went to the wrong office.");
+      const sent = await fetch(`${srv.base}/api/v1/drafts/${plainId}/send`, {
+        method: "POST",
+        headers: { cookie: steward },
+      });
+      assert.equal(sent.status, 200, "a non-JSON receipt never strands the draft");
+      const receipt = ((await sent.json()) as { receipt: { raw?: string } }).receipt;
+      assert.equal(receipt.raw, "accepted by proxy");
+      const afterPlain = await draftStatus(plainId, steward);
+      assert.equal(afterPlain.status, "Acknowledged");
+    } finally {
+      await plain.close();
     }
 
     process.env.REGULATOR_INTAKE_URL = "http://localhost:1/intake/v1/submissions";

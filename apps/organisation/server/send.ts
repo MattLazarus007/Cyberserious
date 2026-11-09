@@ -25,3 +25,15 @@ export async function postSigned(url: string, body: string): Promise<Response> {
     body: jws,
   });
 }
+
+// The intake answers JSON in the normal case. A proxy or a misconfigured
+// receiver can answer text, and reading it as JSON would throw after the
+// regulator already accepted the draft. Keep the raw text in that case.
+export async function receiptBody(answer: Response): Promise<unknown> {
+  const text = await answer.text();
+  try {
+    return JSON.parse(text);
+  } catch {
+    return { raw: text.slice(0, 500) };
+  }
+}
