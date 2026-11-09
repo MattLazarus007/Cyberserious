@@ -2,7 +2,7 @@ import { Router } from "express";
 import type { Request, Response } from "express";
 import { createHash, randomInt, timingSafeEqual } from "node:crypto";
 import { query } from "../db.ts";
-import { verifyPassword } from "../passwords.ts";
+import { hashPassword, verifyPassword } from "../passwords.ts";
 import { createSession, destroySession, readCookie, sameCode, sessionCookieHeader, clearCookieHeader, SESSION_COOKIE } from "../session.ts";
 import { recordAudit } from "../audit.ts";
 import { oidcEnabled, startOidc, handleCallback } from "../oidc.ts";
@@ -44,6 +44,9 @@ oidcRouter.get("/auth/oidc/callback", guarded(handleCallback));
 // shortcut: in-memory counters, fine for one lab server. A shared
 // deployment would keep these in the database or the proxy.
 const failures = new Map<string, number[]>();
+// A missing username skips scrypt otherwise, and the gap reveals which names
+// exist. This hash is a fixed cost for that branch.
+const DUMMY_HASH = await hashPassword("timing-equalizer-not-a-user");
 
 function recentFailures(name: string): number[] {
   const cutoff = Date.now() - 15 * 60 * 1000;
@@ -92,9 +95,17 @@ authRouter.post("/login", loginRate, async (req, res) => {
   }
   const found = await query("select id, password_hash, enabled from users where username = $1", [username]);
   const row = found.rows[0];
-  const ok = row && row.enabled && (await verifyPassword(password, row.password_hash));
+  let ok = false;
+  if (row && row.enabled) ok = await verifyPassword(password, row.password_hash);
+  else await verifyPassword(password, DUMMY_HASH);
   if (!ok) {
     recentFailures(username).push(Date.now());
+    if (failures.size > 5000) {
+      const cutoff = Date.now() - 15 * 60 * 1000;
+      for (const [key, stamps] of failures) {
+        if ((stamps[stamps.length - 1] ?? 0) <= cutoff) failures.delete(key);
+      }
+    }
     await authFailure(req, "bad credentials");
     res.status(401).json({ error: "invalid credentials" });
     return;

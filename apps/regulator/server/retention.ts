@@ -1,6 +1,7 @@
 import { query, withTransaction } from "./db.ts";
 
-export const SECURITY_EVENT_DAYS = Math.max(30, Number(process.env.SECURITY_EVENT_DAYS ?? 90));
+const securityDays = Number(process.env.SECURITY_EVENT_DAYS ?? 90);
+export const SECURITY_EVENT_DAYS = Math.max(30, Number.isFinite(securityDays) ? securityDays : 90);
 export const RESOLVED_ALERT_DAYS = 180;
 export const DEAD_JOB_DAYS = 30;
 
