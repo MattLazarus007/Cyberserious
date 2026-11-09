@@ -66,6 +66,9 @@ test("a stale heartbeat raises SENSOR-SILENT", async () => {
   const result = await runCorrelation();
   assert.ok(result.rules.includes("SENSOR-SILENT"));
   assert.equal(await alerts("SENSOR-SILENT"), 1);
+  const later = await runCorrelation(new Date(Date.now() + 11 * 60 * 1000));
+  assert.equal(later.rules.includes("SENSOR-SILENT"), false, "a silent sensor keeps one alert");
+  assert.equal(await alerts("SENSOR-SILENT"), 1);
 });
 
 test("an old sealed backup raises BACKUP-MISS", async () => {
