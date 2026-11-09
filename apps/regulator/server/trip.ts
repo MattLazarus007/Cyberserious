@@ -8,7 +8,7 @@
 // restarting with TRIP_OPEN=1, which clears it. The threshold is read from
 // TRIP_THRESHOLD at request time (default 100 per 60 second window) so the lab
 // can lower it for the demo. Signed intake traffic counts too.
-import { createHash } from "node:crypto";
+import { createHash, timingSafeEqual } from "node:crypto";
 import { existsSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -40,6 +40,17 @@ function clientIp(req: Request): string {
 
 function countedPath(path: string): boolean {
   return path.startsWith("/api/") || path.startsWith("/intake/");
+}
+
+// A machine channel carries the internal token. It is authenticated for the
+// purpose of this counter, so a sensor batch cannot lock the service.
+function internalTokenOk(req: Request): boolean {
+  const expected = process.env.INTERNAL_TOKEN;
+  const given = req.get("x-internal-token") ?? req.get("x-cyberserious-token");
+  if (!expected || !given) return false;
+  const a = Buffer.from(expected);
+  const b = Buffer.from(given);
+  return a.length === b.length && timingSafeEqual(a, b);
 }
 
 export interface TripGuard {
@@ -108,6 +119,7 @@ export function createTripGuard(): TripGuard {
       return;
     }
     if (!countedPath(req.path)) return next();
+    if (internalTokenOk(req)) return next();
     let authenticated = false;
     const sid = readCookie(req, SESSION_COOKIE);
     if (sid) {

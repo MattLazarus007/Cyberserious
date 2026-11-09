@@ -126,6 +126,31 @@ test("a signed intake burst counts toward the trip wire", async () => {
   }
 });
 
+test("a request with the internal token does not count toward the wire", async () => {
+  clearTripFlag();
+  securityTrip.resetWindows();
+  process.env.TRIP_THRESHOLD = "5";
+  process.env.INTERNAL_TOKEN = "trip-test-token";
+  resetDb();
+  const srv = await startApp();
+  try {
+    const statuses: number[] = [];
+    for (let i = 0; i < 10; i++) {
+      const res = await fetch(`${srv.base}/api/v1/me`, {
+        headers: { "x-internal-token": "trip-test-token" },
+      });
+      statuses.push(res.status);
+    }
+    assert.deepEqual(statuses, Array(10).fill(401), "the machine channel never trips the wire");
+    assert.equal(existsSync(TRIP_FLAG), false);
+  } finally {
+    delete process.env.TRIP_THRESHOLD;
+    delete process.env.INTERNAL_TOKEN;
+    clearTripFlag();
+    await srv.close();
+  }
+});
+
 test("a repeated burst locks the service after one warning", async () => {
   clearTripFlag();
   securityTrip.resetWindows();
