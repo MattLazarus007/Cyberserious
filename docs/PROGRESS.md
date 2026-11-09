@@ -43,7 +43,7 @@ the regulator inbox. The Wazuh manager cannot run on this arm64 host,
 because the amd64 image exits 139 under emulation. That gap is recorded
 in docs/runbooks/sensor.md. No Wazuh claim is made.
 
-The build stands at 199 automated tests and 12 browser flows, all
+The build stands at 202 automated tests and 12 browser flows, all
 passing. Line coverage is 90.50 percent against a floor of 90.
 
 The security stack landed after that first build: a two-stage trip wire,
