@@ -77,7 +77,7 @@ trip-wire and console tamper work landed. `npm test` gave 92 pass
 
 | ID | Name | Result 17 Oct 2026 | Evidence |
 | --- | --- | --- | --- |
-| T-45 | Burst past the threshold trips the service | Pass | security.test.ts "an unauthenticated burst past the threshold trips the service": four 401s then 503 "service locked", every sessions row deleted, data/trip.lock written, one audit row action security.trip result denied, one high open SECURITY-TRIP alert with the burst reason |
+| T-45 | A burst warns, a second burst locks the service | Pass | security.test.ts "a repeated burst locks the service after one warning": four 401s, one 429 warning, four more 401s, then 503 "service locked". Every sessions row deleted, data/trip.lock written, one security.trip_warn audit row and one security.trip audit row, one medium SECURITY-TRIP-WARN alert and one high SECURITY-TRIP alert. Updated 9 November for the two-stage wire |
 | T-46 | Tripped state survives a restart | Pass | security.test.ts "a fresh boot with the flag file stays tripped": fresh child process answers ready {ok:true, locked:true}, /api/v1/me 503, flag file still on disk |
 | T-47 | TRIP_OPEN reopens for the operator | Pass | security.test.ts "boot with TRIP_OPEN=1 clears the flag and serves": flag file consumed, /health/live 200, /api/v1/me back to 401 |
 | T-48 | Valid session refused while tripped | Pass | security.test.ts "a valid session is refused while the service is tripped": a live cookie and a fresh sign-in both answer 503 "service locked" |
@@ -232,3 +232,29 @@ JSON artefact under `docs/security/scans/` and close clean.
 | T-125 | Every "Met" row in the obligation matrix names a test that runs | Pass | `docs/security/COMPLIANCE.md` P-01 to P-16, E-01 to E-04, X-01 |
 | T-126 | Both applications are reachable only over TLS 1.3 | Pass | `scans/probes.txt`: 8443 and 8444 answer 200 on 1.3, refuse 1.0, 1.1 and 1.2 |
 | T-127 | The session cookie carries Secure behind TLS and stays usable on loopback http | Pass | `tests/unit/session-cookie.test.ts` 3 of 3; live set-cookie on 8443 and 8444 shows Secure, loopback 8100 does not |
+
+### Closure tranche, 9 November 2026
+
+The plan items from the 22 October handoff and the open defect register are
+closed here. `npm test` gave 197 pass, 0 fail. `npm run test:coverage`
+measured 90.50 percent lines against a floor of 90.
+
+| T-128 | Two bursts cross a two-stage wire | Pass | security.test.ts "a repeated burst locks the service after one warning": one 429 warning, then the lock on the second burst, sessions revoked, flag written, one warning alert and one high alert |
+| T-129 | Signed intake traffic counts toward the wire | Pass | security.test.ts "a signed intake burst counts toward the trip wire": four 401s then 429 on `/intake/v1/submissions`, no flag file |
+| T-130 | A signed body above the cap answers 413 | Pass | intake.test.ts "T-21 a signed body above the cap answers 413": 300 KB body, 413 and a too-large error |
+| T-131 | A note idempotency key is scoped to one case and one author | Pass | casework.test.ts "one key on two cases keeps two notes": both writes answer 201, each case lists its own note |
+| T-132 | Concurrent captures get distinct references | Pass | imports.test.ts "concurrent captures get distinct references": five parallel writes, five 201s, five distinct `BR-2026-` references from `case_reference_seq` |
+| T-133 | Alert reads follow case assignment | Pass | alerts.test.ts "an analyst sees alerts for unassigned cases and their own only": own and unassigned alerts listed, another analyst's case alert hidden, supervisor sees all |
+| T-134 | Rule reasons use one count format | Pass | `rules/index.ts` builds the reason with `Intl.NumberFormat("en-US")`, so a marker reads 1,120 rather than 1 120 |
+| T-135 | The compose file holds one build, two doors and an internal store | Pass | tests/scripts/compose.test.ts, six checks: one build context, ports 9100 and 9200, internal store network, init script, sender key volume, no missing secret file |
+| T-136 | The Docker lab builds and serves both apps | Pass | `docker build` exit 0; `docker compose up -d`; `curl` on 9100 and 9200 answered 200; `/health/ready` answered ok on both |
+| T-137 | A real sign-in works through the Docker regulator | Pass | analyst1 password then the code read from `docker compose logs regulator`; `/api/v1/me` showed mfaOk true; the dashboard read 7 cases and 11 alerts |
+| T-138 | The trip drill runs in the Docker lab | Pass | `docs/project/exercises/incident-2026-11-09.md`: 429 warning, second-burst 503 lock, sessions 0, both alerts, both audit rows, flag present |
+
+### Gate, 9 November 2026
+
+`bash scripts/verify.sh` on the closure tree: 8 passed, 0 failed in 342
+seconds. Gates: tool manifest, secrets, dependencies, static analysis, test
+suite, browser suite, audit chains, backup dry run. Posture is
+informational. The run started at HEAD f9ee105 and carried the uncommitted
+closure change set.

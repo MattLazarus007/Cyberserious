@@ -8,6 +8,7 @@
     "db:migrate:org": "node apps/organisation/server/migrate.ts",
     "db:seed:org": "node db/seed_org.ts",
     "test": "node --test --test-concurrency=1 \"tests/**/*.test.ts\"",
+    "test:coverage": "node --test --test-concurrency=1 --experimental-test-coverage --test-coverage-lines=90 \"tests/**/*.test.ts\"",
     "test:e2e": "playwright test",
     "dev": "node apps/regulator/server/index.ts",
     "dev:org": "node apps/organisation/server/index.ts",

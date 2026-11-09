@@ -1,6 +1,6 @@
 # Where the project stands
 
-Group 1, Eduvos ITNPA3. Last updated 19 October 2026. The upstream
+Group 1, Eduvos ITNPA3. Last updated 9 November 2026. The upstream
 prototype arrived on 15 October. The working system below grew from it
 over four days.
 
@@ -43,13 +43,22 @@ the regulator inbox. The Wazuh manager cannot run on this arm64 host,
 because the amd64 image exits 139 under emulation. That gap is recorded
 in docs/runbooks/sensor.md. No Wazuh claim is made.
 
-The build stands at 118 automated tests and 11 browser flows, all
-passing.
+The build stands at 198 automated tests and 12 browser flows, all
+passing. Line coverage is 90.50 percent against a floor of 90.
+
+The security stack landed after that first build: a two-stage trip wire,
+per-address limits, bans, a WAF, chained security events, correlation alerts,
+heartbeats, a daily anchor, retention, export caps, upload scanning,
+encrypted evidence and backups, launchd supervision, a security console and
+one verifier command. The Docker lab runs the same two apps and the worker
+from one compose file, with a database network that no host route reaches.
+The assessment and compliance documents sit in docs/security, and the two
+November exercises sit in docs/project/exercises.
 
 ## What remains
 
-The push waits on the owner naming the repository. The only configured
-remote is the upstream prototype with its push URL disabled.
+The push stays disabled until the owner asks for it. The remote guard is
+deliberate.
 
 The disclosure wording for Deliverable 4 belongs to the whole group, not
 to this log.
@@ -57,9 +66,13 @@ to this log.
 The Wazuh path waits for a linux/amd64 host. `scripts/wazuh.sh` carries
 the steps.
 
+The Keycloak realm MFA choice stays with the owner. ADR-0012 records the
+OpenID Connect enrolment decision.
+
 A live demo rehearsal is a demo-time step: reseed both databases, start
 the regulator, the organisation portal and the worker, and read the
-one-time codes from the server terminals.
+one-time codes from the server terminals. The Docker lab does the same
+work with one command.
 
 Standing rules: no pushes without a named target, every task logged,
 local artifacts ignored, no personal details from the deliverable

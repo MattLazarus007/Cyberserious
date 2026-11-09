@@ -73,6 +73,8 @@ A Done row has a command or test in `docs/TEST_LOG.md`.
 - [x] Security page browser test. Done.
 - [x] One command verifier. `bash scripts/verify.sh`.
 - [x] CI workflow. File exists; it runs on a host that can push.
+- [x] CI note for the group. `docs/security/CI.md` names every gate and how to read a failure.
+- [x] Coverage floor. `npm run test:coverage`, measured 90.50 percent lines, floor 90.
 - [x] Manual pentest checklist with honest gaps. Done.
 - [ ] External penetration test. N/A with recorded limit.
 
@@ -84,10 +86,14 @@ A Done row has a command or test in `docs/TEST_LOG.md`.
 - [x] Threat model, data classification, program, operations. Done.
 - [x] DAST report and pentest record. Done.
 - [x] Host baseline re-run and test log. Done.
+- [x] Trip-wire drill recorded with output. `docs/project/exercises/incident-2026-11-09.md`.
+- [x] Tabletop exercise recorded. `docs/project/exercises/tabletop-2026-11-09.md`.
+- [x] Demo covers the security console, the chain, the anchor and the sensor. `docs/DEMO.md` step 7 to 10.
 
 ## Phase 9: closeout
 
 - [x] Honest status and owner steps. This file and `STATUS.md`.
 - [x] Commit in coherent batches.
+- [x] Docker lab stack. `Dockerfile` and `infra/docker-compose.yml` build one image, seed both databases, register the sender key and publish both apps.
 - [ ] Push. N/A: remote is intentionally disabled.
 - [ ] Keycloak realm MFA. Owner/open. External anchor remains local, by design.
