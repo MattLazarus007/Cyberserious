@@ -2,7 +2,7 @@ import { test, expect, type Page } from "@playwright/test";
 import { spawn, type ChildProcess } from "node:child_process";
 import { openSync, readFileSync, writeFileSync } from "node:fs";
 
-const PORT = 8101;
+const PORT = 8112;
 const BASE = `http://localhost:${PORT}`;
 const LOG = "/tmp/e2e-server.log";
 let server: ChildProcess;
