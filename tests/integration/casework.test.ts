@@ -1,7 +1,8 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
-import { resetDb, startApp, loginFull } from "./help.ts";
+import pg from "pg";
+import { resetDb, startApp, loginFull, dbUrl } from "./help.ts";
 
 async function caseRef(base: string, cookie: string, ref: string): Promise<unknown> {
   const res = await fetch(`${base}/api/v1/cases/${ref}`, { headers: { cookie } });
@@ -95,6 +96,26 @@ test("one key on two cases keeps two notes", async () => {
     assert.ok(one.items.some((n) => n.body === "note for case one"));
     assert.ok(two.items.some((n) => n.body === "note for case two"));
   } finally {
+    await srv.close();
+  }
+});
+
+test("a user with two memberships acts under the least privileged one", async () => {
+  resetDb();
+  const srv = await startApp();
+  const conn = new pg.Client({ connectionString: dbUrl });
+  try {
+    await conn.connect();
+    await conn.query(
+      `insert into memberships (user_id, org_id, role)
+       select id, null, 'regulator_supervisor' from users where username = 'analyst1'
+       on conflict (user_id, org_id, role) do nothing`
+    );
+    const cookie = await loginFull(srv.base, "analyst1", "demo-analyst-pass");
+    const me = (await (await fetch(`${srv.base}/api/v1/me`, { headers: { cookie } })).json()) as { role: string };
+    assert.equal(me.role, "regulator_analyst", "the extra supervisor row never widens the session");
+  } finally {
+    await conn.end().catch(() => {});
     await srv.close();
   }
 });

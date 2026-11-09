@@ -59,7 +59,22 @@ export async function readSession(sid: string): Promise<Actor | null> {
             u.enabled, m.role, m.org_id
        from sessions s
        join users u on u.id = s.user_id
-       left join memberships m on m.user_id = u.id
+       -- A user may hold more than one membership. The least-privileged role
+       -- wins, so access never widens by accident.
+       left join lateral (
+         select role, org_id from memberships
+          where user_id = u.id
+          order by case role
+            when 'data_steward' then 1
+            when 'security_officer' then 2
+            when 'information_officer' then 3
+            when 'audit_reviewer' then 4
+            when 'regulator_analyst' then 5
+            when 'regulator_supervisor' then 6
+            when 'system_administrator' then 7
+            else 8 end
+          limit 1
+       ) m on true
       where s.id = $1`,
     [sid]
   );
