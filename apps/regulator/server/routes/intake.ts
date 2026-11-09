@@ -98,8 +98,8 @@ intakeRouter.post(
           }
           return { retry: true, stored: prior.rows[0].response };
         }
-        const count = await client.query("select count(*)::int as n from cases");
-        const reference = `BR-2026-${String(100 + count.rows[0].n).padStart(4, "0")}`;
+        const next = await client.query("select nextval('case_reference_seq')::int as n");
+        const reference = `BR-2026-${String(next.rows[0].n).padStart(4, "0")}`;
         const kase = await client.query(
           "insert into cases (reference, org_id, state, severity, priority) values ($1, $2, 'Pending', $3, $4) returning id",
           [reference, senderOrgId, parsed.data.severity, parsed.data.priority]
@@ -299,11 +299,30 @@ function safeHeader(raw: string): { alg?: string; kid?: string } | null {
   }
 }
 
+function intakeMaxBytes(): number {
+  const raw = Number(process.env.INTAKE_MAX_BYTES);
+  return Number.isFinite(raw) && raw > 0 ? raw : 262_144;
+}
+
 function expressRaw(): import("express").RequestHandler {
-  return (req, _res, next) => {
+  return (req, res, next) => {
+    const cap = intakeMaxBytes();
     const chunks: Buffer[] = [];
-    req.on("data", (c: Buffer) => chunks.push(c));
+    let size = 0;
+    let stopped = false;
+    req.on("data", (c: Buffer) => {
+      if (stopped) return;
+      size += c.length;
+      if (size > cap) {
+        stopped = true;
+        chunks.length = 0;
+        res.status(413).json({ error: "submission too large" });
+        return;
+      }
+      chunks.push(c);
+    });
     req.on("end", () => {
+      if (stopped) return;
       (req as unknown as { rawBody: string }).rawBody = Buffer.concat(chunks).toString("utf8");
       next();
     });
