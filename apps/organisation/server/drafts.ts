@@ -190,7 +190,8 @@ draftsRouter.post("/drafts/:id/send", async (req, res) => {
   let answer: Response;
   try {
     answer = await postSigned(intakeUrl, body);
-  } catch {
+  } catch (err) {
+    console.error("[send] intake post failed", err instanceof Error ? err.message : err);
     await query("update drafts set status = 'RetryPending' where public_id = $1 and org_ref = (select reference from organisations where id = $2)", [req.params.id, actor.orgId]);
     res.status(502).json({ error: "the regulator intake is not answering, retry later" });
     return;
