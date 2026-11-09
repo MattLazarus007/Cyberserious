@@ -12,7 +12,7 @@ A Done row has a command or test in `docs/TEST_LOG.md`.
 
 - [x] Install manifest and `--check` mode. Done.
 - [x] suricata, gitleaks, docker/colima, clamav, semgrep, trivy, osv-scanner, lynis, caddy, syft, yq, vector, age, osquery. Done.
-- [ ] Wazuh manager. Blocked: segfault under qemu on arm64. Documented as not working.
+- [x] Wazuh manager and agent. Done natively on arm64: agent enrolled, FIM alert on /lab, row shipped to the inbox.
 - [x] ZAP via Docker image. Done.
 
 ## Phase 2: keys, vault and secrets
@@ -42,7 +42,7 @@ A Done row has a command or test in `docs/TEST_LOG.md`.
 - [x] Session, role, OTP and trip wire. Done.
 - [x] Upload allowlist, magic bytes and AV gate. Done.
 - [x] Evidence AES-GCM at rest. Done.
-- [ ] Keycloak TOTP or WebAuthn enrollment. Partial: app OTP enforced; realm policy needs an owner decision.
+- [x] Keycloak TOTP. Realm TOTP policy set; user mfa1 must complete Mobile Authenticator setup before sign-in.
 
 ## Phase 5: antivirus, backup and scanning
 

@@ -26,9 +26,12 @@ OSV, Trivy and Semgrep clean, Lynis index 75. See `docs/TEST_LOG.md` and
   warning; `-k none` makes loopback parsing work.
 - Vector and the worker run under launchd agents; the worker writes the daily
   anchor, runs correlation and sweeps expiry.
-- osquery inventory works; Full Disk Access needs an owner approval.
-- Keycloak OIDC works; Keycloak-side TOTP enrollment is not configured. The
-  app enforces its own OTP step.
+- osquery runs as a user daemon with a five-minute inventory schedule, and a
+  heartbeat reaches the regulator. Full Disk Access is still needed for
+  protected paths and event tables.
+- Keycloak OIDC works. Realm-side TOTP is configured: user mfa1 must complete
+  Mobile Authenticator setup before any client signs it in. The other lab users
+  carry no OTP credential and are not asked for a code.
 - The daily anchor is local HMAC, not an external timestamp authority.
 - Security events are chained, so retention reports age but does not delete.
 - The Docker lab seeds both databases on every `up`, and both apps speak plain HTTP inside the compose network. It is a test lab, not the TLS deployment.
@@ -36,15 +39,17 @@ OSV, Trivy and Semgrep clean, Lynis index 75. See `docs/TEST_LOG.md` and
 
 ## What is blocked
 
-- Wazuh manager segfaults under qemu on arm64. No Wazuh row is claimed.
+- The Wazuh cluster and indexer are not built. One manager and one agent run
+  natively on arm64 and a FIM alert reaches the regulator inbox.
 - System keychain trust for the Caddy CA was denied by macOS without user
   interaction. Login keychain trust works.
 - Push is intentionally disabled.
 
 ## Manual owner steps
 
-1. Grant Full Disk Access to osquery in System Settings.
-2. Decide whether Keycloak should require TOTP or WebAuthn at the realm.
+1. Grant Full Disk Access to osquery in System Settings if you want protected
+   paths and event tables.
+2. Optional: enrol the mfa1 TOTP secret in an authenticator app.
 3. Run `bash scripts/verify.sh` before a demo and keep the output.
 4. Do not present the local controls as a commercial SOC, EDR, SIEM or DLP.
 5. Start the Docker lab with `docker compose -f infra/docker-compose.yml up --build` and open http://localhost:9100 and http://localhost:9200.
