@@ -8,7 +8,6 @@ import { query } from "../../regulator/server/db.ts";
 import { authRouter } from "../../regulator/server/routes/auth.ts";
 import { securityHeaders } from "../../regulator/server/security.ts";
 import { requestGuard } from "../../regulator/server/request-guard.ts";
-import { securityTrip } from "../../regulator/server/trip.ts";
 import { draftsRouter } from "./drafts.ts";
 import { hardenServer, hostFromEnv } from "../../regulator/server/http.ts";
 
