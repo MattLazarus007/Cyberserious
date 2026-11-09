@@ -34,6 +34,11 @@ async function upload(filename: string, mime: string, content: string): Promise<
   });
 }
 
+test("a malformed evidence id answers not found", async () => {
+  const res = await fetch(`${app.base}/api/v1/evidence/not-a-uuid`, { headers: { cookie } });
+  assert.equal(res.status, 404, "a bad id never reaches Postgres");
+});
+
 test("declared type must match the bytes", async () => {
   const res = await upload("note.pdf", "application/pdf", PLAIN);
   assert.equal(res.status, 422);
