@@ -13,7 +13,7 @@ ClamAV upload scanning, encrypted age backups, a supervised Vector telemetry
 pipeline, osquery inventory, Suricata replay detection, a security page, a
 one-command verifier, a CI workflow and a Docker lab stack.
 
-Proof: `npm test` 202 pass, Playwright 12 pass, `npm run test:coverage` 90.50
+Proof: live acceptance 36 of 36 on the host and 36 of 36 on Docker. `npm test` 202 pass, Playwright 12 pass, `npm run test:coverage` 90.50
 percent lines with a floor of 90, ZAP 0 high and 1 accepted medium, gitleaks,
 OSV, Trivy and Semgrep clean, Lynis index 75. See `docs/TEST_LOG.md` and
 `docs/security/`.

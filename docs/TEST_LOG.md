@@ -265,6 +265,9 @@ measured 90.50 percent lines against a floor of 90.
 | T-151 | A bad config value falls back to the safe default | Pass manual | `dlp.ts` and `retention.ts` parse limits with a finite guard; a NaN value cannot remove a cap |
 | T-152 | A multi-audience token must name this client | Pass manual | `oidc.ts` compares `azp` to the client id when the audience holds more than one value |
 | T-153 | A hostile filename cannot break the download header | Pass manual | `evidence.ts` strips quotes and newlines from the content-disposition name |
+| T-154 | The host pair passes the live acceptance sweep | Pass manual | 36 checks against 8100 and 8200: group and code sign-in, counts, note write, analyst refusal, supervisor move and return, alert acknowledge and resolve, chain intact, ban and unban, admin refusal, malformed id 404, evidence upload, review and download, portal draft to notice, new case visible |
+| T-155 | The Docker pair passes the same sweep | Pass manual | 36 checks against 9100 and 9200, all pass, including the intake send and the affected notice |
+| T-156 | Both dashboards render with no client errors | Pass manual | Playwright: 7 notifications and 14 alert cards on each; no pageerror, no console error, no 5xx |
 
 ### Gate, 9 November 2026
 
