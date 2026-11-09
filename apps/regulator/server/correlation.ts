@@ -14,6 +14,7 @@ interface Candidate {
   priority: "low" | "medium" | "high";
   reason: string;
   bucket: string;
+  standing?: boolean;
 }
 
 function bucketFor(now: Date, seconds = 600): string {
@@ -21,13 +22,22 @@ function bucketFor(now: Date, seconds = 600): string {
 }
 
 async function openCandidate(candidate: Candidate): Promise<number> {
-  const dedupe = `${candidate.rule}:${candidate.subject}:${candidate.bucket}`;
+  // A burst rule keeps one alert per window. A standing condition keeps one
+  // alert per subject until someone resolves it, so a silent sensor does not
+  // open a new alert every ten minutes.
+  const dedupe = candidate.standing
+    ? `${candidate.rule}:${candidate.subject}`
+    : `${candidate.rule}:${candidate.subject}:${candidate.bucket}`;
   const inputHash = dedupe;
   return withTransaction(async (client) => {
     const done = await client.query(
       `insert into alerts (case_id, rule_id, rule_version, dedupe_key, priority, reason, input_hash, state)
        values (null, $1, 1, $2, $3, $4, $5, 'open')
-       on conflict (dedupe_key) do update set last_seen_at = now()
+       on conflict (dedupe_key) do update set
+         last_seen_at = now(),
+         reason = excluded.reason,
+         state = case when alerts.state = 'resolved' then 'open' else alerts.state end,
+         resolution = case when alerts.state = 'resolved' then null else alerts.resolution end
        returning (xmax = 0) as inserted`,
       [candidate.rule, dedupe, candidate.priority, candidate.reason, inputHash]
     );
@@ -116,6 +126,7 @@ export async function runCorrelation(now = new Date()): Promise<{ opened: number
       priority: "high",
       reason: "security event chain failed verification",
       bucket,
+      standing: true,
     });
   }
   const auditChain = await verifyChain();
@@ -126,6 +137,7 @@ export async function runCorrelation(now = new Date()): Promise<{ opened: number
       priority: "high",
       reason: "audit chain failed verification",
       bucket,
+      standing: true,
     });
   }
 
@@ -137,6 +149,7 @@ export async function runCorrelation(now = new Date()): Promise<{ opened: number
       priority: "high",
       reason: `job ${row.id} stopped after ${row.attempts} attempts`,
       bucket,
+      standing: true,
     });
   }
 
@@ -152,6 +165,7 @@ export async function runCorrelation(now = new Date()): Promise<{ opened: number
       priority: "medium",
       reason: `${row.source} has been silent for ${row.age} seconds`,
       bucket,
+      standing: true,
     });
   }
 
@@ -164,6 +178,7 @@ export async function runCorrelation(now = new Date()): Promise<{ opened: number
       priority: "high",
       reason: `newest sealed backup is ${backupAge} seconds old`,
       bucket,
+      standing: true,
     });
   }
 
