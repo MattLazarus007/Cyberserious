@@ -282,8 +282,8 @@ measured 90.50 percent lines against a floor of 90.
 
 ### Gate, 9 November 2026
 
-`bash scripts/verify.sh` on the final tree: 8 passed, 0 failed in 360
-seconds at HEAD c49469f. Gates: tool manifest, secrets, dependencies, static
+`bash scripts/verify.sh` on the final tree: 8 passed, 0 failed in 358
+seconds at HEAD d84f435. Gates: tool manifest, secrets, dependencies, static
 analysis, test suite, browser suite, audit chains, backup dry run. Posture is
 informational. 202 tests and 12 browser flows pass. The runner reports 0
 skipped, 0 todo and 0 cancelled tests.
