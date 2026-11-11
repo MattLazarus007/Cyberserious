@@ -27,7 +27,8 @@ TOOLS=(
 )
 
 free_gb() {
-  df -g . | awk 'NR==2 {print $4}'
+  # -P and -k are portable. df -g is BSD only, so the check broke on Linux.
+  df -Pk . | awk 'NR==2 {print int($4 / 1024 / 1024)}'
 }
 
 version_of() {
