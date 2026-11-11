@@ -2,12 +2,14 @@
 
 Group 1, Eduvos ITNPA3. Last updated 9 November 2026.
 
-The upstream prototype arrived on 15 October. I rebuilt it into a working
-regulator register and an organisation portal over the next four days.
+The upstream prototype arrived on 15 October. The group rebuilt it into a
+working regulator register and an organisation portal over the next four days.
+The dashboard and the interface started with the team. I worked on the backend,
+the security stack and the November pass.
 
-## How I built it
+## How we built it
 
-I corrected the prototype first. I removed the synthetic banners and added a
+We corrected the prototype first. I removed the synthetic banners and added a
 real not-found state. I bound the badges to records and kept one case-state
 list. Each number now comes from one definition. I renamed the organisations to
 fictional names and rewrote the introduction. That closed Gate A.
@@ -34,7 +36,7 @@ dispatch (lab simulation).
 
 ## The security stack
 
-After the first build I installed a security stack. The edge has a two-stage
+After the first build the group installed a security stack. The edge has a two-stage
 trip wire, per-address limits, bans and a WAF. Behind it run chained security
 events, correlation alerts, heartbeats and a daily anchor. Retention and export
 caps guard the data. Upload scanning sits in front of the evidence store.

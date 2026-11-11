@@ -1,7 +1,9 @@
 # Change log
 
-I keep this list in date order. Each entry names the change and the check that
-proves it. Test ids refer to `docs/TEST_LOG.md`.
+This list covers the November pass, which I ran. The earlier build and the
+dashboard belong to the group, and README.md names the maintainers. Each entry
+names the change and the check that proves it. Test ids refer to
+`docs/TEST_LOG.md`.
 
 ## 9 November 2026
 
