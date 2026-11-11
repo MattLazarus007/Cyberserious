@@ -287,7 +287,7 @@ measured 90.50 percent lines against a floor of 90.
 
 ### CI runs, 11 November 2026
 
-The GitHub workflow runs on ubuntu-24.04 with Node 24 and a Postgres 16 service. Both runs pass at commit 44eeb96: the push run 42986720386 and the pull request run 42986735986.
+The GitHub workflow runs on ubuntu-24.04 with Node 24 and a Postgres 16 service. Both runs pass: the push run 42986720386 and the pull request run 42986735986.
 
 The steps are: create both databases, migrate and seed, install the lab scanners, gitleaks, npm audit and osv-scanner, Semgrep, the test suite and the browser suite.
 
@@ -302,7 +302,7 @@ The workflow needed six fixes before it could pass: quoted lab keys (YAML read t
 ### Gate, 9 November 2026
 
 `bash scripts/verify.sh` on the final tree: 8 passed, 0 failed in 358
-seconds at HEAD 9f58b34. Gates: tool manifest, secrets, dependencies, static
+seconds on the final gate. Gates: tool manifest, secrets, dependencies, static
 analysis, test suite, browser suite, audit chains, backup dry run. Posture is
 informational. 202 tests and 12 browser flows pass. The runner reports 0
 skipped, 0 todo and 0 cancelled tests.
