@@ -1,5 +1,18 @@
 # Incident runbook
 
+## Severity and first action
+
+| Severity | Example | First action |
+|---|---|---|
+| SEV1 | Evidence or personal data exposed, host compromised, active extraction | Isolate: stop the app, apply pf, revoke sessions, preserve evidence |
+| SEV2 | Trip wire locked, malware accepted, chain broken | Contain the path, capture state, notify the owner and information officer |
+| SEV3 | Repeated login failures, WAF burst, sensor silent | Triage, throttle or ban, restore the sensor |
+| SEV4 | Single failed scan, stale backup, certificate warning | Log and fix in the next working block |
+
+The POPIA clock in this lab is the internal 72 hour target from D2. It is not
+a statutory deadline and the lab must not present it as one. Record discovery
+time, containment time, notification decision and reviewer within five days.
+
 Short version for the lab: notice, contain, record, recover, review.
 One group member calls the steps while another writes them down.
 

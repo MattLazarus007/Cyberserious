@@ -3,7 +3,15 @@ import pg from "pg";
 let pool: pg.Pool | null = null;
 
 function getPool(): pg.Pool {
-  if (!pool) pool = new pg.Pool({ connectionString: process.env.DATABASE_URL });
+  if (!pool) {
+    pool = new pg.Pool({ connectionString: process.env.DATABASE_URL });
+    // An idle client error (a database restart, a dropped socket) is emitted
+    // on the pool. Without a listener Node treats it as an uncaught error and
+    // the process exits.
+    pool.on("error", (err: Error) => {
+      console.error("[db] idle client error", err);
+    });
+  }
   return pool;
 }
 

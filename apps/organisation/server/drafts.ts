@@ -3,7 +3,7 @@ import { createHash } from "node:crypto";
 import { z } from "zod";
 import { query, withTransaction } from "../../regulator/server/db.ts";
 import { requireSession, type Actor } from "../../regulator/server/session.ts";
-import { postSigned } from "./send.ts";
+import { postSigned, receiptBody } from "./send.ts";
 import { recordOrgAuditTx } from "./audit.ts";
 
 export const draftsRouter = Router();
@@ -77,8 +77,8 @@ draftsRouter.post("/drafts", async (req, res) => {
     return;
   }
   const org = await query("select reference from organisations where id = $1", [actor.orgId]);
-  const count = await query("select count(*)::int as n from drafts");
-  const publicId = `SUB-2026-${String(count.rows[0].n + 1).padStart(4, "0")}`;
+  const next = await query("select nextval('draft_reference_seq')::int as n");
+  const publicId = `SUB-2026-${String(next.rows[0].n).padStart(4, "0")}`;
   const row = await query(
     `insert into drafts (public_id, org_ref, category, narrative, severity, priority, affected_count, created_by)
      values ($1, $2, $3, $4, $5, $6, $7, $8) returning public_id as "publicId", revision, status`,
@@ -164,7 +164,7 @@ draftsRouter.post("/drafts/:id/send", async (req, res) => {
     res.status(403).json({ error: "forbidden" });
     return;
   }
-  const found = await query("select * from drafts where public_id = $1 and status = 'Approved' and org_ref = (select reference from organisations where id = $2)", [req.params.id, actor.orgId]);
+  const found = await query("select * from drafts where public_id = $1 and status in ('Approved','RetryPending') and org_ref = (select reference from organisations where id = $2)", [req.params.id, actor.orgId]);
   if (found.rows.length === 0) {
     res.status(404).json({ error: "only approved drafts are sent" });
     return;
@@ -190,19 +190,20 @@ draftsRouter.post("/drafts/:id/send", async (req, res) => {
   let answer: Response;
   try {
     answer = await postSigned(intakeUrl, body);
-  } catch {
+  } catch (err) {
+    console.error("[send] intake post failed", err instanceof Error ? err.message : err);
     await query("update drafts set status = 'RetryPending' where public_id = $1 and org_ref = (select reference from organisations where id = $2)", [req.params.id, actor.orgId]);
     res.status(502).json({ error: "the regulator intake is not answering, retry later" });
     return;
   }
   if (answer.status === 201 || answer.status === 200) {
-    const receipt = await answer.json();
+    const receipt = await receiptBody(answer);
     await query("update drafts set status = 'Acknowledged', receipt = $1::jsonb where public_id = $2 and org_ref = (select reference from organisations where id = $3)", [JSON.stringify(receipt), req.params.id, actor.orgId]);
     res.json({ ok: true, receipt });
     return;
   }
   if (answer.status === 409) {
-    await query("update drafts set status = 'RetryPending', receipt = $1::jsonb where public_id = $2 and org_ref = (select reference from organisations where id = $3)", [JSON.stringify(await answer.json()), req.params.id, actor.orgId]);
+    await query("update drafts set status = 'RetryPending', receipt = $1::jsonb where public_id = $2 and org_ref = (select reference from organisations where id = $3)", [JSON.stringify(await receiptBody(answer)), req.params.id, actor.orgId]);
     res.status(409).json({ error: "same identity, different bytes" });
     return;
   }
@@ -223,9 +224,26 @@ draftsRouter.post("/drafts/:id/send", async (req, res) => {
 });
 
 const notifyInput = z.object({
-  channel: z.enum(["email", "sms", "phone", "letter"]).default("email"),
-  templateText: z.string().min(1).max(2000).optional(),
+  channel: z.enum(["email", "sms", "phone", "letter", "website", "news"]).default("email"),
+  consequencesText: z.string().min(10).max(1000),
+  measuresText: z.string().min(10).max(1000),
+  adviceText: z.string().min(10).max(1000),
+  unauthorisedIdentity: z.string().max(300).optional(),
 });
+
+// Section 22(5) asks for four particulars. The notice carries all four, and
+// says plainly when the responsible person is not yet known.
+function noticeBody(publicId: string, parts: z.infer<typeof notifyInput>): string {
+  return [
+    `POPIA section 22(5) notice for submission ${publicId}.`,
+    `Possible consequences of the compromise: ${parts.consequencesText}`,
+    `Measures taken or intended to address the compromise: ${parts.measuresText}`,
+    `What you should do to reduce the risk: ${parts.adviceText}`,
+    parts.unauthorisedIdentity
+      ? `Identity of the person believed responsible: ${parts.unauthorisedIdentity}`
+      : "Identity of the person responsible: not known at the time of this notice.",
+  ].join("\n");
+}
 
 const RUN_COLUMNS = `id, channel, status, affected_total as "affectedTotal",
   sent_count as "sentCount", failed_count as "failedCount",
@@ -272,7 +290,9 @@ draftsRouter.post("/drafts/:id/notify", async (req, res) => {
   }
   const parsed = notifyInput.safeParse(req.body);
   if (!parsed.success) {
-    res.status(400).json({ error: "choose a channel from email, sms, phone or letter" });
+    res.status(400).json({
+      error: "provide the section 22(5) particulars and choose a channel from email, sms, phone, letter, website or news",
+    });
     return;
   }
   const found = await query(
@@ -284,7 +304,7 @@ draftsRouter.post("/drafts/:id/notify", async (req, res) => {
     return;
   }
   const draft = found.rows[0];
-  if (!["Approved", "ReadyForApproval", "Acknowledged"].includes(draft.status)) {
+  if (!["Approved", "Acknowledged"].includes(draft.status)) {
     res.status(409).json({ error: "only an approved draft can notify affected people" });
     return;
   }
@@ -318,8 +338,7 @@ draftsRouter.post("/drafts/:id/notify", async (req, res) => {
 
   const targeted = affected;
   const channel = parsed.data.channel;
-  const template = parsed.data.templateText
-    ?? `Synthetic POPIA section 22 affected-person notice for ${draft.public_id}. Recorded dispatch only, lab simulation.`;
+  const template = noticeBody(draft.public_id as string, parsed.data);
   let runId: string;
   try {
     runId = await withTransaction(async (client) => {

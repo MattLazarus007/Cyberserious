@@ -46,6 +46,10 @@ function hit(input: RuleInput, ruleId: string, priority: RuleHit["priority"], re
 const INTERNAL = "internal timer, not a legal deadline";
 const HOUR = 3600 * 1000;
 
+function formatCount(value: number): string {
+  return new Intl.NumberFormat("en-US").format(value);
+}
+
 export function ruleHighSeverity(input: RuleInput): RuleHit | null {
   if (input.severity !== "high" && input.severity !== "critical") return null;
   return hit(input, "RULE-01", "high",
@@ -64,7 +68,7 @@ export function ruleLateSubmission(input: RuleInput): RuleHit | null {
 export function ruleHighCount(input: RuleInput): RuleHit | null {
   if (input.affectedCount === null || input.affectedCount < 1000) return null;
   return hit(input, "RULE-03", "medium",
-    `${input.affectedCount.toLocaleString("en-ZA")} people in scope on ${input.reference}. Count is ${input.countPrecision}.`);
+    `${formatCount(input.affectedCount)} people in scope on ${input.reference}. Count is ${input.countPrecision}.`);
 }
 
 export function ruleLackOfInformation(input: RuleInput): RuleHit | null {

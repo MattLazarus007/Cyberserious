@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.cyberserious.osquery</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/opt/osquery/lib/osquery.app/Contents/MacOS/osqueryd</string>
+    <string>--config_path=/Users/operator/cyberserious/infra/osquery/osquery.conf</string>
+    <string>--database_path=/Users/operator/cyberserious/data/osquery.db</string>
+    <string>--pidfile=/Users/operator/cyberserious/data/osquery.pid</string>
+    <string>--logger_plugin=filesystem</string>
+    <string>--logger_path=/Users/operator/cyberserious/data/logs/osquery</string>
+    <string>--disable_events=true</string>
+    <string>--ephemeral=false</string>
+    <string>--disable_extensions=true</string>
+  </array>
+  <key>WorkingDirectory</key>
+  <string>/Users/operator/cyberserious</string>
+  <key>RunAtLoad</key>
+  <true/>
+  <key>KeepAlive</key>
+  <dict>
+    <key>SuccessfulExit</key>
+    <false/>
+  </dict>
+  <key>ThrottleInterval</key>
+  <integer>10</integer>
+  <key>StandardOutPath</key>
+  <string>/Users/operator/cyberserious/data/logs/osquery.launchd.log</string>
+  <key>StandardErrorPath</key>
+  <string>/Users/operator/cyberserious/data/logs/osquery.launchd.log</string>
+</dict>
+</plist>

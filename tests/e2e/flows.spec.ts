@@ -2,7 +2,7 @@ import { test, expect, type Page } from "@playwright/test";
 import { spawn, type ChildProcess } from "node:child_process";
 import { openSync, readFileSync, writeFileSync } from "node:fs";
 
-const PORT = 8101;
+const PORT = 8112;
 const BASE = `http://localhost:${PORT}`;
 const LOG = "/tmp/e2e-server.log";
 let server: ChildProcess;
@@ -12,15 +12,15 @@ function freshCodes(username: string, since: number): string[] {
   return ((matches ?? []).map((line) => line.slice(-6))).slice(since);
 }
 
-async function signIn(page: Page): Promise<void> {
-  const seen = freshCodes("analyst1", 0).length;
+async function signInUser(page: Page, username: string, secret: string): Promise<void> {
+  const seen = freshCodes(username, 0).length;
   await page.goto(`${BASE}/login.html`);
-  await page.fill("#username", "analyst1");
-  await page.fill("#password", "demo-analyst-pass");
+  await page.fill("#username", username);
+  await page.fill("#password", secret);
   await page.click("#passwordForm button[type=submit]");
   let code = "";
   for (let i = 0; i < 50; i++) {
-    const fresh = freshCodes("analyst1", seen);
+    const fresh = freshCodes(username, seen);
     if (fresh.length > 0) {
       code = fresh[fresh.length - 1];
       break;
@@ -31,6 +31,10 @@ async function signIn(page: Page): Promise<void> {
   await page.fill("#otp", code);
   await page.click("#otpForm button[type=submit]");
   await page.waitForURL(`${BASE}/index.html`);
+}
+
+async function signIn(page: Page): Promise<void> {
+  return signInUser(page, "analyst1", "demo-analyst-pass");
 }
 
 test.beforeAll(async () => {
@@ -241,4 +245,17 @@ test("single sign-on link appears only when the provider switch is on", async ({
   } finally {
     oidcServer.kill();
   }
+});
+
+test("T-99 security page shows the chain and refuses an analyst", async ({ page }) => {
+  await signInUser(page, "reviewer1", "demo-reviewer-pass");
+  await page.goto(`${BASE}/security.html`);
+  await expect(page.locator("#chainState")).toHaveText("Intact");
+  await expect(page.locator("#eventTotal")).not.toHaveText("-");
+  await expect(page.locator("#heartbeatRows tr").first()).toBeVisible();
+
+  await page.goto(`${BASE}/login.html`);
+  await signInUser(page, "analyst1", "demo-analyst-pass");
+  await page.goto(`${BASE}/security.html`);
+  await expect(page.locator("#screen-lock")).toBeVisible();
 });

@@ -116,8 +116,12 @@ document.addEventListener("DOMContentLoaded", function () {
                     refresh();
                 }),
                 button("Sign and send", async function () {
-                    const done = await call("/api/v1/drafts/" + draft.publicId + "/send", { method: "POST" });
-                    say("Receipt kept: case " + done.receipt.caseRef + ".");
+                    try {
+                        const done = await call("/api/v1/drafts/" + draft.publicId + "/send", { method: "POST" });
+                        say("Receipt kept: case " + done.receipt.caseRef + ".");
+                    } catch (err) {
+                        say(err.message, true);
+                    }
                     refresh();
                 })
             );
@@ -134,19 +138,38 @@ document.addEventListener("DOMContentLoaded", function () {
                     (draft.status === "Approved" || draft.status === "Acknowledged")) {
                 const channel = document.createElement("select");
                 channel.setAttribute("aria-label", "Notice channel for " + draft.publicId);
-                [["email", "Email"], ["sms", "SMS"], ["phone", "Phone call"], ["letter", "Letter"]]
+                [["email", "Email"], ["letter", "Letter"], ["website", "Website notice"],
+                 ["news", "News media"], ["sms", "SMS"], ["phone", "Phone call"]]
                     .forEach(function (pair) {
                         const option = document.createElement("option");
                         option.value = pair[0];
                         option.textContent = pair[1];
                         channel.append(option);
                     });
-                actions.append(channel, button("Notify affected people (IO only)", async function () {
+                // Section 22(5) wants four particulars in the notice. The
+                // officer edits these before the notice goes out.
+                const consequences = document.createElement("textarea");
+                consequences.setAttribute("aria-label", "Possible consequences for " + draft.publicId);
+                consequences.value = "Unauthorised access may expose the " + draft.category +
+                    " information recorded in submission " + draft.publicId + ".";
+                const measures = document.createElement("textarea");
+                measures.setAttribute("aria-label", "Measures taken for " + draft.publicId);
+                measures.value = "The case is contained, the affected account is disabled and the register is sealed.";
+                const advice = document.createElement("textarea");
+                advice.setAttribute("aria-label", "Advice for the affected person in " + draft.publicId);
+                advice.value = "Change your password and report unexpected contact to the information officer.";
+                actions.append(consequences, measures, advice, channel,
+                    button("Notify affected people (IO only)", async function () {
                     try {
                         const done = await call("/api/v1/drafts/" + draft.publicId + "/notify", {
                             method: "POST",
                             headers: { "content-type": "application/json" },
-                            body: JSON.stringify({ channel: channel.value })
+                            body: JSON.stringify({
+                                channel: channel.value,
+                                consequencesText: consequences.value,
+                                measuresText: measures.value,
+                                adviceText: advice.value
+                            })
                         });
                         const run = done.runs[0];
                         const text = "Recorded dispatch (lab simulation): " + run.sentCount +

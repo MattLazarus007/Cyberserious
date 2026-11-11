@@ -27,7 +27,7 @@ Open an unknown id and show the not-found state.
 case as the analyst and show the refusal. Sign in as supervisor1 in
 a second browser and move it with a reason. Reload and show both.
 
-**4. Draft and approve as the organisation.** On port 8200, sign in
+**4. Draft and approve as the organisation.** On https://localhost:8444, sign in
 as steward1, write a draft with 25 affected people, send it for
 approval. Approve as io1 and show the bound revision and hash. Edit
 a draft and show the approval clearing.
@@ -43,6 +43,33 @@ delivery. The case page now carries the counts and a shortfall alert.
 **6. Rules and duties.** Watch the worker open alerts for the new
 case. Resolve one with a reason. Open the case page and trace one
 section 22 duty to its status.
+
+## The security pass, five minutes
+
+Run these after the six steps. The first three are safe at any time.
+The last one locks the service, so run it once and reopen afterwards.
+
+**7. Show the console.** Sign in as reviewer1 with demo-reviewer-pass
+and open https://localhost:8443/security.html. The chain row reads
+Intact, and the page lists heartbeats, export manifests and bans.
+Open the same page as admin1 and show the refusal.
+
+**8. Verify the chain and the anchor from the shell.**
+Run `node scripts/verify-chain.mjs` and `node scripts/anchor.mjs
+--verify`. Both answer ok true. The anchor file lives in
+`data/anchors/` with the user immutable flag set.
+
+**9. Show one detection.** Run
+`rg '"signature_id":9000004' infra/sensor/out/eve.json | tail -1`.
+The Suricata rule fired on the loopback probe, and the same event
+appears in the security event list. The sensor is an IDS on one
+host, not an inline blocker.
+
+**10. Trip the wire, then reopen.** Lower the threshold with
+`TRIP_THRESHOLD=5`, send five unauthenticated requests and show the
+429 warning. Send a second burst and show the 503 lock with the flag
+file, the revoked sessions and the high alert. Restart the regulator
+with `TRIP_OPEN=1` to reopen it. Do this step last.
 
 ## If something fails live
 

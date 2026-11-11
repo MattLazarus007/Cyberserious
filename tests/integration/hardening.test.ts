@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import pg from "pg";
 import { resetDb, startApp, dbUrl, loginFull } from "./help.ts";
+import { recordAudit, verifyChain } from "../../apps/regulator/server/audit.ts";
 
 test("T-11 a disabled account signs in nowhere", async () => {
   resetDb();
@@ -55,7 +56,11 @@ test("T-14 injection and mass assignment go nowhere", async () => {
     const injected = await fetch(`${srv.base}/api/v1/cases?q='; DROP TABLE cases;--&pageSize=50`, {
       headers: { cookie },
     });
-    assert.equal(injected.status, 200);
+    assert.equal(injected.status, 403, "the waf refuses the injection probe");
+    const quoted = await fetch(`${srv.base}/api/v1/cases?q=${encodeURIComponent("O'Brien")}&pageSize=50`, {
+      headers: { cookie },
+    });
+    assert.equal(quoted.status, 200, "an apostrophe is ordinary text, not an attack");
     const tables = await (async () => {
       const conn = new pg.Client({ connectionString: dbUrl });
       await conn.connect();
@@ -135,6 +140,25 @@ test("T-31 tampering with the chain is reported at the altered row", async () =>
       headers: { "content-type": "application/json", cookie },
       body: JSON.stringify({ body: "chain me" }),
     });
+    await Promise.all(
+      Array.from({ length: 20 }, (_, i) =>
+        recordAudit({ actor: `probe${i}`, action: "probe.write", resource: "probe", result: "ok" })
+      )
+    );
+    const chain = await verifyChain();
+    assert.equal(chain.ok, true, "concurrent writes extend one chain");
+    const before = new pg.Client({ connectionString: dbUrl });
+    await before.connect();
+    const hashes = await before.query("select prev_hash from audit_events order by seq asc");
+    await before.end();
+    const seen = new Set<string>();
+    let forks = 0;
+    for (const row of hashes.rows) {
+      if (row.prev_hash === null) continue;
+      if (seen.has(row.prev_hash)) forks += 1;
+      seen.add(row.prev_hash);
+    }
+    assert.equal(forks, 0, "no two rows share a predecessor");
     const conn = new pg.Client({ connectionString: dbUrl });
     await conn.connect();
     await conn.query("update audit_events set action = 'note.forged' where seq = (select max(seq) from audit_events)");

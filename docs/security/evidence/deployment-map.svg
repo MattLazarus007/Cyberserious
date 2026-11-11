@@ -1,0 +1,89 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="900" viewBox="0 0 1400 900" font-family="Helvetica, Arial, sans-serif">
+  <rect width="1400" height="900" fill="#f7f9fc"/>
+  <text x="50" y="55" font-size="30" font-weight="700" fill="#12233f">CyberSerious security deployment</text>
+  <text x="50" y="85" font-size="16" fill="#4a5a72">Loopback-only services behind one TLS edge, with one evidence path.</text>
+
+  <rect x="40" y="120" width="240" height="130" rx="12" fill="#ffffff" stroke="#c9d4e4"/>
+  <text x="60" y="152" font-size="15" font-weight="700" fill="#12233f">Operator / reviewer</text>
+  <text x="60" y="180" font-size="13" fill="#4a5a72">Operator browser</text>
+  <text x="60" y="202" font-size="13" fill="#4a5a72">MFA login, role gates</text>
+  <text x="60" y="224" font-size="13" fill="#4a5a72">https://localhost:8443</text>
+
+  <rect x="350" y="120" width="300" height="210" rx="12" fill="#e8f1ff" stroke="#7aa7e8" stroke-width="2"/>
+  <text x="370" y="152" font-size="16" font-weight="700" fill="#12233f">Edge: Caddy 2.11.7</text>
+  <text x="370" y="180" font-size="13" fill="#243b5c">TLS 1.2+, local CA, HSTS</text>
+  <text x="370" y="202" font-size="13" fill="#243b5c">CSP, COEP, COOP, frame deny</text>
+  <text x="370" y="224" font-size="13" fill="#243b5c">Request rate limit and WAF rules</text>
+  <text x="370" y="246" font-size="13" fill="#243b5c">Only inbound listener</text>
+  <text x="370" y="280" font-size="12" fill="#4a5a72">Proof: curl -I shows HTTP/2 200</text>
+  <text x="370" y="300" font-size="12" fill="#4a5a72">with the security headers.</text>
+
+  <rect x="720" y="120" width="300" height="210" rx="12" fill="#ffffff" stroke="#c9d4e4"/>
+  <text x="740" y="152" font-size="16" font-weight="700" fill="#12233f">Application tier</text>
+  <text x="740" y="180" font-size="13" fill="#4a5a72">Regulator 127.0.0.1:8100</text>
+  
+  <text x="740" y="224" font-size="13" fill="#4a5a72">Organisation 127.0.0.1:8200</text>
+  <text x="740" y="246" font-size="13" fill="#4a5a72">OTP MFA, RBAC, per-IP throttle</text>
+  <text x="740" y="268" font-size="13" fill="#4a5a72">Audit and security event writers</text>
+
+  <rect x="1090" y="120" width="270" height="210" rx="12" fill="#ffffff" stroke="#c9d4e4"/>
+  <text x="1110" y="152" font-size="16" font-weight="700" fill="#12233f">Data tier</text>
+  <text x="1110" y="180" font-size="13" fill="#4a5a72">PostgreSQL 16 on :5432</text>
+  <text x="1110" y="202" font-size="13" fill="#4a5a72">audit_events hash chain</text>
+  <text x="1110" y="224" font-size="13" fill="#4a5a72">security_events hash chain</text>
+  <text x="1110" y="246" font-size="13" fill="#4a5a72">Daily HMAC anchor</text>
+  <text x="1110" y="268" font-size="13" fill="#4a5a72">AES-GCM sealed evidence</text>
+
+  <rect x="40" y="420" width="300" height="200" rx="12" fill="#fff7e8" stroke="#e6b766" stroke-width="2"/>
+  <text x="60" y="452" font-size="16" font-weight="700" fill="#12233f">Host firewall: pf</text>
+  <text x="60" y="480" font-size="13" fill="#4a5a72">Default block inbound</text>
+  <text x="60" y="502" font-size="13" fill="#4a5a72">Loopback allow list:</text>
+  <text x="80" y="524" font-size="13" fill="#4a5a72">8100, 8101, 8200, 8443</text>
+  <text x="60" y="546" font-size="13" fill="#4a5a72">Bad-address table drop</text>
+  <text x="60" y="580" font-size="12" fill="#4a5a72">Proof: pfctl -a cyberserious -sr</text>
+
+  <rect x="380" y="420" width="300" height="200" rx="12" fill="#ffffff" stroke="#c9d4e4"/>
+  <text x="400" y="452" font-size="16" font-weight="700" fill="#12233f">Sensor: Suricata 8.0.7</text>
+  <text x="400" y="480" font-size="13" fill="#4a5a72">Runs as a root launchd daemon</text>
+  <text x="400" y="502" font-size="13" fill="#4a5a72">Live capture on loopback</text>
+  <text x="400" y="524" font-size="13" fill="#4a5a72">4 local rules, EVE JSON output</text>
+  <text x="400" y="546" font-size="13" fill="#4a5a72">SID 9000004 fired on /waf-test</text>
+  <text x="400" y="580" font-size="12" fill="#4a5a72">Proof: eve.json alert and replay</text>
+
+  <rect x="720" y="420" width="300" height="200" rx="12" fill="#ffffff" stroke="#c9d4e4"/>
+  <text x="740" y="452" font-size="16" font-weight="700" fill="#12233f">Shipper: Vector 0.60.0</text>
+  <text x="740" y="480" font-size="13" fill="#4a5a72">Reads Suricata EVE JSON</text>
+  <text x="740" y="502" font-size="13" fill="#4a5a72">Token-authenticated ingest</text>
+  <text x="740" y="524" font-size="13" fill="#4a5a72">Retry and dead-letter path</text>
+  <text x="740" y="546" font-size="13" fill="#4a5a72">Supervised by launchd</text>
+  <text x="740" y="580" font-size="12" fill="#4a5a72">Proof: security_events source=suricata</text>
+
+  <rect x="1060" y="420" width="300" height="200" rx="12" fill="#ffffff" stroke="#c9d4e4"/>
+  <text x="1080" y="452" font-size="16" font-weight="700" fill="#12233f">Endpoint and assurance</text>
+  <text x="1080" y="480" font-size="13" fill="#4a5a72">ClamAV 1.5.4, clamd running</text>
+  <text x="1080" y="502" font-size="13" fill="#4a5a72">osquery 5.24 inventory</text>
+  
+  <text x="1080" y="546" font-size="13" fill="#4a5a72">ZAP baseline against the TLS edge</text>
+  <text x="1080" y="580" font-size="12" fill="#4a5a72">Proof: versions, scan report</text>
+
+  <rect x="380" y="700" width="640" height="130" rx="12" fill="#eef8f1" stroke="#78b48e" stroke-width="2"/>
+  <text x="400" y="732" font-size="16" font-weight="700" fill="#12233f">Control loop</text>
+  <text x="400" y="760" font-size="13" fill="#243b5c">Alert -&gt; Vector -&gt; security_events -&gt; correlation -&gt; alert -&gt; reviewer console</text>
+  <text x="400" y="784" font-size="13" fill="#243b5c">Evidence -&gt; hash chain -&gt; daily HMAC anchor -&gt; sealed archive in CyberVault</text>
+  <text x="400" y="808" font-size="13" fill="#243b5c">Chain check: current rows, intact. Anchor check: 1 day, intact.</text>
+
+  <line x1="280" y1="185" x2="350" y2="185" stroke="#7a8aa3" stroke-width="2" marker-end="url(#a)"/>
+  <line x1="650" y1="185" x2="720" y2="185" stroke="#7a8aa3" stroke-width="2" marker-end="url(#a)"/>
+  <line x1="1020" y1="185" x2="1090" y2="185" stroke="#7a8aa3" stroke-width="2" marker-end="url(#a)"/>
+  <path d="M500 330 L500 420" stroke="#7a8aa3" stroke-width="2" stroke-dasharray="6 5" marker-end="url(#a)"/>
+  <path d="M860 330 L860 420" stroke="#7a8aa3" stroke-width="2" stroke-dasharray="6 5" marker-end="url(#a)"/>
+  <path d="M680 555 L720 555" stroke="#7a8aa3" stroke-width="2" marker-end="url(#a)"/>
+  <path d="M1060 500 L1020 500" stroke="#7a8aa3" stroke-width="2" stroke-dasharray="6 5"/>
+
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#7a8aa3"/>
+    </marker>
+  </defs>
+  
+</svg>

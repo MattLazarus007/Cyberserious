@@ -7,6 +7,15 @@ import pg from "pg";
 import { resetDb, dbUrl } from "./help.ts";
 import { resetOrgDb, startOrgApp, orgLogin, orgDbUrl } from "./orghelp.ts";
 
+// Section 22(5) asks for four particulars in the notice. Every call to the
+// notify route must carry them, including the refusal paths, because the
+// handler checks the role before it parses the body.
+const NOTICE_PARTS = {
+  consequencesText: "Unauthorised access to the personal information recorded in this case.",
+  measuresText: "The account is disabled, the case is contained and the register is sealed.",
+  adviceText: "Change your password and report unexpected contact to the information officer.",
+};
+
 const REG_PORT = 8198;
 
 async function startRegulator(): Promise<ChildProcess> {
@@ -92,7 +101,7 @@ test("T-68 notify records a run, delivery counts and audit rows", async () => {
     const res = await fetch(`${srv.base}/api/v1/drafts/${draft.publicId}/notify`, {
       method: "POST",
       headers: { "content-type": "application/json", cookie: io },
-      body: JSON.stringify({ channel: "email" }),
+      body: JSON.stringify({ channel: "email", ...NOTICE_PARTS }),
     });
     assert.equal(res.status, 200);
     const body = (await res.json()) as {
@@ -172,7 +181,7 @@ test("T-69 notify keeps the org record when the regulator is offline", async () 
     const res = await fetch(`${srv.base}/api/v1/drafts/${draft.publicId}/notify`, {
       method: "POST",
       headers: { "content-type": "application/json", cookie: io },
-      body: JSON.stringify({ channel: "sms" }),
+      body: JSON.stringify({ channel: "sms", ...NOTICE_PARTS }),
     });
     assert.equal(res.status, 200);
     const body = (await res.json()) as {
@@ -204,7 +213,7 @@ test("T-70 notify stays scoped and gated", async () => {
     const zeroRes = await fetch(`${srv.base}/api/v1/drafts/${zero.publicId}/notify`, {
       method: "POST",
       headers: { "content-type": "application/json", cookie: io },
-      body: JSON.stringify({ channel: "email" }),
+      body: JSON.stringify({ channel: "email", ...NOTICE_PARTS }),
     });
     assert.equal(zeroRes.status, 400);
 
@@ -212,9 +221,28 @@ test("T-70 notify stays scoped and gated", async () => {
     const denied = await fetch(`${srv.base}/api/v1/drafts/${normal.publicId}/notify`, {
       method: "POST",
       headers: { "content-type": "application/json", cookie: steward },
-      body: JSON.stringify({ channel: "email" }),
+      body: JSON.stringify({ channel: "email", ...NOTICE_PARTS }),
     });
     assert.equal(denied.status, 403);
+
+    const createdEarly = await fetch(`${srv.base}/api/v1/drafts`, {
+      method: "POST",
+      headers: { "content-type": "application/json", cookie: steward },
+      body: JSON.stringify({ category: "data exposure", narrative: "A draft that is still waiting for the officer.", affectedCount: 12 }),
+    });
+    assert.equal(createdEarly.status, 201);
+    const early = (await createdEarly.json()) as { publicId: string };
+    const earlySubmit = await fetch(`${srv.base}/api/v1/drafts/${early.publicId}/submit`, {
+      method: "POST",
+      headers: { cookie: steward },
+    });
+    assert.equal(earlySubmit.status, 200);
+    const earlyNotify = await fetch(`${srv.base}/api/v1/drafts/${early.publicId}/notify`, {
+      method: "POST",
+      headers: { "content-type": "application/json", cookie: io },
+      body: JSON.stringify({ channel: "email", ...NOTICE_PARTS }),
+    });
+    assert.equal(earlyNotify.status, 409, "a submitted draft waits for approval before any notice");
 
     const org = new pg.Client({ connectionString: orgDbUrl });
     await org.connect();
@@ -231,7 +259,7 @@ test("T-70 notify stays scoped and gated", async () => {
     const foreign = await fetch(`${srv.base}/api/v1/drafts/SUB-2026-9201/notify`, {
       method: "POST",
       headers: { "content-type": "application/json", cookie: io },
-      body: JSON.stringify({ channel: "email" }),
+      body: JSON.stringify({ channel: "email", ...NOTICE_PARTS }),
     });
     assert.equal(foreign.status, 404);
     const foreignList = await fetch(`${srv.base}/api/v1/drafts/SUB-2026-9201/notifications`, {
@@ -256,7 +284,7 @@ test("T-70 notify stays scoped and gated", async () => {
     const busy = await fetch(`${srv.base}/api/v1/drafts/${normal.publicId}/notify`, {
       method: "POST",
       headers: { "content-type": "application/json", cookie: io },
-      body: JSON.stringify({ channel: "email" }),
+      body: JSON.stringify({ channel: "email", ...NOTICE_PARTS }),
     });
     assert.equal(busy.status, 409);
   } finally {
@@ -276,7 +304,7 @@ test("T-75 a draft claiming more people than the register holds is refused", asy
     const res = await fetch(`${srv.base}/api/v1/drafts/${draft.publicId}/notify`, {
       method: "POST",
       headers: { "content-type": "application/json", cookie: io },
-      body: JSON.stringify({ channel: "email" }),
+      body: JSON.stringify({ channel: "email", ...NOTICE_PARTS }),
     });
     assert.equal(res.status, 409);
     const body = (await res.json()) as { error: string };

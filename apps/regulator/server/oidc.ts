@@ -44,6 +44,7 @@ interface Claims {
   sub: string;
   nonce?: unknown;
   preferred_username?: unknown;
+  azp?: unknown;
 }
 
 // One discovery document and one key set per process. Both refresh on
@@ -144,6 +145,8 @@ async function verifyIdToken(token: string, doc: Discovery, expectedNonce: strin
   if (claims.iss !== doc.issuer) return null;
   const audience = Array.isArray(claims.aud) ? claims.aud : [claims.aud];
   if (!audience.includes(clientId())) return null;
+  // A token minted for several clients must name this one as its party.
+  if (audience.length > 1 && claims.azp !== clientId()) return null;
   const now = Math.floor(Date.now() / 1000);
   if (typeof claims.exp !== "number" || claims.exp <= now) return null;
   if (typeof claims.iat !== "number" || claims.iat > now + SKEW_SECONDS) return null;
@@ -298,10 +301,12 @@ export async function handleCallback(req: Request, res: Response): Promise<void>
     const sid = await createSession(userId);
     // The provider already carried the second factor, so the session
     // opens satisfied, the same way the group gate opens satisfied.
+    // The provider's MFA policy is therefore the control for this path:
+    // a realm without MFA lets a password-only sign-in through.
     await query("update sessions set mfa_ok = true where id = $1", [sid]);
     await recordAudit({ actor: name, action: "auth.oidc", resource: name, result: "ok" });
     console.log(`[oidc] ${name} signed in through ${issuerBase()}`);
-    res.append("Set-Cookie", sessionCookieHeader(sid));
+    res.append("Set-Cookie", sessionCookieHeader(sid, req.secure));
     res.append("Set-Cookie", clearStateCookieHeader());
     res.redirect(302, "/index.html");
   } catch (err) {

@@ -1,0 +1,12 @@
+.git
+node_modules
+data
+certs
+keys
+test-results
+playwright-report
+docs/security/scans
+docs/security/evidence
+infra/sensor/out
+infra/secrets
+*.bundle

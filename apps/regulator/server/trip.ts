@@ -1,13 +1,14 @@
-// Security trip-wire. A burst of unauthenticated /api/ requests from one
-// client IP locks the whole service: every route answers 503 except
-// /health/ready, all sessions are revoked, and an audit row plus a high
-// alert record the lock. The locked state is held in memory and in the
-// flag file data/trip.lock, so a restart alone does not reopen the
-// service. An operator reopens by removing the flag file or by
-// restarting with TRIP_OPEN=1, which clears it. Threshold is read from
-// TRIP_THRESHOLD at request time (default 100 per 60 second window) so
-// the lab can lower it for the demo.
-import { createHash } from "node:crypto";
+// Security trip-wire. A burst of unauthenticated requests from one client
+// address answers 429 for that address and writes a warning alert. A second
+// burst from the same address inside the reset window locks the whole service:
+// every route answers 503 except /health/ready, all sessions are revoked, and
+// an audit row plus a high alert record the lock. The locked state is held in
+// memory and in the flag file data/trip.lock, so a restart alone does not
+// reopen the service. An operator reopens by removing the flag file or by
+// restarting with TRIP_OPEN=1, which clears it. The threshold is read from
+// TRIP_THRESHOLD at request time (default 100 per 60 second window) so the lab
+// can lower it for the demo. Signed intake traffic counts too.
+import { createHash, timingSafeEqual } from "node:crypto";
 import { existsSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -21,14 +22,35 @@ export const TRIP_FLAG = join(here, "..", "..", "..", "data", "trip.lock");
 
 const WINDOW_MS = 60_000;
 const DEFAULT_THRESHOLD = 100;
+const DEFAULT_RESET_MS = 600_000;
 
 function threshold(): number {
   const raw = Number(process.env.TRIP_THRESHOLD);
   return Number.isFinite(raw) && raw > 0 ? raw : DEFAULT_THRESHOLD;
 }
 
+function resetWindow(): number {
+  const raw = Number(process.env.TRIP_RESET_MS);
+  return Number.isFinite(raw) && raw > 0 ? raw : DEFAULT_RESET_MS;
+}
+
 function clientIp(req: Request): string {
   return req.socket.remoteAddress ?? "unknown";
+}
+
+function countedPath(path: string): boolean {
+  return path.startsWith("/api/") || path.startsWith("/intake/");
+}
+
+// A machine channel carries the internal token. It is authenticated for the
+// purpose of this counter, so a sensor batch cannot lock the service.
+function internalTokenOk(req: Request): boolean {
+  const expected = process.env.INTERNAL_TOKEN;
+  const given = req.get("x-internal-token") ?? req.get("x-cyberserious-token");
+  if (!expected || !given) return false;
+  const a = Buffer.from(expected);
+  const b = Buffer.from(given);
+  return a.length === b.length && timingSafeEqual(a, b);
 }
 
 export interface TripGuard {
@@ -41,6 +63,26 @@ export function createTripGuard(): TripGuard {
   if (openAtBoot) rmSync(TRIP_FLAG, { force: true });
   let tripped = openAtBoot ? false : existsSync(TRIP_FLAG);
   const windows = new Map<string, number[]>();
+  const warnings = new Map<string, number>();
+
+  async function warn(ip: string, count: number): Promise<void> {
+    const reason = `unauthenticated request burst from ${ip} crossed the warning threshold`;
+    const inputHash = createHash("sha256").update(reason).digest("hex");
+    await withTransaction(async (client) => {
+      await client.query(
+        `insert into alerts (case_id, rule_id, rule_version, dedupe_key, priority, reason, input_hash, state)
+         values (null, 'SECURITY-TRIP-WARN', 1, $1, 'medium', $2, $3, 'open')
+         on conflict (dedupe_key) do nothing`,
+        [`security-trip-warn:${ip}:${count}`, reason, inputHash]
+      );
+      await recordAuditTx(client, {
+        actor: ip,
+        action: "security.trip_warn",
+        result: "denied",
+        meta: { threshold: threshold(), windowSec: WINDOW_MS / 1000 },
+      });
+    });
+  }
 
   async function trip(ip: string): Promise<void> {
     if (tripped) return;
@@ -49,7 +91,7 @@ export function createTripGuard(): TripGuard {
     writeFileSync(TRIP_FLAG, `tripped by ${ip} at ${new Date().toISOString()}\n`);
     // Revoke everyone, stolen cookies included.
     await query("delete from sessions");
-    const reason = `unauthenticated request burst from ${ip} tripped the service`;
+    const reason = `repeated unauthenticated request bursts from ${ip} tripped the service`;
     const inputHash = createHash("sha256").update(reason).digest("hex");
     await withTransaction(async (client) => {
       await client.query(
@@ -62,7 +104,7 @@ export function createTripGuard(): TripGuard {
         actor: ip,
         action: "security.trip",
         result: "denied",
-        meta: { threshold: threshold(), windowSec: WINDOW_MS / 1000 },
+        meta: { threshold: threshold(), windowSec: WINDOW_MS / 1000, resetSec: resetWindow() / 1000 },
       });
     });
   }
@@ -76,7 +118,8 @@ export function createTripGuard(): TripGuard {
       res.status(503).type("text/plain").send("service locked");
       return;
     }
-    if (!req.path.startsWith("/api/")) return next();
+    if (!countedPath(req.path)) return next();
+    if (internalTokenOk(req)) return next();
     let authenticated = false;
     const sid = readCookie(req, SESSION_COOKIE);
     if (sid) {
@@ -96,15 +139,32 @@ export function createTripGuard(): TripGuard {
     }
     if (kept.length < threshold()) return next();
     windows.delete(ip);
-    try {
-      await trip(ip);
-    } catch (err) {
-      console.error("[trip] lock side effects failed", err);
+    const warnedAt = warnings.get(ip);
+    if (warnedAt !== undefined && now - warnedAt <= resetWindow()) {
+      try {
+        await trip(ip);
+      } catch (err) {
+        console.error("[trip] lock side effects failed", err);
+      }
+      res.status(503).type("text/plain").send("service locked");
+      return;
     }
-    res.status(503).type("text/plain").send("service locked");
+    warnings.set(ip, now);
+    if (warnings.size > 1000) {
+      for (const [key, at] of warnings) {
+        if (now - at > resetWindow()) warnings.delete(key);
+      }
+    }
+    try {
+      await warn(ip, 1);
+    } catch (err) {
+      console.error("[trip] warning side effects failed", err);
+    }
+    res.status(429).type("text/plain").send("too many unauthenticated requests");
   };
   guard.resetWindows = () => {
     windows.clear();
+    warnings.clear();
   };
   return guard;
 }

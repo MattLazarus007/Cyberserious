@@ -19,3 +19,7 @@ alert http any any -> any 8100 (msg:"LAB rapid login failure burst on 8100"; flo
 # connections can trip this too, which the runbook states plainly.
 # threshold type threshold fires on the third syn itself.
 alert tcp any any -> any [8100,8200] (msg:"LAB tcp port probe against app ports"; flags:S; flow:stateless; threshold: type threshold, track by_src, count 3, seconds 30; classtype:attempted-recon; sid:9000003; rev:1;)
+
+# A controlled probe against the reserved path. The app answers, and
+# the sensor proves the live path end to end when capture is running.
+alert http any any -> any 8100 (msg:"LAB controlled waf-test probe"; flow:established,to_server; http.uri; content:"/waf-test"; classtype:not-suspicious; sid:9000004; rev:1;)

@@ -1,0 +1,48 @@
+{
+	admin off
+	auto_https disable_redirects
+}
+
+https://localhost:8443, https://host.docker.internal:8443 {
+	tls internal {
+		protocols tls1.3
+	}
+	encode zstd gzip
+
+	request_body {
+		max_size 12MB
+	}
+
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "DENY"
+		Referrer-Policy "no-referrer"
+		-Server
+	}
+
+	reverse_proxy 127.0.0.1:8100
+}
+
+# The organisation portal gets the same treatment as the regulator. The
+# application still listens on loopback 8200. The browser reaches it here.
+https://localhost:8444, https://host.docker.internal:8444 {
+	tls internal {
+		protocols tls1.3
+	}
+	encode zstd gzip
+
+	request_body {
+		max_size 12MB
+	}
+
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "DENY"
+		Referrer-Policy "no-referrer"
+		-Server
+	}
+
+	reverse_proxy 127.0.0.1:8200
+}

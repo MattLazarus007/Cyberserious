@@ -1,0 +1,65 @@
+ECTA 25 of 2002: extracts that bear on this system
+Source: the gazette copy at gov.za, file a25-02.pdf, converted with pdftotext.
+The gazette original is a scan, so the conversion carries character damage.
+Quote only the fragments below. Verify a fragment against the PDF page before
+you put it in a report.
+
+Chapter III, section 13, signature
+  13. (1) Where the signature of a person is required by law and such law does
+  not specify the type of signature, that requirement in relation to a data
+  message is met only if an advanced electronic signature is used.
+  13. (2) Subject to subsection (1), an electronic signature is not without
+  legal force and effect merely on the grounds that it is in electronic form.
+  13. (3) Where an electronic signature is required by the parties to an
+  electronic transaction and the parties have not agreed on the type of
+  electronic signature to be used, that requirement is met in relation to a
+  data message if (a) a method is used to identify the person and to indicate
+  the person's approval of the information communicated; and (b) having regard
+  to all the relevant circumstances at the time the method was used, the method
+  was as reliable as was appropriate for the purposes for which the information
+  was communicated.
+
+Chapter VIII, section 50, scope of protection of personal information
+  50. (1) This Chapter only applies to personal information that has been
+  obtained through electronic transactions.
+
+Chapter VIII, section 51, principles for electronically collecting personal
+information
+  51. (1) A data controller must have the express written permission of the
+  data subject for the collection, collation, processing or disclosure of any
+  personal information on that data subject unless he or she is permitted or
+  required to do so by law.
+  51. (5) A data controller must, for as long as the personal information is
+  used and for a period of at least one year thereafter, keep a record of the
+  personal information and the specific purpose for which the personal
+  information was collected.
+  51. (7) A data controller must, for as long as the personal information is
+  used and for a period of at least one year thereafter, keep a record of any
+  third party to whom the personal information was disclosed and of the date on
+  which and the purpose for which it was disclosed.
+  51. (8) A data controller must delete or destroy all personal information
+  which has become obsolete.
+
+Chapter IX, critical databases
+  52. The provisions of this Chapter only apply to a critical database
+  administrator and critical databases or parts thereof.
+  53. The Minister may by notice in the Gazette (a) declare certain classes of
+  information which is of importance to the protection of the national security
+  of the Republic or the economic and social well-being of its citizens to be
+  critical data for the purposes of this Chapter; and (b) establish procedures
+  to be followed in the identification of critical databases for the purposes
+  of this Chapter.
+  54. (1) The Minister may by notice in the Gazette determine (a) requirements
+  for the registration of critical databases with the Department or such other
+  body as the Minister may specify; (b) procedures to be followed for
+  registration; and (c) any other matter relating to registration.
+  55. (1) The Minister may prescribe minimum standards or prohibitions in
+  respect of (a) the general management of critical databases; (b) access to,
+  transfer and control of critical databases; (c) infrastructural or procedural
+  rules and requirements for securing the integrity and authenticity of
+  critical data.
+
+Chapter XIII, section 95, short title and commencement
+  95. This Act is called the Electronic Communications and Transactions Act,
+  2002, and comes into operation on a date fixed by the President by
+  proclamation in the Gazette.

@@ -5,6 +5,18 @@ counts are the actual results, not the hoped-for ones. Automated
 tests live in tests/ and run with npm test or npm run test:e2e.
 Manual evidence names the command and what it printed.
 
+## Where each test ran
+
+Every result names its place. The four places are:
+
+- `host`: the launchd services on this Mac, on the dev databases.
+- `docker`: the compose lab on ports 9100 and 9200, on its own database pair.
+- `test runner`: `npm test` on the test databases, each file resetting its schema.
+- `browser`: Playwright, on the test databases unless a row says otherwise.
+- `ci`: the GitHub workflow on an ubuntu-24.04 runner with a Postgres 16 service.
+
+A row without a place in its text ran in the suite that its section names.
+
 Seeded baseline for every automated run: 7 cases, 6 notifications,
 11 open alerts, 1 pending case, 5 open cases, 13 research sources.
 
@@ -24,12 +36,12 @@ Seeded baseline for every automated run: 7 cases, 6 notifications,
 | T-12 | CSRF and unauthorised write | Pass by control | SameSite=Lax cookies, no token needed for same-origin forms. Negative write tests across suites. |
 | T-13 | Hostile strings in text fields | Pass | hardening.test.ts: marker round-trips verbatim, never executes |
 | T-14 | Injection and mass assignment | Pass | hardening.test.ts: injected query harmless, smuggled fields ignored |
-| T-15 | Approved revision edited | Pass | org.test.ts: edit resets approval, send binds hash |
+| T-15 | Approved revision edited | Pass | org.test.ts: edit resets approval, send binds hash, a 500 answer leaves RetryPending and the next send answers 200 with the test_receiver receipt |
 | T-16 | Submission happy path | Pass | intake.test.ts: 201 with labelled receipt and stored case |
 | T-17 | Lost acknowledgement retry | Pass | intake.test.ts: retry returns the original receipt, one case |
 | T-18 | Same id, changed bytes | Pass | intake.test.ts: 409 with security audit row |
 | T-19 | Bad signature or sender | Pass | intake.test.ts: stranger and tampered bodies refused |
-| T-20 | Failure before commit | Pass | intake.test.ts: bad org leaves no receipt, good leaves one case and one job |
+| T-20 | Failure before commit | Pass | intake.test.ts: bad org leaves no receipt, a key registered to another organisation answers 422 and writes one denied audit row, good leaves one case and one job |
 | T-21 | Worker after intake | Pass | alerts.test.ts: jobs lease, alerts open |
 | T-22 | Same inputs rerun | Pass | alerts.test.ts: refresh only, count unchanged |
 | T-23 | Snooze, resolve, recurrence | Pass | alerts.test.ts: ack, snooze, resolve with reasons |
@@ -40,7 +52,7 @@ Seeded baseline for every automated run: 7 cases, 6 notifications,
 | T-28 | Unsafe or oversized file | Pass | evidence.test.ts: exe refused, quarantine holds |
 | T-29 | Export authorised and not | Pass | evidence.test.ts: redacted export audited, admin denied |
 | T-30 | Audit failure behaviour | Pass | hardening.test.ts: mutation fails closed, zero silent rows |
-| T-31 | Audit tamper in a copy | Pass | hardening.test.ts: verify reports the altered row |
+| T-31 | Audit tamper in a copy | Pass | hardening.test.ts: 20 concurrent writes keep one chain with no repeated predecessor, verify reports the altered row after the tamper |
 | T-32 | Network reachability, plain HTTP | Pass manual | curl 16 Oct over plain HTTP: live 200, ready 200, cases 401, unknown 404. Reachability only. TLS undemonstrated and booked as Phase 12 work. |
 | T-33 | Backup restoration | Pass manual | exercises/restore-2026-10-16.md: 7/6/10 match, checksums clean |
 | T-34 | Mobile, labels, zoom, flows | Pass | test:e2e: 5 browser flows green on Chromium |
@@ -77,7 +89,7 @@ trip-wire and console tamper work landed. `npm test` gave 92 pass
 
 | ID | Name | Result 17 Oct 2026 | Evidence |
 | --- | --- | --- | --- |
-| T-45 | Burst past the threshold trips the service | Pass | security.test.ts "an unauthenticated burst past the threshold trips the service": four 401s then 503 "service locked", every sessions row deleted, data/trip.lock written, one audit row action security.trip result denied, one high open SECURITY-TRIP alert with the burst reason |
+| T-45 | A burst warns, a second burst locks the service | Pass | security.test.ts "a repeated burst locks the service after one warning": four 401s, one 429 warning, four more 401s, then 503 "service locked". Every sessions row deleted, data/trip.lock written, one security.trip_warn audit row and one security.trip audit row, one medium SECURITY-TRIP-WARN alert and one high SECURITY-TRIP alert. Updated 9 November for the two-stage wire |
 | T-46 | Tripped state survives a restart | Pass | security.test.ts "a fresh boot with the flag file stays tripped": fresh child process answers ready {ok:true, locked:true}, /api/v1/me 503, flag file still on disk |
 | T-47 | TRIP_OPEN reopens for the operator | Pass | security.test.ts "boot with TRIP_OPEN=1 clears the flag and serves": flag file consumed, /health/live 200, /api/v1/me back to 401 |
 | T-48 | Valid session refused while tripped | Pass | security.test.ts "a valid session is refused while the service is tripped": a live cookie and a fresh sign-in both answer 503 "service locked" |
@@ -114,7 +126,7 @@ container from scripts/keycloak.sh.
 | T-67 | The Wazuh parser maps levels and descriptions | Pass | sensor.test.ts: level 5 gives low, level 12 gives medium, the signature is the rule description, the source is the agent name. Saved file only |
 | T-68 | Notify records a run, delivery counts and audit rows | Pass | org-notify.test.ts: 25 affected, 24 sent, 1 failed, run complete, org audit draft.notify.start and draft.notify.complete, delivery rows 24 sent and 1 failed, regulator affected_notices total 25 sent 24 failed 1, one AFFECTED-NOTICE-SHORTFALL alert with reason "24 of 25" at medium priority |
 | T-69 | Notify keeps the local record when the regulator is offline | Pass | org-notify.test.ts: regulator URL points at port 1, the run still completes with 12 sent, the response carries a warning, the stored regulatorStatus is failed |
-| T-70 | Notify stays scoped and gated | Pass | org-notify.test.ts: zero affected 400, steward 403, foreign draft 404 on both routes, a held sending run answers 409 |
+| T-70 | Notify stays scoped and gated | Pass | org-notify.test.ts: zero affected 400, steward 403, a submitted draft answers 409 before any notice, foreign draft 404 on both routes, a held sending run answers 409 |
 | T-71 | A signed affected notice is stored and mapped to its case | Pass | affected-notices.test.ts: 201 with the case reference, affected_notices total 10 sent 8 failed 2 attached to the case, one intake.affected_notice audit row, case detail carries affectedSent 8, affectedTotal 10, channel email and the completion time |
 | T-72 | A shortfall raises one medium alert | Pass | affected-notices.test.ts: first post 201, retry 200, one AFFECTED-NOTICE-SHORTFALL alert with reason "8 of 10", one notice row |
 | T-73 | Full delivery records without a shortfall alert | Pass | affected-notices.test.ts: 6 of 6 by sms stores the notice, zero shortfall alerts |
@@ -122,3 +134,175 @@ container from scripts/keycloak.sh.
 | T-75 | A claim wider than the register is refused | Pass | org-notify.test.ts: 30 affected against 25 synthetic recipients answers 409 "25 of 30 affected people", zero runs and zero deliveries |
 | T-76 | Portal records a dispatch and the case shows the counts | Pass | notify.spec.ts: io1 creates a draft with 25 affected, submits, approves, signs and sends, then records an email dispatch. The page shows "Recorded dispatch (lab simulation): 24 of 25" and the run list. The analyst case detail shows "24 of 25 notified by email" and "Shortfall: 1." |
 | T-77 | The documented restart block ends in a full demo walk-through | Pass manual | Reseeded both dev databases, `node tools/org-sender.ts --register`, then the three commands in SESSION_HANDOFF.md. health/ready answered on 8100 with an empty queue and on 8200. io1 created SUB-2026-0001 with 25 affected, submitted, approved, signed and sent (case BR-2026-0107), then recorded an email dispatch: run complete, 24 sent, 1 failed, regulatorStatus sent. Org rows: 24 sent and 1 failed deliveries, audit draft.notify.start and draft.notify.complete. Regulator rows: affected_notices 25/24/1 email, one intake.affected_notice audit, one open medium AFFECTED-NOTICE-SHORTFALL alert with reason "sent 24 of 25 by email, 1 short, 1 failed". The worker printed "1 jobs, 1 alerts opened". Browser: the case page shows "24 of 25 notified by email" and "Shortfall: 1", the portal shows the run history and the recorded dispatch label. Screenshots /tmp/rehearsal-regulator.png and /tmp/rehearsal-org.png. Both databases were reseeded after the run |
+
+| T-78 | The install manifest names required and optional tools | Pass | install-manifest.test.ts: 3 of 3 |
+| T-79 | A generated secret round trips through the keychain and is removed | Pass | keychain.test.ts: 2 of 2, generated value is 64 hex characters, empty secret refused |
+| T-80 | The vault reports absence without creating state | Pass | vault.test.ts: 2 of 2, unknown command exits 2 |
+| T-81 | Sourcing env.sh sets umask 0077 | Pass | permissions.test.ts: 1 of 1 |
+| T-82 | The pf anchor prints default deny and loopback ports, and refuses unconfirmed apply | Pass | pf-firewall.test.ts: 3 of 3 |
+| T-83 | Both apps bind loopback by default and timeouts are finite | Pass | bind.test.ts and org-bind.test.ts: address 127.0.0.1, request 30 s, headers 20 s, keep alive 5 s |
+| T-84 | Cross-site and foreign-origin mutations are refused | Pass | csrf.test.ts: cross-site 403, wrong origin 403, same-origin and headerless requests reach the route |
+| T-85 | Response headers carry the isolation and permissions policy | Pass | csrf.test.ts: COOP, CORP and cross-domain policies present |
+
+| T-86 | The ClamAV config renders private and the daemon is supervised | Pass | clamav.test.ts: config has no placeholders, mode 600, Foreground true; launchctl shows one pid owned by launchd |
+| T-87 | The EICAR test file is detected through the running daemon | Pass | clamav.sh test: "Eicar-Test-Signature FOUND", exit 0 with "EICAR detected as expected"; 3,628,191 signatures loaded |
+
+| T-88 | An infected upload is refused and leaves no evidence row | Pass | upload-scan.test.ts: EICAR as text/plain answers 422 with the signature, evidence count 0, audit evidence.scan denied |
+| T-89 | Clean uploads record the scan, and a required scanner that is down fails closed | Pass | upload-scan.test.ts: clean upload 201 with scan state and audit ok; CLAMAV_REQUIRED=1 with a bad config answers 503 and stores nothing |
+| T-90 | A sealed backup restores into a scratch database | Pass | backup.sh wrote a 48 KB age archive to the vault, checksum verified, bundle held both dumps and evidence, pg_restore produced 7 cases and 6 audit rows, scratch database dropped |
+
+### After the first security tranche, 22 October 2026
+
+HEAD 0e65b58. `npm test` 147 pass, 0 fail in 223 seconds. Playwright 11
+pass in 4.3 seconds. The count grew by 9 install, key, firewall, bind,
+origin, scanner, and backup tests. The baseline above stays as the
+starting point.
+
+After the scan wrappers and the TLS front, HEAD 8262088: `npm test` 152
+pass, 0 fail in 223 seconds, Playwright 11 pass. The five new tests cover
+the four scanners and the Caddyfile. ClamAV stayed up through the run.
+
+| T-91 | The four scanners run and report clean | Pass | security-scan.sh all: gitleaks 0, osv-scanner 0 of 84 packages, trivy 0 high or critical, semgrep 0 ERROR; GCM tag length fixed before the clean run |
+| T-92 | The scan wrappers refuse unknown modes and name missing tools | Pass | security-scan.test.ts: 2 of 2 |
+
+| T-93 | Caddy validates and serves the app over TLS on loopback | Pass | caddy.sh validate: "Valid configuration"; live proxy answered {"ok":true} on 8443 with HSTS, nosniff and DENY headers and no Server header |
+## Security stack baseline, 22 October 2026
+
+HEAD 79c3fa7. `npm test` 118 pass, 0 fail in 201 seconds. Postgres 16 up.
+Free disk 20 GiB. Present: suricata, gitleaks, docker, colima, jq.
+Missing: clamav, semgrep, trivy, osv-scanner, lynis, caddy, age, yq,
+vector, osquery. These numbers are the starting point for the security
+stack work, not a claim about controls that do not exist yet.
+
+### Telemetry, WAF and evidence tranche, 22 October 2026
+
+`npm test` 164 pass, 0 fail in 257 seconds. Playwright 12 pass in 5.4
+seconds. The count grew by 12 tests: 5 security ingest, 5 WAF and ban,
+and 2 sealed evidence. The browser count grew by one security page test.
+
+| T-94 | Ingest refuses a bad token, extends the chain and records a heartbeat | Pass | security-ingest.test.ts: 401 without token with a denied audit row; 202 with sequence, chain verifier says intact |
+| T-95 | A high severity event opens one deduplicated SECURITY-EVENT alert | Pass | security-ingest.test.ts: second identical event did not open a second alert |
+| T-96 | Security state needs MFA and audit or security role, and tampering is detected | Pass | security-ingest.test.ts: analyst 403; reviewer 200; edited row fails at seq 2 |
+| T-97 | WAF refuses traversal, SQL injection and null byte probes and audits each block | Pass | waf-ban.test.ts: 403 plus waf.block audit and kind=waf event |
+| T-98 | A banned address is refused across routes and unban restores access | Pass | waf-ban.test.ts: 403 then 200 after DELETE |
+| T-99 | Login attempts are throttled per address across usernames | Pass | waf-ban.test.ts: 11th attempt 429, audit row, successful login clears the window |
+| T-100 | Evidence magic bytes must match the claimed type, and stored bytes are ciphertext | Pass | evidence-sealed.test.ts: 422 with evidence.magic audit; file did not start with plaintext; download round-trips |
+| T-101 | The security page shows an intact chain and refuses an analyst | Pass | Playwright T-99: reviewer sees Intact and heartbeats; analyst gets the lock |
+| T-102 | ZAP baseline finds no high or medium issue | Pass | docs/security/dast.json: 0 high, 0 medium, 6 low, 4 informational; each triaged in DAST_REPORT.md |
+| T-103 | Lynis audits the host and the result is recorded | Pass with warnings | LYNIS-2026-10-22.txt: index 75, 176 tests, 2 warnings, 16 suggestions |
+| T-104 | osquery is installed, loaded and answers inventory queries | Pass | `osqueryi` 5.24.0; launchctl shows io.osquery.agent active |
+| T-105 | Suricata capture starts on loopback with the lab rules | Partial | engine started, no eve alerts generated; replay detection remains the proven path |
+| T-106 | The application firewall and pf anchor are applied | Pass | socketfilterfw state 1; `pfctl -a cyberserious -sr` lists block and pass rules |
+| T-107 | The TLS edge is trusted for the logged-in user | Pass | `security find-certificate -c "Caddy Local Authority"` in login keychain; HTTPS 200 over HTTP/2 |
+
+### Final gate, 22 October 2026
+
+`bash scripts/verify.sh` at HEAD 63503c1: 8 passed, 0 failed in 272
+seconds. Gates: tool manifest, secrets, dependencies, static analysis,
+test suite, browser suite, audit chains, backup dry run. Posture is
+informational. This is the command to rerun before a demo.
+
+### Correlation, anchor, DLP and supervision tranche, 22 October 2026
+
+`npm test` 178 pass, 0 fail in 294 seconds. Playwright 12 pass. New
+integration coverage:
+
+| T-108 | Correlation opens AUTH-BURST, RBAC-PROBE and EXTRACT-BURST alerts with stable dedupe keys | Pass | correlation.test.ts: 5 of 5 |
+| T-109 | The daily HMAC anchor writes once and the CLI verifies it | Pass | anchor.test.ts: 4 of 4; `bash scripts/anchor.mjs verify` printed `{"ok":true,"checked":1}` |
+| T-110 | An export manifest records counts, not values, and refuses a 5001 row export | Pass | dlp.test.ts: 4 of 4, including the 5 MiB size cap |
+| T-111 | The retention sweep removes expired sessions, resolved alerts and terminal jobs and leaves cases and audit rows alone | Pass | retention.test.ts: 2 of 2 |
+| T-112 | A job that reaches 8 attempts becomes dead and raises one DEAD-LETTER alert | Pass | retention.test.ts: state dead, one alert for the job |
+| T-113 | launchd restarts Caddy and Vector after a forced kill | Pass | killed both PIDs; `launchctl print` showed new PIDs; `https://localhost:8443/health/live` answered `{"ok":true}` |
+| T-114 | The worker agent runs correlation, the anchor check and the sweep | Pass | `launchctl print gui/$(id -u)/com.cyberserious.worker` running; log line "anchor current, 52 expired rows swept" |
+| T-115 | A live loopback probe raises the sensor rule and the alert reaches the app store | Pass | `curl http://127.0.0.1:8100/waf-test`; `infra/sensor/out/eve.json` SID 9000004; `security_events` row "LAB controlled waf-test probe" source suricata |
+| T-116 | Vector ships a parsed eve alert to the ingest route with the Keychain token | Pass | sink answered 200; row seq 2; the token is rendered into a private runtime config, not committed |
+| T-117 | All lab services are under launchd | Pass | `launchctl print` shows regulator, organisation, caddy, vector, worker, clamd, freshclam and the Suricata root daemon |
+| T-118 | The lockfile carries no known advisory | Pass | osv-scanner reported GHSA-27r3-jxmh-p828 on body-parser 2.3.0; an npm override lifts it to 2.4.0; the dependency gate is clean |
+
+### Sprint gate, 28 October 2026
+
+`bash scripts/verify.sh` at HEAD 1590d14: 8 passed, 0 failed in 302
+seconds. Gates: tool manifest, secrets, dependencies, static analysis,
+test suite, browser suite, audit chains, backup dry run. Posture is
+informational.
+
+`node scripts/verify-chain.mjs` returns audit 1676 rows intact and
+security 60 rows intact. `node scripts/anchor.mjs --verify` returns
+`{"ok":true,"checked":7}`.
+
+### Vulnerability and compliance tranche, 28 October 2026
+
+`npm test` 184 pass, 0 fail. Playwright 12 pass. The four scanners write a
+JSON artefact under `docs/security/scans/` and close clean.
+
+| T-119 | The four scanners keep an artefact and close clean | Pass | `bash scripts/vulnerability-assessment.sh` printed "assessment scan: clean"; gitleaks 0, osv 0, trivy 0, semgrep 0 |
+| T-120 | A malformed gzip body cannot stop the regulator | Pass | request answered 400; regulator pid stayed 727; `/health/live` answered ok |
+| T-121 | The probe scripts print a transcript for the record | Pass | `docs/security/scans/probes.txt` holds the unauth and auth runs |
+| T-122 | The affected notice carries the four section 22(5) particulars | Pass | `compliance.test.ts` C-01 |
+| T-123 | A notice that misses a required particular is refused | Pass | `compliance.test.ts` C-02, answer 400 |
+| T-124 | Every statutory delivery channel is accepted and an unknown one refused | Pass | `compliance.test.ts` C-03, letter and e-mail and website and news accepted, unknown refused |
+| T-125 | Every "Met" row in the obligation matrix names a test that runs | Pass | `docs/security/COMPLIANCE.md` P-01 to P-16, E-01 to E-04, X-01 |
+| T-126 | Both applications are reachable only over TLS 1.3 | Pass | `scans/probes.txt`: 8443 and 8444 answer 200 on 1.3, refuse 1.0, 1.1 and 1.2 |
+| T-127 | The session cookie carries Secure behind TLS and stays usable on loopback http | Pass | `tests/unit/session-cookie.test.ts` 3 of 3; live set-cookie on 8443 and 8444 shows Secure, loopback 8100 does not |
+
+### Closure tranche, 9 November 2026
+
+The plan items from the 22 October handoff and the open defect register are
+closed here. `npm test` gave 197 pass, 0 fail. `npm run test:coverage`
+measured 90.50 percent lines against a floor of 90.
+
+| T-128 | Two bursts cross a two-stage wire | Pass | security.test.ts "a repeated burst locks the service after one warning": one 429 warning, then the lock on the second burst, sessions revoked, flag written, one warning alert and one high alert |
+| T-129 | Signed intake traffic counts toward the wire | Pass | security.test.ts "a signed intake burst counts toward the trip wire": four 401s then 429 on `/intake/v1/submissions`, no flag file |
+| T-130 | A signed body above the cap answers 413 | Pass | intake.test.ts "T-21 a signed body above the cap answers 413": 300 KB body, 413 and a too-large error |
+| T-131 | A note idempotency key is scoped to one case and one author | Pass | casework.test.ts "one key on two cases keeps two notes": both writes answer 201, each case lists its own note |
+| T-132 | Concurrent captures get distinct references | Pass | imports.test.ts "concurrent captures get distinct references": five parallel writes, five 201s, five distinct `BR-2026-` references from `case_reference_seq` |
+| T-133 | Alert reads follow case assignment | Pass | alerts.test.ts "an analyst sees alerts for unassigned cases and their own only": own and unassigned alerts listed, another analyst's case alert hidden, supervisor sees all |
+| T-134 | Rule reasons use one count format | Pass | `rules/index.ts` builds the reason with `Intl.NumberFormat("en-US")`, so a marker reads 1,120 rather than 1 120 |
+| T-135 | The compose file holds one build, two doors and an internal store | Pass | tests/scripts/compose.test.ts, six checks: one build context, ports 9100 and 9200, internal store network, init script, sender key volume, no missing secret file |
+| T-136 | The Docker lab builds and serves both apps | Pass | `docker build` exit 0; `docker compose up -d`; `curl` on 9100 and 9200 answered 200; `/health/ready` answered ok on both |
+| T-137 | A real sign-in works through the Docker regulator | Pass | analyst1 password then the code read from `docker compose logs regulator`; `/api/v1/me` showed mfaOk true; the dashboard read 7 cases and 11 alerts |
+| T-138 | The trip drill runs in the Docker lab | Pass | `docs/project/exercises/incident-2026-11-09.md`: 429 warning, second-burst 503 lock, sessions 0, both alerts, both audit rows, flag present |
+| T-139 | A standing condition keeps one alert | Pass | `correlation.test.ts` "a stale heartbeat raises SENSOR-SILENT": a second run eleven minutes later opens no new alert. 4,129 duplicate SENSOR-SILENT rows were resolved in the dev database in the same pass |
+| T-140 | The alerts page says an alert is not a legal finding | Pass manual | `apps/regulator/web/alerts.html` intro carries the line, and the browser suite passed 12 of 12 after the edit |
+| T-141 | The Wazuh manager and agent run natively on arm64 | Pass manual | `bash scripts/wazuh.sh start` exit 0; manager on 4.14.9 arm64; authd logged `Using password specified on file`; agent key issued for lab-agent |
+| T-142 | A FIM probe raises a Wazuh alert and the row reaches the inbox | Pass manual | `/lab/probe-*.txt` raised rule 554 `File added to the system`; `wazuh.sh ship` stored `Wazuh FIM: File added to the system.` in the regulator alerts table |
+| T-143 | Keycloak requires TOTP setup for the marked user | Pass manual | Admin API: `otpPolicyType totp`, `HmacSHA1`, 6 digits, period 30, lookAhead 1, and mfa1 `requiredActions [CONFIGURE_TOTP]`. Playwright: mfa1 lands on `login-actions/required-action?execution=CONFIGURE_TOTP` with `Mobile Authenticator Setup`; analyst1 reaches the account console with no code. Code acceptance is not claimed: a scripted TOTP entry did not complete |
+| T-144 | osquery inventory runs and posts a heartbeat | Pass manual | `com.cyberserious.osquery` is loaded with pid 94513; the heartbeat agent wrote ingest 201 and `security_heartbeats` shows osquery at 18:16 |
+| T-145 | A machine channel never trips the wire | Pass | security.test.ts "a request with the internal token does not count toward the wire": ten token requests answer 401, no flag file |
+| T-146 | An idle database client cannot stop the process | Pass | `db.ts` attaches a pool `error` listener; the suite and the live service keep serving through the run |
+| T-147 | A user with two memberships acts under the least privileged role | Pass | casework.test.ts "a user with two memberships acts under the least privileged one": the session role stays `regulator_analyst` after a supervisor row is added |
+| T-148 | A malformed evidence id answers not found | Pass | evidence-sealed.test.ts "a malformed evidence id answers not found": 404, never a bad-uuid 500 |
+| T-149 | A negative ban window becomes the default hour | Pass | waf-ban.test.ts "a negative ban window falls back to the default hour": 201, a listed ban with an expiry about an hour out |
+| T-150 | A text receipt never strands a draft | Pass | org.test.ts T-15: an intake answer of `text/plain` is stored as `{raw}` and the draft reaches Acknowledged |
+| T-151 | A bad config value falls back to the safe default | Pass manual | `dlp.ts` and `retention.ts` parse limits with a finite guard; a NaN value cannot remove a cap |
+| T-152 | A multi-audience token must name this client | Pass manual | `oidc.ts` compares `azp` to the client id when the audience holds more than one value |
+| T-153 | A hostile filename cannot break the download header | Pass manual | `evidence.ts` strips quotes and newlines from the content-disposition name |
+| T-154 | The host pair passes the live acceptance sweep | Pass manual | 36 checks against 8100 and 8200: group and code sign-in, counts, note write, analyst refusal, supervisor move and return, alert acknowledge and resolve, chain intact, ban and unban, admin refusal, malformed id 404, evidence upload, review and download, portal draft to notice, new case visible |
+| T-155 | The Docker pair passes the same sweep | Pass manual | 36 checks against 9100 and 9200, all pass, including the intake send and the affected notice |
+| T-156 | Both dashboards render with no client errors | Pass manual | Playwright: 7 notifications and 14 alert cards on each; no pageerror, no console error, no 5xx |
+| T-157 | The host edge passes the black-box pass | Pass manual | 41 checks on https://localhost:8443: unauth routes, role refusals, injection, uploads, intake, session, bans, rate limit. All pass. `docs/security/PENTEST_REPORT.md` |
+| T-158 | The Docker edge passes the black-box pass | Pass manual | 39 checks on http://localhost:9100: 38 pass, 1 lab difference. The image has no clamd, so an EICAR upload enters quarantine with scan unavailable. The host answers 422 |
+| T-159 | A stored script stays inert in the browser | Pass manual | A note with a script tag answers 201. The case page shows the literal text. Playwright records 0 dialogs |
+| T-160 | The ban window clamps | Pass manual | A request for -5 minutes stores 60. A request for 999999 minutes stores 43200, the 30 day cap |
+
+### CI runs, 11 November 2026
+
+The GitHub workflow runs on ubuntu-24.04 with Node 24 and a Postgres 16 service. Both runs pass at commit 44eeb96: the push run 42986720386 and the pull request run 42986735986.
+
+The steps are: create both databases, migrate and seed, install the lab scanners, gitleaks, npm audit and osv-scanner, Semgrep, the test suite and the browser suite.
+
+- Test suite: 202 tests, 198 pass, 0 fail, 4 skipped, 0 todo.
+- Browser suite: 12 passed.
+- Pull request: CLEAN and mergeable, 0 commits behind main.
+
+The four skips need a tool the runner does not carry. One scan test needs the clamd socket, two sensor tests need the Suricata binary, and one upload test needs clamd. On this Mac all 202 pass with 0 skipped.
+
+The workflow needed six fixes before it could pass: quoted lab keys (YAML read them as numbers), a real osv-scanner download with its checksum, pinned installs for gitleaks, trivy and caddy, a Semgrep note on the file download, a keychain file backend for the Linux runner, and a portable disk check. The test database URLs are now in the workflow environment.
+
+### Gate, 9 November 2026
+
+`bash scripts/verify.sh` on the final tree: 8 passed, 0 failed in 358
+seconds at HEAD 9f58b34. Gates: tool manifest, secrets, dependencies, static
+analysis, test suite, browser suite, audit chains, backup dry run. Posture is
+informational. 202 tests and 12 browser flows pass. The runner reports 0
+skipped, 0 todo and 0 cancelled tests.

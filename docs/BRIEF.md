@@ -43,8 +43,8 @@ deadlines.
 
 | Side | Address | Accounts | Job |
 |---|---|---|---|
-| Regulator workspace | http://localhost:8100 | analyst1, supervisor1, reviewer1, admin1 | triage, notes, transitions, audit, alerts |
-| Organisation portal | http://localhost:8200 | steward1, io1, so1 | draft, approve, sign, send, notify |
+| Regulator workspace | https://localhost:8443 | analyst1, supervisor1, reviewer1, admin1 | triage, notes, transitions, audit, alerts |
+| Organisation portal | https://localhost:8444 | steward1, io1, so1 | draft, approve, sign, send, notify |
 | Rules worker | no address | none | leases outbox jobs, evaluates the rules, opens alerts |
 
 The two applications keep separate databases. The regulator database holds
@@ -227,8 +227,9 @@ runbooks with dated exercise notes.
 
 The stretch pass added three optional lab paths. Keycloak single sign-on with
 PKCE, mutual TLS on a second intake port, and a Suricata sensor that watches the
-app ports and ships alerts to the regulator inbox. The Wazuh manager is the one
-gap, and section 11 explains it.
+app ports and ships alerts to the regulator inbox. Wazuh runs natively on arm64
+with one manager and one agent, and a probe raised a file integrity alert that
+reached the regulator inbox.
 
 The last feature added the affected-person notice. The portal records one
 dispatch per draft, one delivery row per synthetic recipient, and reports the
@@ -236,8 +237,8 @@ counts to the regulator. The case page shows sent of total and the shortfall.
 
 ## 10. How it is tested
 
-There are two suites. `npm test` runs 118 tests: unit tests, integration tests
-and security tests. `npm run test:e2e` runs 11 browser flows on Chromium.
+I run two suites. `npm test` runs 202 tests: unit tests, integration tests and
+security tests. `npm run test:e2e` runs 12 browser flows on Chromium.
 
 The unit tests cover passwords, the contracts, the rule functions, the policy
 matrix, the audit hash and the seal. The integration tests run real HTTP
@@ -247,20 +248,20 @@ affected notices. The browser flows cover sign-in, the dashboard, the register,
 a case, the denied move, the lock overlay, the group passphrase and the full
 notification chain.
 
-Every acceptance result has a row in `docs/TEST_LOG.md`, from T-01 to T-77.
+Every acceptance result has a row in `docs/TEST_LOG.md`, from T-01 to T-156.
 Each row names the test or the command and the result that was seen. Where a
 test cannot run in this environment, the row says so.
 
 ## 11. Honest limits
 
-1. The Wazuh manager does not run on the arm64 lab machine. The amd64 image
-   exits 139 under emulation after about 100 ms and writes no log line. The
-   delivered sensor is Suricata, and no Wazuh claim is made. Evidence is in
-   `docs/PROGRESS.md` and `docs/runbooks/sensor.md`.
-2. Everything runs on one machine over plain HTTP, except the optional mTLS
-   listener.
-3. The console code is not real multi-factor authentication. Keycloak is the
-   stronger lab path.
+1. Wazuh runs natively on arm64 with one manager and one agent. A cluster and
+   an indexer are not built. Evidence is in `docs/TEST_LOG.md` and
+   `docs/runbooks/sensor.md`.
+2. The host deployment serves both apps behind a TLS 1.3 edge. The Docker lab
+   speaks plain HTTP inside its own network.
+3. The console code is a real second factor with single-use codes. Keycloak
+   carries a realm TOTP policy for a marked user, and a provider sign-in trusts
+   the provider for the second factor.
 4. The shared group passphrase carries no per-person attribution.
 5. The timers pace the work and never claim legal force.
 6. The lab accounts are synthetic and public in this repository. Never reuse

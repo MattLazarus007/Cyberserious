@@ -107,8 +107,16 @@ var Api = (function () {
         return call("/api/v1/alerts");
     }
 
-    function getResearch() {
-        return call("/api/v1/research");
+    function getSecurityState() {
+        return call("/api/v1/security/state");
+    }
+
+    function verifySecurity() {
+        return call("/api/v1/security/verify");
+    }
+
+    function unbanIp(ip) {
+        return call("/api/v1/security/bans/" + encodeURIComponent(ip), { method: "DELETE" });
     }
 
     function getCaseDuties(id) {
@@ -131,7 +139,9 @@ var Api = (function () {
         getCases: getCases,
         getCase: getCase,
         getAlerts: getAlerts,
-        getResearch: getResearch,
+        getSecurityState: getSecurityState,
+        verifySecurity: verifySecurity,
+        unbanIp: unbanIp,
         getCaseDuties: getCaseDuties,
         alertAction: alertAction,
         displayState: displayState,

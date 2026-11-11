@@ -1,0 +1,516 @@
+
+
+[!] Change ownership of /opt/homebrew/Cellar/lynis/3.1.7/include/functions to 'root' or similar (found: operator with UID 501).
+
+    Command:
+      # chown 0:0 /opt/homebrew/Cellar/lynis/3.1.7/include/functions
+
+[X] Security check failed
+
+    Why do I see this error?
+    -------------------------------
+    This is a protection mechanism to prevent the root user from executing user created files. The files may be altered, or including malicious pieces of script.
+
+    What can I do?
+    ---------------------
+    Option 1) Check if a trusted user created the files (e.g. due to using Git, Homebrew or similar).
+              If you trust these files, you can decide to continue this run by pressing ENTER.
+
+    Option 2) Change ownership of the related files (or full directory).
+
+       Commands (full directory):
+         # cd ..
+         # chown -R 0:0 lynis
+         # cd lynis
+         # ./lynis audit system
+
+[ Press ENTER to continue, or CTRL+C to cancel ]
+[ Lynis 3.1.7 ]
+
+################################################################################
+  Lynis comes with ABSOLUTELY NO WARRANTY. This is free software, and you are
+  welcome to redistribute it under the terms of the GNU General Public License.
+  See the LICENSE file for details about using this software.
+
+  2007-2025, CISOfy - https://cisofy.com/lynis/
+  Enterprise support available (compliance, plugins, interface and tools)
+################################################################################
+
+
+[+] Initializing program
+------------------------------------
+[2C- Detecting OS... [41C [ DONE ]
+[2C- Checking profiles...[37C [ DONE ]
+
+  ---------------------------------------------------
+  Program version:           3.1.7
+  Operating system:          macOS
+  Operating system name:     macOS
+  Operating system version:  26.5
+  End-of-life:               UNKNOWN
+  Kernel version:            25.5.0
+  Hardware platform:         arm64
+  Hostname:                  lab-host
+  ---------------------------------------------------
+  Profiles:                  /opt/homebrew/Cellar/lynis/3.1.7/default.prf
+  Log file:                  /var/log/lynis.log
+  Report file:               /var/log/lynis-report.dat
+  Report version:            1.0
+  Plugin directory:          /opt/homebrew/Cellar/lynis/3.1.7/plugins
+  ---------------------------------------------------
+  Auditor:                   [Not Specified]
+  Language:                  en
+  Test category:             all
+  Test group:                all
+  ---------------------------------------------------
+[2C- Program update status... [32C [ NO UPDATE ]
+
+[+] System tools
+------------------------------------
+[2C- Scanning available tools...[30C
+[2C- Checking system binaries...[30C
+
+[+] Plugins (phase 1)
+------------------------------------
+[0CNote: plugins have more extensive tests and may take several minutes to complete[0C
+[0C [0C
+[2C- Plugin: pam[46C
+    [..]
+[2C- Plugin: systemd[42C
+    [................]
+
+[+] Boot and services
+------------------------------------
+[2C- Service Manager[42C [ launchd ]
+
+[+] Kernel
+------------------------------------
+
+[+] Memory and Processes
+------------------------------------
+[2C- Searching for dead/zombie processes[22C [ NOT FOUND ]
+[2C- Searching for IO waiting processes[23C [ NOT FOUND ]
+
+[+] Users, Groups and Authentication
+------------------------------------
+[2C- Administrator accounts[35C [ OK ]
+[2C- Unique UIDs[46C [ OK ]
+[2C- Unique group IDs[41C [ OK ]
+[2C- Unique group names[39C [ OK ]
+[2C- Password hashing methods[33C [ OK ]
+[2C- Query system users (non daemons)[25C [ DONE ]
+[2C- Sudoers file(s)[42C [ FOUND ]
+[4C- Permissions for directory: /etc/sudoers.d[14C [ WARNING ]
+[4C- Permissions for: /etc/sudoers[26C [ OK ]
+[2C- PAM password strength tools[30C [ SUGGESTION ]
+[2C- PAM configuration file (pam.conf)[24C [ NOT FOUND ]
+[2C- PAM configuration files (pam.d)[26C [ FOUND ]
+[2C- LDAP module in PAM[39C [ NOT FOUND ]
+[2C- Determining default umask[32C
+[4C- umask (/etc/profile and /etc/profile.d)[16C [ OK ]
+
+[+] Kerberos
+------------------------------------
+[2C- Check for Kerberos KDC and principals[20C [ NOT FOUND ]
+
+[+] Shells
+------------------------------------
+[2C- Checking shells from /etc/shells[25C
+[4CResult: found 7 shells (valid shells: 7).[16C
+[4C- Session timeout settings/tools[25C [ NONE ]
+[2C- Checking default umask values[28C
+[4C- Checking default umask in /etc/bashrc[18C [ NONE ]
+[4C- Checking default umask in /etc/csh.cshrc[15C [ NONE ]
+[4C- Checking default umask in /etc/profile[17C [ NONE ]
+
+[+] File systems
+------------------------------------
+[2C- Checking mount points[36C
+[4C- Checking /home mount point[29C [ SYMLINK ]
+[4C- Checking /tmp mount point[30C [ SYMLINK ]
+[4C- Checking /var mount point[30C [ SYMLINK ]
+[2C- Checking for old files in /tmp[27C [ OK ]
+[2C- Checking /var/tmp sticky bit[29C [ OK ]
+
+[+] USB Devices
+------------------------------------
+
+[+] Storage
+------------------------------------
+
+[+] NFS
+------------------------------------
+[2C- Query rpc registered programs[28C [ DONE ]
+[2C- Query NFS versions[39C [ DONE ]
+[2C- Query NFS protocols[38C [ DONE ]
+[2C- Check running NFS daemon[33C [ NOT FOUND ]
+
+[+] Name services
+------------------------------------
+[2C- Searching DNS domain name[32C [ FOUND ]
+[6CDomain name: local[37C
+[2C- Checking /etc/hosts[38C
+[4C- Duplicate entries in hosts file[24C [ NONE ]
+[4C- Presence of configured hostname in /etc/hosts[10C [ NOT FOUND ]
+[4C- Hostname mapped to localhost[27C [ NOT FOUND ]
+
+[+] Ports and packages
+------------------------------------
+[2C- Searching package managers[31C
+[4C- Searching brew[41C [ FOUND ]
+[4C- Querying brew for installed packages[19C
+Error: Running Homebrew as root is extremely dangerous and no longer supported.
+As Homebrew does not drop privileges on installation you would be giving all
+build scripts full access to your system.
+[4C- Querying macOS Apps in /Applications[19C
+[4C- Querying Apple CoreServices[28C
+[2C- Checking package audit tool[30C [ NONE ]
+
+[+] Networking
+------------------------------------
+[2C- Checking configured nameservers[26C
+[4C- Testing nameservers[36C
+[8CNameserver: fe80::c23a:55ff:fe81:7056%en0[12C [ NO RESPONSE ]
+[8CNameserver: 192.168.0.1[30C [ OK ]
+[4C- Minimal of 2 responsive nameservers[20C [ WARNING ]
+[2C- Checking default gateway[33C [ DONE ]
+[2C- Getting listening ports (TCP/UDP)[24C [ DONE ]
+[2C- Checking waiting connections[29C [ OK ]
+[2C- Checking status DHCP client[30C [ NOT ACTIVE ]
+
+[+] Printers and Spools
+------------------------------------
+[2C- Checking cups daemon[37C [ NOT FOUND ]
+[2C- Checking lp daemon[39C [ NOT RUNNING ]
+
+[+] Software: e-mail and messaging
+------------------------------------
+
+[+] Software: firewalls
+------------------------------------
+[2C- Checking pf status (pfctl)[31C [ ENABLED ]
+[4C- Checking pf configuration consistency[18C [ OK ]
+[2C- Checking macOS: Application Firewall[21C [ ENABLED ]
+[2C- Checking host based firewall[29C [ ACTIVE ]
+
+[+] Software: webserver
+------------------------------------
+[2C- Checking Apache (binary /usr/sbin/httpd)[17C [ FOUND ]
+[6CInfo: Configuration file found (/private/etc/apache2/httpd.conf)[0C
+[6CInfo: Found 8 virtual hosts[28C
+[4C* Loadable modules[39C [ FOUND (114) ]
+[8C- Found 114 loadable modules[25C
+[10Cmod_evasive: anti-DoS/brute force[18C [ NOT FOUND ]
+[10Cmod_reqtimeout/mod_qos[29C [ FOUND ]
+[10CModSecurity: web application firewall[14C [ NOT FOUND ]
+[2C- Checking TraceEnable setting in:[25C
+[4C  /etc/apache2/httpd.conf[32C [ FOUND ]
+[4C  /etc/apache2/original/httpd.conf[23C [ FOUND ]
+[4C  /etc/apache2/original/extra/httpd-languages.conf[7C [ NOT FOUND ]
+[4C  /etc/apache2/original/extra/httpd-dav.conf[13C [ NOT FOUND ]
+[4C  /etc/apache2/original/extra/httpd-autoindex.conf[7C [ NOT FOUND ]
+[4C  /etc/apache2/original/extra/httpd-manual.conf[10C [ NOT FOUND ]
+[4C  /etc/apache2/original/extra/httpd-multilang-errordoc.conf[0C [ NOT FOUND ]
+[4C  /etc/apache2/original/extra/httpd-vhosts.conf[10C [ NOT FOUND ]
+[4C  /etc/apache2/original/extra/httpd-userdir.conf[9C [ NOT FOUND ]
+[4C  /etc/apache2/original/extra/httpd-info.conf[12C [ NOT FOUND ]
+[4C  /etc/apache2/original/extra/httpd-ssl.conf[13C [ NOT FOUND ]
+[4C  /etc/apache2/original/extra/httpd-default.conf[9C [ NOT FOUND ]
+[4C  /etc/apache2/original/extra/proxy-html.conf[12C [ NOT FOUND ]
+[4C  /etc/apache2/original/extra/httpd-mpm.conf[13C [ NOT FOUND ]
+[4C  /etc/apache2/other/php7.conf[27C [ NOT FOUND ]
+[4C  /etc/apache2/other/mpm.conf[28C [ NOT FOUND ]
+[4C  /etc/apache2/extra/httpd-languages.conf[16C [ NOT FOUND ]
+[4C  /etc/apache2/extra/httpd-dav.conf[22C [ NOT FOUND ]
+[4C  /etc/apache2/extra/httpd-autoindex.conf[16C [ NOT FOUND ]
+[4C  /etc/apache2/extra/httpd-manual.conf[19C [ NOT FOUND ]
+[4C  /etc/apache2/extra/httpd-multilang-errordoc.conf[7C [ NOT FOUND ]
+[4C  /etc/apache2/extra/httpd-vhosts.conf[19C [ NOT FOUND ]
+[4C  /etc/apache2/extra/httpd-userdir.conf[18C [ NOT FOUND ]
+[4C  /etc/apache2/extra/httpd-info.conf[21C [ NOT FOUND ]
+[4C  /etc/apache2/extra/httpd-ssl.conf[22C [ NOT FOUND ]
+[4C  /etc/apache2/extra/httpd-default.conf[18C [ NOT FOUND ]
+[4C  /etc/apache2/extra/proxy-html.conf[21C [ NOT FOUND ]
+[4C  /etc/apache2/extra/httpd-mpm.conf[22C [ NOT FOUND ]
+[2C- Checking nginx[43C [ NOT FOUND ]
+
+[+] SSH Support
+------------------------------------
+[2C- Checking running SSH daemon[30C [ NOT FOUND ]
+
+[+] SNMP Support
+------------------------------------
+[2C- Checking running SNMP daemon[29C [ NOT FOUND ]
+
+[+] Databases
+------------------------------------
+[2C- PostgreSQL processes status[30C [ FOUND ]
+
+[+] LDAP Services
+------------------------------------
+[2C- Checking OpenLDAP instance[31C [ NOT FOUND ]
+
+[+] PHP
+------------------------------------
+[2C- Checking PHP[45C [ NOT FOUND ]
+
+[+] Squid Support
+------------------------------------
+[2C- Checking running Squid daemon[28C [ NOT FOUND ]
+
+[+] Logging and files
+------------------------------------
+[2C- Checking for a running log daemon[24C [ OK ]
+[4C- Checking Syslog-NG status[30C [ NOT FOUND ]
+[4C- Checking systemd journal status[24C [ NOT FOUND ]
+[4C- Checking Metalog status[32C [ NOT FOUND ]
+[4C- Checking RSyslog status[32C [ NOT FOUND ]
+[4C- Checking RFC 3195 daemon status[24C [ NOT FOUND ]
+[2C- Checking remote logging[34C [ ENABLED ]
+[2C- Checking /etc/newsyslog.conf[29C [ FOUND ]
+[4C- Checking log directories (newsyslog.conf)[14C [ DONE ]
+[4C- Checking log files (newsyslog.conf)[20C [ DONE ]
+[2C- Checking log directories (static list)[19C [ DONE ]
+[2C- Checking open log files[34C [ DONE ]
+[2C- Checking deleted files in use[28C [ FILES FOUND ]
+
+[+] Insecure services
+------------------------------------
+[4C- xinetd status[42C [ NOT ACTIVE ]
+[2C- com.apple.fingerd[40C [ OK ]
+[2C- com.apple.ftp-proxy[38C [ OK ]
+
+[+] Banners and identification
+------------------------------------
+[2C- /etc/issue[47C [ NOT FOUND ]
+[2C- /etc/issue.net[43C [ NOT FOUND ]
+
+[+] Scheduled tasks
+------------------------------------
+[2C- Checking crontab and cronjob files[23C [ DONE ]
+
+[+] Accounting
+------------------------------------
+
+[+] Time and Synchronization
+------------------------------------
+[2C- NTP daemon found: timed[34C [ FOUND ]
+[2C- Checking for a running NTP daemon or client[14C [ OK ]
+
+[+] Cryptography
+------------------------------------
+[2C- Checking for expired SSL certificates [0/1][14C [ NONE ]
+[2C- FileVault is enabled.[36C [ OK ]
+
+[+] Virtualization
+------------------------------------
+
+[+] Containers
+------------------------------------
+[8C- Docker status[38C [ ERROR ]
+[8C- Docker info output (warnings)[22C [ NONE ]
+
+[+] Security frameworks
+------------------------------------
+[2C- Checking presence AppArmor[31C [ NOT FOUND ]
+[2C- Checking presence SELinux[32C [ NOT FOUND ]
+[2C- Checking presence TOMOYO Linux[27C [ NOT FOUND ]
+[2C- Checking presence grsecurity[29C [ NOT FOUND ]
+[2C- Checking for implemented MAC framework[19C [ NONE ]
+
+[+] Software: file integrity
+------------------------------------
+[2C- Checking file integrity tools[28C
+[4C- mtree[50C [ FOUND ]
+[2C- Checking presence integrity tool[25C [ FOUND ]
+
+[+] Software: System tooling
+------------------------------------
+[2C- Checking automation tooling[30C
+[2C- Automation tooling[39C [ NOT FOUND ]
+[2C- Checking Suricata status[33C [ NOT RUNNING ]
+[2C- Checking for IDS/IPS tooling[29C [ NONE ]
+
+[+] Software: Malware
+------------------------------------
+[2C- Checking ClamAV scanner[34C [ FOUND ]
+[2C- Checking ClamAV daemon[35C [ FOUND ]
+[4C- Checking freshclam[37C [ SUGGESTION ]
+[2C- Malware software components[30C [ FOUND ]
+[4C- Active agent[43C [ FOUND ]
+[4C- Rootkit scanner[40C [ NOT FOUND ]
+
+[+] File Permissions
+------------------------------------
+[2C- Starting file permissions check[26C
+[4CFile: /etc/group[41C [ OK ]
+[4CFile: /etc/passwd[40C [ OK ]
+[4CFile: /etc/ssh/sshd_config[31C [ SUGGESTION ]
+[4CFile: /etc/hosts.equiv[35C [ OK ]
+
+[+] Home directories
+------------------------------------
+[2C- Permissions of home directories[26C [ WARNING ]
+[2C- Ownership of home directories[28C [ OK ]
+[2C- Checking shell history files[29C [ OK ]
+
+[+] Kernel Hardening
+------------------------------------
+
+[+] Hardening
+------------------------------------
+[4C- Installed compiler(s)[34C [ FOUND ]
+[4C- Installed malware scanner[30C [ FOUND ]
+
+[+] Custom tests
+------------------------------------
+[2C- Running custom tests... [33C [ NONE ]
+
+[+] Plugins (phase 2)
+------------------------------------
+[2C- Plugins (phase 2)[40C [ DONE ]
+
+================================================================================
+
+  -[ Lynis 3.1.7 Results ]-
+
+  Warnings (2):
+  ----------------------------
+  ! Nameserver fe80::c23a:55ff:fe81:7056%en0 does not respond [NETW-2704] 
+      https://cisofy.com/lynis/controls/NETW-2704/
+
+  ! Couldn't find 2 responsive nameservers [NETW-2705] 
+      https://cisofy.com/lynis/controls/NETW-2705/
+
+  Suggestions (16):
+  ----------------------------
+  * Install a PAM module for password strength testing like pam_cracklib or pam_passwdqc or libpam-passwdqc [AUTH-9262] 
+    - Related resources
+      * Article: Configure minimum password length for Linux systems: https://linux-audit.com/configure-the-minimum-password-length-on-linux-systems/
+      * Website: https://cisofy.com/lynis/controls/AUTH-9262/
+
+  * Symlinked mount point needs to be checked manually [FILE-6310] 
+    - Details  : /home
+    - Solution : 
+    - Related resources
+      * Website: https://cisofy.com/lynis/controls/FILE-6310/
+
+  * Symlinked mount point needs to be checked manually [FILE-6310] 
+    - Details  : /tmp
+    - Solution : 
+    - Related resources
+      * Website: https://cisofy.com/lynis/controls/FILE-6310/
+
+  * Symlinked mount point needs to be checked manually [FILE-6310] 
+    - Details  : /var
+    - Solution : 
+    - Related resources
+      * Website: https://cisofy.com/lynis/controls/FILE-6310/
+
+  * Add the IP name and FQDN to /etc/hosts for proper name resolving [NAME-4404] 
+    - Related resources
+      * Article: Keeping your /etc/hosts file healthy: https://linux-audit.com/is-your-etc-hosts-file-healthy/
+      * Website: https://cisofy.com/lynis/controls/NAME-4404/
+
+  * Install a package audit tool to determine vulnerable packages [PKGS-7398] 
+    - Related resources
+      * Website: https://cisofy.com/lynis/controls/PKGS-7398/
+
+  * Check connection to this nameserver and make sure no outbound DNS queries are blocked (port 53 UDP and TCP). [NETW-2704] 
+    - Related resources
+      * Website: https://cisofy.com/lynis/controls/NETW-2704/
+
+  * Check your resolv.conf file and fill in a backup nameserver if possible [NETW-2705] 
+    - Related resources
+      * Website: https://cisofy.com/lynis/controls/NETW-2705/
+
+  * Install Apache mod_evasive to guard webserver against DoS/brute force attempts [HTTP-6640] 
+    - Related resources
+      * Website: https://cisofy.com/lynis/controls/HTTP-6640/
+
+  * Install Apache modsecurity to guard webserver against web application attacks [HTTP-6643] 
+    - Related resources
+      * Website: https://cisofy.com/lynis/controls/HTTP-6643/
+
+  * Check what deleted files are still in use and why. [LOGG-2190] 
+    - Related resources
+      * Website: https://cisofy.com/lynis/controls/LOGG-2190/
+
+  * Determine if automation tools are present for system management [TOOL-5002] 
+    - Related resources
+      * Website: https://cisofy.com/lynis/controls/TOOL-5002/
+
+  * Confirm that freshclam is properly configured and keeps updating the ClamAV database [MALW-3286] 
+    - Related resources
+      * Website: https://cisofy.com/lynis/controls/MALW-3286/
+
+  * Consider restricting file permissions [FILE-7524] 
+    - Details  : See screen output or log file
+    - Solution : Use chmod to change file permissions
+    - Related resources
+      * Website: https://cisofy.com/lynis/controls/FILE-7524/
+
+  * Double check the permissions of home directories as some might be not strict enough. [HOME-9304] 
+    - Related resources
+      * Website: https://cisofy.com/lynis/controls/HOME-9304/
+
+  * Harden compilers like restricting access to root user only [HRDN-7222] 
+    - Related resources
+      * Article: Why remove compilers from your system?: https://linux-audit.com/software/why-remove-compilers-from-your-system/
+      * Website: https://cisofy.com/lynis/controls/HRDN-7222/
+
+  Follow-up:
+  ----------------------------
+  - Show details of a test (lynis show details TEST-ID)
+  - Check the logfile for all details (less /var/log/lynis.log)
+  - Read security controls texts (https://cisofy.com)
+  - Use --upload to upload data to central system (Lynis Enterprise users)
+
+================================================================================
+
+  Lynis security scan details:
+
+  Scan mode:
+  Normal [▆]  Forensics [ ]  Integration [ ]  Pentest [ ]
+
+  Lynis modules:
+  - Compliance status      [?]
+  - Security audit         [V]
+  - Vulnerability scan     [V]
+
+  Details:
+  Hardening index : 75 [###############     ]
+  Tests performed : 176
+  Plugins enabled : 2
+
+  Software components:
+  - Firewall               [V]
+  - Intrusion software     [X]
+  - Malware scanner        [V]
+
+  Files:
+  - Test and debug information      : /var/log/lynis.log
+  - Report data                     : /var/log/lynis-report.dat
+
+================================================================================
+
+  Notice: No OS entry was found in the end-of-life database
+
+  What to do:
+  Please submit a pull request on GitHub to include your OS version and the end date of this OS version is being supported
+  URL: https://github.com/CISOfy/lynis
+
+================================================================================
+
+  Lynis 3.1.7
+
+  Auditing, system hardening, and compliance for UNIX-based systems
+  (Linux, macOS, BSD, and others)
+
+  2007-2025, CISOfy - https://cisofy.com/lynis/
+  Enterprise support available (compliance, plugins, interface and tools)
+
+================================================================================
+
+  [TIP]: Enhance Lynis audits by adding your settings to custom.prf (see /opt/homebrew/Cellar/lynis/3.1.7/default.prf for all settings)
+

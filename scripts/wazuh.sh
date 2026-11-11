@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
 # Wazuh manager and agent for the phase 12 sensor lab. Lab only.
 #
-# The images are amd64. On this arm64 host the emulated manager dies
-# with exit 139 after about 100 ms and writes no log line, so the start
-# actions refuse unless WAZUH_ALLOW_EMULATION=1. Evidence sits in
-# docs/runbooks/sensor.md. Run this on a linux/amd64 host.
+# The 4.14.9 images carry both amd64 and arm64 manifests. The platform
+# follows the host, so an arm64 Mac runs the native arm64 image. Forcing
+# linux/amd64 on an arm64 host runs under emulation, where the manager
+# exits 139, so the start actions refuse that unless WAZUH_ALLOW_EMULATION=1.
+# Evidence sits in docs/runbooks/sensor.md.
 #
 # The script sets the lab password with docker exec and creates /lab
 # inside the container, so no host path is mounted.
@@ -15,7 +16,12 @@ set -euo pipefail
 
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 tag="${WAZUH_TAG:-4.14.9}"
-platform="${WAZUH_PLATFORM:-linux/amd64}"
+host_arch="$(uname -m)"
+if [ "${WAZUH_PLATFORM:-auto}" = "auto" ]; then
+  if [ "$host_arch" = "x86_64" ]; then platform="linux/amd64"; else platform="linux/arm64"; fi
+else
+  platform="$WAZUH_PLATFORM"
+fi
 manager_image="wazuh/wazuh-manager:${tag}"
 agent_image="wazuh/wazuh-agent:${tag}"
 manager_name="wz-manager"
@@ -28,12 +34,12 @@ alerts_out="$root/infra/sensor/out/wazuh-alerts.json"
 present() { docker ps -a --format '{{.Names}}' | grep -qx "$1"; }
 running() { docker ps --format '{{.Names}}' | grep -qx "$1"; }
 
-# The manager image is amd64. On an arm64 engine the emulated binary
-# dies with exit 139 before it writes a log line. Refuse the start
-# actions here so the failure is clear. Status still works.
+# A forced amd64 image on an arm64 engine runs under emulation, where the
+# manager dies with exit 139 before it writes a log line. Refuse that case
+# so the failure is clear. Status still works.
 require_native() {
-  if [ "$platform" = "linux/amd64" ] && [ "$(uname -m)" != "x86_64" ] && [ "${WAZUH_ALLOW_EMULATION:-0}" != "1" ]; then
-    echo "host is $(uname -m), the Wazuh images are amd64" >&2
+  if [ "$platform" = "linux/amd64" ] && [ "$host_arch" != "x86_64" ] && [ "${WAZUH_ALLOW_EMULATION:-0}" != "1" ]; then
+    echo "host is $host_arch, the platform was forced to amd64" >&2
     echo "under emulation the manager exits 139 before it writes a log line" >&2
     echo "see docs/runbooks/sensor.md, or set WAZUH_ALLOW_EMULATION=1 to try" >&2
     return 1
@@ -72,23 +78,24 @@ wait_for_authd() {
   return 1
 }
 
-# The image ships <use_password>no</use_password>. Flip it and add the
-# password, then restart so authd reads it. Idempotent.
+# The image ships <use_password>no</use_password>. Flip it and write the
+# secret to /var/ossec/etc/authd.pass, which this Wazuh version reads.
+# The <password> element is not valid in ossec.conf and stops authd.
 set_authd_password() {
-  if docker exec "$manager_name" bash -c 'grep -q "<password>" /var/ossec/etc/ossec.conf'; then
-    echo "manager authd already carries a password"
-    return 0
+  if docker exec "$manager_name" test -s /var/ossec/etc/authd.pass; then
+    echo "manager authd already carries a password file"
+  else
+    echo "setting the authd enrollment password"
+    docker exec "$manager_name" bash -c '
+      set -e
+      conf=/var/ossec/etc/ossec.conf
+      sed -i "s|<use_password>no</use_password>|<use_password>yes</use_password>|" "$conf"
+      printf "%s" "'"$enroll_password"'" > /var/ossec/etc/authd.pass
+      chmod 600 /var/ossec/etc/authd.pass
+    '
+    docker restart "$manager_name" >/dev/null
+    wait_for_authd
   fi
-  echo "setting the authd enrollment password"
-  docker exec "$manager_name" bash -c '
-    set -e
-    conf=/var/ossec/etc/ossec.conf
-    sed -i "s|<use_password>no</use_password>|<use_password>yes</use_password>|" "$conf"
-    sed -i "/<use_password>yes<\/use_password>/a\\    <password>'"$enroll_password"'</password>" "$conf"
-    grep -q "<password>$enroll_password</password>" "$conf"
-  '
-  docker restart "$manager_name" >/dev/null
-  wait_for_authd
 }
 
 start_manager() {
@@ -149,6 +156,12 @@ start_agent() {
     for _ in $(seq 1 45); do
       if manager_log_tail 40 | grep -q "Agent key generated for '$agent_name_lab'"; then
         echo "agent key issued for $agent_name_lab"
+        break
+      fi
+      # A fresh manager may log a different enrollment line. The agent list
+      # is the authority: an active row means the key exists.
+      if docker exec "$manager_name" /var/ossec/bin/agent_control -l 2>/dev/null | grep -q "$agent_name_lab"; then
+        echo "agent $agent_name_lab is registered"
         break
       fi
       if [ "$_" = 45 ]; then

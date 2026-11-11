@@ -4,12 +4,12 @@ import { query, withTransaction } from "../db.ts";
 import { can } from "../policy.ts";
 import { requireSession, type Actor } from "../session.ts";
 import { recordAuditTx } from "../audit.ts";
+import { noteInputSchema } from "../../../../packages/contracts/contracts.ts";
 
 export const notesRouter = Router();
 notesRouter.use(requireSession);
 
-const noteInput = z.object({
-  body: z.string().min(1).max(4000),
+const noteInput = noteInputSchema.extend({
   idempotencyKey: z.string().min(8).max(128).optional(),
 });
 
@@ -69,7 +69,10 @@ notesRouter.post("/cases/:id/notes", async (req, res) => {
   }
   const key = parsed.data.idempotencyKey;
   if (key) {
-    const prior = await query("select note_id from note_idempotency where key = $1", [key]);
+    const prior = await query(
+      "select note_id from note_idempotency where key = $1 and case_id = $2 and author_id = $3",
+      [key, found.id, actor.userId]
+    );
     if (prior.rows.length > 0) {
       const note = await query(
         `select n.id, n.body, n.created_at as "createdAt", u.display_name as "author"
@@ -86,7 +89,10 @@ notesRouter.post("/cases/:id/notes", async (req, res) => {
       [found.id, actor.userId, parsed.data.body]
     );
     if (key) {
-      await client.query("insert into note_idempotency (key, note_id) values ($1, $2)", [key, note.rows[0].id]);
+      await client.query(
+        "insert into note_idempotency (key, note_id, case_id, author_id) values ($1, $2, $3, $4)",
+        [key, note.rows[0].id, found.id, actor.userId]
+      );
     }
     await recordAuditTx(client, {
       actor: actor.username,

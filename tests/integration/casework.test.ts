@@ -1,7 +1,8 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
-import { resetDb, startApp, loginFull } from "./help.ts";
+import pg from "pg";
+import { resetDb, startApp, loginFull, dbUrl } from "./help.ts";
 
 async function caseRef(base: string, cookie: string, ref: string): Promise<unknown> {
   const res = await fetch(`${base}/api/v1/cases/${ref}`, { headers: { cookie } });
@@ -64,6 +65,57 @@ test("double submit with one key keeps one note", async () => {
     ).json()) as { items: unknown[] };
     assert.equal(list.items.length, 1);
   } finally {
+    await srv.close();
+  }
+});
+
+test("one key on two cases keeps two notes", async () => {
+  resetDb();
+  const srv = await startApp();
+  try {
+    const cookie = await loginFull(srv.base, "analyst1", "demo-analyst-pass");
+    const key = randomUUID();
+    const first = await fetch(`${srv.base}/api/v1/cases/BR-2026-0001/notes`, {
+      method: "POST",
+      headers: { "content-type": "application/json", cookie },
+      body: JSON.stringify({ body: "note for case one", idempotencyKey: key }),
+    });
+    assert.equal(first.status, 201);
+    const second = await fetch(`${srv.base}/api/v1/cases/BR-2026-0002/notes`, {
+      method: "POST",
+      headers: { "content-type": "application/json", cookie },
+      body: JSON.stringify({ body: "note for case two", idempotencyKey: key }),
+    });
+    assert.equal(second.status, 201, "the key is scoped to one case");
+    const one = (await (
+      await fetch(`${srv.base}/api/v1/cases/BR-2026-0001/notes`, { headers: { cookie } })
+    ).json()) as { items: { body: string }[] };
+    const two = (await (
+      await fetch(`${srv.base}/api/v1/cases/BR-2026-0002/notes`, { headers: { cookie } })
+    ).json()) as { items: { body: string }[] };
+    assert.ok(one.items.some((n) => n.body === "note for case one"));
+    assert.ok(two.items.some((n) => n.body === "note for case two"));
+  } finally {
+    await srv.close();
+  }
+});
+
+test("a user with two memberships acts under the least privileged one", async () => {
+  resetDb();
+  const srv = await startApp();
+  const conn = new pg.Client({ connectionString: dbUrl });
+  try {
+    await conn.connect();
+    await conn.query(
+      `insert into memberships (user_id, org_id, role)
+       select id, null, 'regulator_supervisor' from users where username = 'analyst1'
+       on conflict (user_id, org_id, role) do nothing`
+    );
+    const cookie = await loginFull(srv.base, "analyst1", "demo-analyst-pass");
+    const me = (await (await fetch(`${srv.base}/api/v1/me`, { headers: { cookie } })).json()) as { role: string };
+    assert.equal(me.role, "regulator_analyst", "the extra supervisor row never widens the session");
+  } finally {
+    await conn.end().catch(() => {});
     await srv.close();
   }
 });

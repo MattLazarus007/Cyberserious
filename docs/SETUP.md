@@ -39,7 +39,8 @@ npm run dev
 The regulator answers on port 8100. Sign in as analyst1 and read
 the one-time code from this same terminal. Every account, password
 and sign-in path is listed in README.md. The portal runs with
-npm run dev:org on port 8200. The worker runs with npm run worker.
+npm run dev:org on port 8200. In the served deployment the portal sits behind
+the TLS edge on https://localhost:8444. The worker runs with npm run worker.
 Tests run with npm test, browser flows with npm run test:e2e.
 
 When the whole group tests together, start the servers with
@@ -185,7 +186,7 @@ renders no link, which is the state the browser suite pins.
 
 ## Lab sensor on the app ports
 
-Suricata 8.x runs the three lab rules in `infra/sensor/local.rules` and
+Suricata 8.x runs the four lab rules in `infra/sensor/local.rules` and
 writes alerts to `infra/sensor/out/eve.json`. The replay path needs no
 root:
 
@@ -204,8 +205,9 @@ export INTERNAL_TOKEN=<lab value>
 node scripts/sensor-shipper.mjs --base http://localhost:8100
 ```
 
-The Wazuh manager does not run on this arm64 machine. The amd64 image
-exits 139 under emulation after 98 ms. The parser and the ingest path are
-tested from a saved file. `docs/runbooks/sensor.md` carries the evidence
-and the steps for a linux/amd64 host.
+Wazuh runs natively on arm64 with the 4.14.9 images. `bash scripts/wazuh.sh
+start` brings up one manager and one agent. The enrollment password lives in
+`/var/ossec/etc/authd.pass`. `probe` writes a file under `/lab`, `alerts` copies
+`alerts.json` out, and `ship` posts the rows to the regulator. `docs/runbooks/sensor.md`
+carries the evidence and the limits.
 

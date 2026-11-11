@@ -65,6 +65,24 @@ intakeRouter.post(
     }
     const senderId = header.kid as string;
     const payloadHash = createHash("sha256").update(raw).digest("hex");
+    const org = await query("select id from organisations where reference = $1", [parsed.data.orgRef]);
+    if (org.rows.length === 0) {
+      res.status(422).json({ error: "unknown organisation" });
+      return;
+    }
+    // The key names the sender. The body must name the same organisation.
+    const senderOrgId = keyRow.rows[0].org_id as string;
+    if (org.rows[0].id !== senderOrgId) {
+      await recordAudit({
+        actor: senderId,
+        action: "intake.rejected",
+        resource: "intake",
+        result: "denied",
+        meta: { why: "org mismatch", claimedOrg: parsed.data.orgRef },
+      });
+      res.status(422).json({ error: "the sender key does not belong to that organisation" });
+      return;
+    }
     try {
       const receipt = await withTransaction(async (client) => {
         const prior = await client.query(
@@ -80,15 +98,11 @@ intakeRouter.post(
           }
           return { retry: true, stored: prior.rows[0].response };
         }
-        const org = await client.query("select id from organisations where reference = $1", [parsed.data.orgRef]);
-        if (org.rows.length === 0) {
-          throw Object.assign(new Error("unknown organisation"), { status: 422 });
-        }
-        const count = await client.query("select count(*)::int as n from cases");
-        const reference = `BR-2026-${String(100 + count.rows[0].n).padStart(4, "0")}`;
+        const next = await client.query("select nextval('case_reference_seq')::int as n");
+        const reference = `BR-2026-${String(next.rows[0].n).padStart(4, "0")}`;
         const kase = await client.query(
           "insert into cases (reference, org_id, state, severity, priority) values ($1, $2, 'Pending', $3, $4) returning id",
-          [reference, org.rows[0].id, parsed.data.severity, parsed.data.priority]
+          [reference, senderOrgId, parsed.data.severity, parsed.data.priority]
         );
         const caseId = kase.rows[0].id as string;
         await client.query(
@@ -285,11 +299,30 @@ function safeHeader(raw: string): { alg?: string; kid?: string } | null {
   }
 }
 
+function intakeMaxBytes(): number {
+  const raw = Number(process.env.INTAKE_MAX_BYTES);
+  return Number.isFinite(raw) && raw > 0 ? raw : 262_144;
+}
+
 function expressRaw(): import("express").RequestHandler {
-  return (req, _res, next) => {
+  return (req, res, next) => {
+    const cap = intakeMaxBytes();
     const chunks: Buffer[] = [];
-    req.on("data", (c: Buffer) => chunks.push(c));
+    let size = 0;
+    let stopped = false;
+    req.on("data", (c: Buffer) => {
+      if (stopped) return;
+      size += c.length;
+      if (size > cap) {
+        stopped = true;
+        chunks.length = 0;
+        res.status(413).json({ error: "submission too large" });
+        return;
+      }
+      chunks.push(c);
+    });
     req.on("end", () => {
+      if (stopped) return;
       (req as unknown as { rawBody: string }).rawBody = Buffer.concat(chunks).toString("utf8");
       next();
     });

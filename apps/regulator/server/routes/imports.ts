@@ -41,8 +41,8 @@ importsRouter.post("/imports", async (req, res) => {
     return;
   }
   const saved = await withTransaction(async (client) => {
-    const count = await client.query("select count(*)::int as n from cases");
-    const reference = referenceFor(100 + count.rows[0].n);
+    const next = await client.query("select nextval('case_reference_seq')::int as n");
+    const reference = referenceFor(next.rows[0].n);
     const kase = await client.query(
       "insert into cases (reference, org_id, state, severity, priority) values ($1, $2, 'Pending', $3, $4) returning id, reference",
       [reference, org.rows[0].id, parsed.data.severity, parsed.data.priority]

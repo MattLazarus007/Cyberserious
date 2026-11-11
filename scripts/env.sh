@@ -1,5 +1,6 @@
 #!/bin/bash
 # Pins the toolchain for this repo. Source me, do not execute.
+umask 077
 export PATH="$HOME/.local/node24/bin:/opt/homebrew/opt/postgresql@16/bin:$PATH"
 export PGDATA="${PGDATA:-/opt/homebrew/var/postgresql@16}"
 # Dev and test databases. Local only, never used outside this machine.
@@ -12,6 +13,15 @@ export ORG_DATABASE_URL="${ORG_DATABASE_URL:-postgres://cyberserious:cyberseriou
 export ORG_DATABASE_URL_TEST="${ORG_DATABASE_URL_TEST:-postgres://cyberserious:cyberserious_dev_only@localhost:5432/cyberserious_org_test}"
 export ORG_PORT="${ORG_PORT:-8200}"
 export REGULATOR_INTAKE_URL="${REGULATOR_INTAKE_URL:-http://localhost:8100/intake/v1/submissions}"
+# Internal token shared by the app, Vector and the sensor shipper. The
+# value lives in the Keychain, never in this file.
+if [ -z "${INTERNAL_TOKEN:-}" ]; then
+  _lab_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+  if bash "$_lab_root/scripts/keychain.sh" exists internal-token >/dev/null 2>&1; then
+    export INTERNAL_TOKEN="$(bash "$_lab_root/scripts/keychain.sh" get internal-token)"
+  fi
+  unset _lab_root
+fi
 # Lab simple sign-in. Set to 1 when the group demos together and the
 # console code slows everyone down. Lab only, never beyond it.
 export LAB_SIMPLE_LOGIN="${LAB_SIMPLE_LOGIN:-0}"

@@ -18,7 +18,7 @@ not stop the run.
 
 ## Files
 
-- `infra/sensor/local.rules`: the three lab rules.
+- `infra/sensor/local.rules`: the four lab rules.
 - `infra/sensor/suricata.yaml`: lab override, logs to `infra/sensor/out/`.
 - `scripts/build-fixture-pcap.mjs`: builds the replay fixture with real
   checksums. It needs no package.
@@ -44,11 +44,13 @@ The kernel gives the BPF device to root only. A normal user gets
 "permission denied" on `lo0`. The live run is a demonstration step, not a
 test:
 
-    sudo suricata -c infra/sensor/suricata.yaml -S infra/sensor/local.rules \
-      -i lo0 -l infra/sensor/out
+    sudo bash scripts/suricata.sh install
 
-Stop it with Ctrl C. Suricata writes `eve.json` and `suricata.log` under
-`infra/sensor/out/`.
+The launch daemon runs at boot and keeps the process alive. On this host the
+kernel answers `ioctl: lo0: unable to set caps: Operation not supported on
+socket`. The engine still starts. Stop it with
+`sudo bash scripts/suricata.sh uninstall`. Suricata writes `eve.json` and
+`suricata.log` under `infra/sensor/out/`; Vector watches that file.
 
 A browser that opens several keep-alive connections can trip the syn rule
 (SID 9000003). That is expected on `lo0`. Read the alert. Do not treat it
@@ -65,39 +67,33 @@ The command prints `shipped N of N alerts to ... (0 refused)`. The
 regulator inbox shows the rows under Sensor alerts. `--eve <path>` reads
 another eve file. The default is `infra/sensor/out/eve.json`.
 
-## Wazuh: what runs and what does not
+## Wazuh: native arm64 manager, proven
 
-The Wazuh ingest path exists and is tested from a saved file. The manager
-does not run on this machine.
+The manager and the agent run natively on this Apple Silicon host. The 4.14.9
+images carry arm64 manifests, so no emulation is involved. The earlier exit 139
+came from an amd64-only tag under qemu.
 
-`scripts/wazuh.sh` starts `wazuh/wazuh-manager:4.14.9` and
-`wazuh/wazuh-agent:4.14.9` for `linux/amd64`. The host is arm64 and the
-Docker engine is arm64. The images therefore run under emulation.
+`scripts/wazuh.sh start` starts the manager, writes the enrollment password to
+`/var/ossec/etc/authd.pass`, starts the agent and waits for the syscheck scan.
+`probe` writes a file under `/lab`. `alerts` copies `alerts.json` out of the
+manager. `ship` posts each alert to the regulator sensor inbox.
 
-On an arm64 host the script refuses the start actions with exit 2 and
-names this gap. `WAZUH_ALLOW_EMULATION=1` overrides the refusal for a
-trial. `status` still reads the stopped containers.
+Evidence, 9 November 2026:
 
-Evidence from 2026-10-19:
+- The manager answered on 1515 with `Using password specified on file`.
+- The agent enrolled: `Agent key generated for 'lab-agent'`.
+- The probe raised rule 554, `File added to the system`, for a file under `/lab`.
+- The shipper stored the row in the regulator inbox as
+  `Wazuh FIM: File added to the system.`
+- The sensor route allows 60 posts a minute. A larger batch answers 429 for the
+  rest. Ship a single alert file, or repeat after the window.
 
-    docker inspect wz-manager --format 'exit={{.State.ExitCode}} oom={{.State.OOMKilled}}'
-    exit=139 oom=false
-    started=2026-10-19T09:53:55.183Z finished=2026-10-19T09:53:55.281Z
+Limits: one manager and one agent on one host. No cluster and no indexer. The
+agent watches `/etc`, `/usr/bin`, `/usr/sbin` and `/lab`. The regulator inbox is
+the only destination; no live Wazuh dashboard is claimed.
 
-The container lived 98 ms and wrote nothing to `docker logs`. An earlier
-attempt with a host bind mount into `/wazuh-config-mount` failed with s6
-"child crashed with signal 11". The emulated manager binary dies before it
-reaches its entry point.
-
-The build makes three claims here.
-
-- The delivered sensor is Suricata. The replay path is proven.
-- The Wazuh parser maps a saved `alerts.json` to sensor payloads. T-64 and
-  T-67 cover that mapping.
-- No live Wazuh manager, agent enrollment or FIM alert is claimed.
-- To close the gap, run the manager on a linux/amd64 host. Then run
-  `bash scripts/wazuh.sh start`, `bash scripts/wazuh.sh probe`,
-  `bash scripts/wazuh.sh alerts` and `bash scripts/wazuh.sh ship`.
+The trip wire exempts a request that carries the internal token, so a sensor
+batch cannot lock the service.
 
 ## Stop and clean up
 
