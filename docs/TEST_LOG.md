@@ -280,6 +280,10 @@ measured 90.50 percent lines against a floor of 90.
 | T-154 | The host pair passes the live acceptance sweep | Pass manual | 36 checks against 8100 and 8200: group and code sign-in, counts, note write, analyst refusal, supervisor move and return, alert acknowledge and resolve, chain intact, ban and unban, admin refusal, malformed id 404, evidence upload, review and download, portal draft to notice, new case visible |
 | T-155 | The Docker pair passes the same sweep | Pass manual | 36 checks against 9100 and 9200, all pass, including the intake send and the affected notice |
 | T-156 | Both dashboards render with no client errors | Pass manual | Playwright: 7 notifications and 14 alert cards on each; no pageerror, no console error, no 5xx |
+| T-157 | The host edge passes the black-box pass | Pass manual | 41 checks on https://localhost:8443: unauth routes, role refusals, injection, uploads, intake, session, bans, rate limit. All pass. `docs/security/PENTEST_REPORT.md` |
+| T-158 | The Docker edge passes the black-box pass | Pass manual | 39 checks on http://localhost:9100: 38 pass, 1 lab difference. The image has no clamd, so an EICAR upload enters quarantine with scan unavailable. The host answers 422 |
+| T-159 | A stored script stays inert in the browser | Pass manual | A note with a script tag answers 201. The case page shows the literal text. Playwright records 0 dialogs |
+| T-160 | The ban window clamps | Pass manual | A request for -5 minutes stores 60. A request for 999999 minutes stores 43200, the 30 day cap |
 
 ### CI runs, 11 November 2026
 

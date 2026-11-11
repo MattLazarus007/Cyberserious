@@ -92,6 +92,13 @@ names the change and the check that proves it. Test ids refer to
 - The upload scan test skips only where clamd is absent. On the host it runs.
 - Both workflow runs pass at commit 44eeb96: push 42986720386 and pull request 42986735986.
 
+### Penetration test, on the lab edge
+
+- I ran an independent black-box pass from the network edge. The host pair passed 41 of 41 checks. The Docker pair passed 38 of 39, with one lab difference for the missing scanner.
+- The pass covered unauthenticated routes, role refusals, session flags, fixation, logout, SQL patterns, a stored script, uploads, the signed intake, static paths, CORS, methods, bans and the login limit.
+- The report sits in `docs/security/PENTEST_REPORT.md`. The results sit in `docs/TEST_LOG.md` as T-157 to T-160.
+- No critical, high or medium finding came out of the pass.
+
 ### Documentation
 
 - README, STATUS, PROGRESS, BRIEF, SETUP, DEMO, D4_MAPPING, the control matrix,
