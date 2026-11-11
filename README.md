@@ -1,13 +1,15 @@
 # CyberSerious
 
-Breach notification and case management for section 22 of POPIA. I built
-this for Group 1, Eduvos ITNPA3. It runs on one machine. Every record is
-synthetic. Nothing here is an official reporting channel.
+Breach notification and case management for section 22 of POPIA. Group 1
+built this for Eduvos ITNPA3. The dashboard and the interface came from the
+team. I worked on the backend, the security stack and the November pass. It
+runs on one machine. Every record is synthetic. Nothing here is an official
+reporting channel.
 
 An organisation that loses personal information drafts a report, approves
-that exact revision and sends it. I built the regulator side to receive the
-signed report, open a case, read the evidence, work the alerts and record
-the outcome. The organisation also records a notice to every affected person
+that exact revision and sends it. The regulator side receives the signed
+report, opens a case, reads the evidence, works the alerts and records the
+outcome. The organisation also records a notice to every affected person
 and reports the sent count back. Every write is attributed. The important
 ones land in a hash-chained audit log.
 

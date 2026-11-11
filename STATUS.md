@@ -4,7 +4,7 @@
 
 ## What works
 
-I run the lab on one Apple Silicon Mac. The front edge carries a POPIA breach
+The lab runs on one Apple Silicon Mac. The front edge carries a POPIA breach
 register with a TLS edge, Keycloak and local OTP, plus role-scoped access. It
 also has a WAF, per-address login limits, IP bans and a two-stage trip wire.
 Behind the edge sit hash-chained audit and security events, six correlation
@@ -57,7 +57,7 @@ Semgrep are clean. Lynis index 75. `scripts/verify.sh` passes 8 of 8 gates in
   natively.
 - System keychain trust for the Caddy CA was denied by macOS without user
   interaction. Login keychain trust works.
-- Push is intentionally disabled. I decide when it runs.
+- Push is intentionally disabled by choice.
 
 ## Manual owner steps
 
