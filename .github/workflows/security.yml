@@ -65,6 +65,9 @@ jobs:
           curl -sSfL -o /tmp/trivy.tgz https://github.com/aquasecurity/trivy/releases/download/v0.76.2/trivy_0.76.2_Linux-64bit.tar.gz
           tar -xzf /tmp/trivy.tgz -C /tmp trivy
           sudo install -m 0755 /tmp/trivy /usr/local/bin/trivy
+          curl -sSfL -o /tmp/caddy.tar.gz https://github.com/caddyserver/caddy/releases/download/v2.11.9/caddy_2.11.9_linux_amd64.tar.gz
+          tar -xzf /tmp/caddy.tar.gz -C /tmp caddy
+          sudo install -m 0755 /tmp/caddy /usr/local/bin/caddy
           pipx install semgrep
           echo "$HOME/.local/bin" >> "$GITHUB_PATH"
           curl -sSfL -o /tmp/osv-scanner_linux_amd64 https://github.com/google/osv-scanner/releases/download/v2.7.1/osv-scanner_linux_amd64
