@@ -25,7 +25,9 @@ jobs:
           --health-retries 20
     env:
       DATABASE_URL: postgres://postgres:postgres@localhost:5432/cyberserious_dev
+      DATABASE_URL_TEST: postgres://postgres:postgres@localhost:5432/cyberserious_dev
       ORG_DATABASE_URL: postgres://postgres:postgres@localhost:5432/cyberserious_org_dev
+      ORG_DATABASE_URL_TEST: postgres://postgres:postgres@localhost:5432/cyberserious_org_dev
       RESEARCH_KEY: "0000000000000000000000000000000000000000000000000000000000000001"
       EVIDENCE_KEY: "0000000000000000000000000000000000000000000000000000000000000002"
       SESSION_SECRET: ci-session-secret-not-for-production
@@ -51,6 +53,22 @@ jobs:
           npm run db:seed
           npm run db:migrate:org
           npm run db:seed:org
+      - name: Install lab scanners
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y age
+          curl -sSfL -o /tmp/gitleaks.tgz https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_linux_x64.tar.gz
+          curl -sSfL -o /tmp/gitleaks_checksums.txt https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_checksums.txt
+          grep " gitleaks_8.30.1_linux_x64.tar.gz$" /tmp/gitleaks_checksums.txt | (cd /tmp && sha256sum -c -)
+          tar -xzf /tmp/gitleaks.tgz -C /tmp gitleaks
+          sudo install -m 0755 /tmp/gitleaks /usr/local/bin/gitleaks
+          curl -sSfL -o /tmp/trivy.tgz https://github.com/aquasecurity/trivy/releases/download/v0.76.2/trivy_0.76.2_Linux-64bit.tar.gz
+          tar -xzf /tmp/trivy.tgz -C /tmp trivy
+          sudo install -m 0755 /tmp/trivy /usr/local/bin/trivy
+          pipx install semgrep
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+          curl -sSfL -o /tmp/osv-scanner_linux_amd64 https://github.com/google/osv-scanner/releases/download/v2.7.1/osv-scanner_linux_amd64
+          sudo install -m 0755 /tmp/osv-scanner_linux_amd64 /usr/local/bin/osv-scanner
       - name: Secrets
         uses: gitleaks/gitleaks-action@v2
         env:
@@ -58,11 +76,7 @@ jobs:
       - name: Dependencies
         run: |
           npm audit --omit=dev --audit-level=high
-          curl -sSfL -o /tmp/osv-scanner_linux_amd64 https://github.com/google/osv-scanner/releases/download/v2.7.1/osv-scanner_linux_amd64
-          curl -sSfL -o /tmp/osv-scanner_SHA256SUMS https://github.com/google/osv-scanner/releases/download/v2.7.1/osv-scanner_SHA256SUMS
-          grep " osv-scanner_linux_amd64$" /tmp/osv-scanner_SHA256SUMS | (cd /tmp && sha256sum -c -)
-          chmod +x /tmp/osv-scanner_linux_amd64
-          /tmp/osv-scanner_linux_amd64 --lockfile=package-lock.json
+          osv-scanner --lockfile=package-lock.json
       - name: Static analysis
         uses: returntocorp/semgrep-action@v1
         with:
