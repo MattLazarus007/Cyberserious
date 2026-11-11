@@ -34,7 +34,7 @@ reachability notes.
 ## Evaluation
 
 Acceptance results: docs/TEST_LOG.md with T-01 to T-76. Browser
-flows: tests/e2e with eleven Chromium runs. Workload: T-36 manual
+flows: tests/e2e with twelve Chromium runs. Workload: T-36 manual
 numbers. Risk treatment: docs/RISKS.md. Requirements: SR_EVIDENCE
 and NIST_MAP in this folder.
 

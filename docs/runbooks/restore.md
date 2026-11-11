@@ -50,4 +50,6 @@ This step is not yet done and stays manual at the edge:
 3. Verify with `openssl s_client -connect <host>:443 -servername
    <host>` and confirm a valid chain plus a 200 over HTTPS.
 
-Status: not yet done. The local lab stays plain HTTP until this lands.
+Status: the host deployment already serves both apps behind a Caddy TLS 1.3
+edge, and the session cookie carries Secure there. An externally issued
+certificate and a load balancer remain a deployment step for another host.

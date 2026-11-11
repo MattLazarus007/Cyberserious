@@ -1,79 +1,74 @@
 # Where the project stands
 
-Group 1, Eduvos ITNPA3. Last updated 9 November 2026. The upstream
-prototype arrived on 15 October. The working system below grew from it
-over four days.
+Group 1, Eduvos ITNPA3. Last updated 9 November 2026.
 
-## Done and proven
+The upstream prototype arrived on 15 October. I rebuilt it into a working
+regulator register and an organisation portal over the next four days.
 
-The prototype was corrected first: synthetic banners, a real not-found
-state, badges bound to records, one case-state list, counts from one
-definition each, text-only rendering, a single bootstrap, fictional
-organisations and a rewritten introduction. That closed Gate A.
+## How I built it
 
-Then the backend. Postgres holds thirteen regulator migrations, two
-organisation migrations, a deterministic seed and users across the roles
-of D3 Table 6.2. Sign-in pairs passwords with console codes under
-lockout and expiry. One permission gate guards every route. Notes,
-transitions with conflict handling, assignments, imports with immutable
-versions, a rules worker with six evaluated rules, alert actions, a
-research register with sealed notes and duties on every case. That
-closed Gate B.
+I corrected the prototype first. I removed the synthetic banners and added a
+real not-found state. I bound the badges to records and kept one case-state
+list. Each number now comes from one definition. I renamed the organisations to
+fictional names and rewrote the introduction. That closed Gate A.
 
-Then the second system. The organisation portal drafts, approves at an
-exact revision and hash, signs and sends. Signed intake verifies, claims
-idempotency and receipts with the test label. That closed the Gate C
-intake boxes.
+Then the backend. Postgres holds twenty regulator migrations and four
+organisation migrations. A deterministic seed fills users across the roles of D3
+Table 6.2.
+Sign-in pairs passwords with console codes under lockout and expiry. One
+permission gate guards every route. Case work covers notes, transitions with
+optimistic locking and assignments. Imports keep immutable versions. A rules
+worker evaluates six rules. Alert actions are audited. The research register
+keeps sealed notes. Every case carries its duties. That closed Gate B.
 
-The build also owed the affected people a notice under section 22. The
+Then the second system. The organisation portal drafts, approves at an exact
+revision and hash, signs and sends. The regulator verifies the signature,
+claims idempotency and returns a receipt. That closed the Gate C intake boxes.
+
+The build also owes the affected people a notice under section 22. The
 information officer records one dispatch per draft. The portal writes a
-delivery row per person and two audit rows, then reports the counts to
-the regulator as a signed notice. A claim wider than the recipient register is
-refused. A shortfall raises one medium alert and the case page shows the
-sent and total counts. Every label says recorded dispatch (lab
-simulation).
+delivery row per person and two audit rows, then reports the counts to the
+regulator as a signed notice. A claim wider than the recipient register is
+refused. A shortfall raises one medium alert. Every label says recorded
+dispatch (lab simulation).
 
-The hardening and the stretch items came last. Evidence quarantine with
-review and redacted exports. Security headers with a strict content
-policy. Queue-aware health checks. Nightly checksummed backups with a
-timed restore rehearsal. Runbooks with dated exercise notes. Keycloak
-single sign-in under a local role map. Intake over mutual TLS. A
-Suricata lab sensor with three rules, a fixture replay and a shipper to
-the regulator inbox. The Wazuh manager cannot run on this arm64 host,
-because the amd64 image exits 139 under emulation. That gap is recorded
-in docs/runbooks/sensor.md. No Wazuh claim is made.
+## The security stack
 
-The build stands at 202 automated tests and 12 browser flows, all
-passing. Line coverage is 90.50 percent against a floor of 90.
+After the first build I installed a security stack. The edge has a two-stage
+trip wire, per-address limits, bans and a WAF. Behind it run chained security
+events, correlation alerts, heartbeats and a daily anchor. Retention and export
+caps guard the data. Upload scanning sits in front of the evidence store.
+Encrypted evidence and backups protect data at rest. Launchd supervises the
+services. The console shows the state. One verifier command checks it all. Wazuh runs natively on arm64 with one manager and one agent. Keycloak
+carries a realm TOTP policy for a marked user. osquery runs as a host inventory
+with a heartbeat. The Docker lab brings up the two apps and the worker from one
+compose file.
 
-The security stack landed after that first build: a two-stage trip wire,
-per-address limits, bans, a WAF, chained security events, correlation alerts,
-heartbeats, a daily anchor, retention, export caps, upload scanning,
-encrypted evidence and backups, launchd supervision, a security console and
-one verifier command. The Docker lab runs the same two apps and the worker
-from one compose file, with a database network that no host route reaches.
-The assessment and compliance documents sit in docs/security, and the two
-November exercises sit in docs/project/exercises.
+## Where it stands
+
+The build stands at 202 automated tests and 12 browser flows, all passing.
+Line coverage is 90.50 percent against a floor of 90. The live acceptance
+sweep passes 36 checks on the host pair and 36 on the Docker pair.
 
 ## What remains
 
-The push stays disabled until the owner asks for it. The remote guard is
-deliberate.
+The push stays disabled until I ask for it. The remote guard is deliberate.
 
-The disclosure wording for Deliverable 4 belongs to the whole group, not
-to this log.
+The disclosure wording for Deliverable 4 belongs to the whole group. I wrote a
+draft in `~/cyberserious-notes/D4-DISCLOSURE-DRAFT.md` and a notice for the
+three conflicts in `~/cyberserious-notes/GROUP-NOTICE.md`. Neither is a group
+decision until the group confirms it.
 
-The Wazuh path waits for a linux/amd64 host. `scripts/wazuh.sh` carries
-the steps.
+The Wazuh cluster and indexer wait for a linux/amd64 host or a bigger lab.
+`scripts/wazuh.sh` carries the steps.
 
-The Keycloak realm MFA choice stays with the owner. ADR-0012 records the
-OpenID Connect enrolment decision.
+The Keycloak `mfa1` enrolment needs an authenticator app. The realm already
+requires it.
 
-A live demo rehearsal is a demo-time step: reseed both databases, start
-the regulator, the organisation portal and the worker, and read the
-one-time codes from the server terminals. The Docker lab does the same
-work with one command.
+A live demo rehearsal is a demo-time step: reseed both databases, start the
+regulator, the organisation portal and the worker. Read the one-time codes
+from the server terminals. The Docker lab does the same work with one command.
 
-Standing rules: no pushes without a named target, every task logged,
-local artifacts ignored, no personal details from the deliverable
-documents committed.
+Standing rules: no push without a named target, every task logged, local
+artifacts ignored, no personal details from the deliverable documents
+committed.
