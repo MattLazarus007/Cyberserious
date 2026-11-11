@@ -152,7 +152,7 @@ npm run test:e2e  # 12 browser flows on Chromium
 ```
 
 The browser suite uses the dev databases for the regulator pages and the test
-databases for the notification flow. Reseed the dev pair after a migration, or
+databases for the notification flow. Reseed the dev pair after a migration or
 the case detail can answer with stale data.
 
 ## Where things live
@@ -184,26 +184,23 @@ for the first ten minutes:
 
 - `docs/BRIEF.md` explains the law, both systems and the data for a first-time reader.
 - `docs/STATUS.md` states what works, what is partial and what is blocked.
-- `docs/PROGRESS.md` tells the story of the build and what remains.
 - `docs/TEST_LOG.md` holds every acceptance result, from T-01 to the current row.
 - `docs/SETUP.md` covers the empty machine, the secrets and the optional listeners.
 - `docs/runbooks/` holds the restore, incident and sensor procedures.
 
-## What changed in November
+## What the system covers now
 
-The last pass closed the plan items that were still open. I moved Wazuh to a
-native arm64 manager and agent on the host. I added Keycloak TOTP for a marked
-Keycloak user. I ran osquery as a host inventory with a heartbeat. Then I
-audited the codebase and fixed ten defects. The live acceptance sweep ran 36
-checks on the host pair and 36 on the Docker pair, all passing. `CHANGELOG.md`
-lists each change with its test and the machine it ran on.
+The build carries the two applications, the signed intake and the security
+stack. Wazuh runs as a native arm64 manager and agent on the host. Keycloak
+carries a TOTP policy for the marked user. osquery supplies the host inventory
+and a heartbeat. The live acceptance sweep passes 36 checks on the host pair
+and 36 on the Docker pair.
 
 ## Who built what
 
 Group 1 built this together. The dashboard and the interface came from the
-team. Other members added later work. I ran the November pass: plan
-closure, the native Wazuh manager, the Keycloak TOTP policy, the osquery
-inventory, the code audit and the live acceptance sweep. The five maintainers
+team. Other members added later work. I worked on the security stack, the code audit and
+the acceptance sweep. The five maintainers
 are named below.
 
 ## Maintainers
@@ -217,7 +214,7 @@ YadavSingh, RynhardtVanNiekerk and AndileMushwana.
 
 The console code is a second factor with single-use codes, not a hardware
 token. Keycloak runs as a lab provider and the provider can require TOTP for a
-marked user. A provider sign-in trusts the provider for the second factor, so
+marked user. A provider sign-in trusts the provider for the second factor so
 the provider's MFA policy is the control there. The shared group passphrase
 carries no attribution. The timers pace the work and never claim legal force.
 The system computes no verdicts. The host deployment serves both apps behind a

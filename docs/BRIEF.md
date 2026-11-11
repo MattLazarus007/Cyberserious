@@ -1,7 +1,7 @@
 # CyberSerious brief
 
 This is the one document to read if the project is new to you. It explains what
-the system is for, who uses it, what happens to one report, and what a marker is
+the system is for, who uses it, what happens to one report and what a marker is
 likely to ask. Every claim here can be checked in the files named along the way.
 
 ## 1. What this project is
@@ -17,7 +17,7 @@ affected person and reports the counts back.
 The project was built by Group 1 for the Eduvos ITNPA3 module. It is a working
 system, not a set of screens. Reports are signed, cases persist, counts add up
 and every important write is recorded. All records are synthetic. The official
-channel for a real report is the Regulator's eServices Portal, and the system
+channel for a real report is the Regulator's eServices Portal and the system
 says so on every receipt.
 
 ## 2. The law in plain words
@@ -30,7 +30,7 @@ as soon as reasonably possible after the compromise is discovered.
 
 That duty is mostly a paper trail. Someone discovers an incident, writes down
 what happened, gets approval from the right person, sends the notification,
-keeps proof of sending, and answers follow-up questions. A quick demo that only
+keeps proof of sending and answers follow-up questions. A quick demo that only
 shows a dashboard cannot support that trail. It stores nothing and proves
 nothing. CyberSerious turns the trail into two connected applications.
 
@@ -68,10 +68,10 @@ machine channels.
 ## 4. One incident from start to finish
 
 The following is one complete run through both systems. The numbers come from
-the seeded demo, and the screens and endpoints are real.
+the seeded demo and the screens and endpoints are real.
 
 A data steward signs in to the portal and opens `drafts.html`. The steward
-writes the report: a category, a narrative, and 25 affected people. The draft is
+writes the report: a category, a narrative and 25 affected people. The draft is
 saved with revision 1. The steward sends it for approval.
 
 The information officer signs in, opens the same draft and approves it. The
@@ -84,14 +84,14 @@ signs it with the organisation's private key. It posts a JWS to
 over the exact bytes before it parses anything. It then writes a case, the
 incident facts, a notification, the first immutable version, a receipt, an audit
 row and an outbox job in one transaction. The response carries a case reference,
-for example BR-2026-0107, and the portal stores that receipt.
+for example BR-2026-0107 and the portal stores that receipt.
 
 An analyst signs in to the regulator and opens `notifications.html`. The
 register lists the cases. The analyst opens the new case in `breach.html` and
 reads the facts, the duties for that case and the activity history. A note can
-be added, and the note is kept with the author and the time.
+be added and the note is kept with the author and the time.
 
-The worker leases the outbox job, evaluates the rules against the case, and
+The worker leases the outbox job, evaluates the rules against the case and
 opens alerts. The analyst sees them on `alerts.html`, where each alert carries a
 rule id, a readable reason, a priority and a dedupe key. The analyst can
 acknowledge, snooze or resolve an alert. Each action is audited.
@@ -115,7 +115,7 @@ a recorded reason. The move lands in `case_events` and in the audit chain.
 | The same id arrives with different bytes | 409 and an audit row. Nothing is overwritten. |
 | The signature is wrong or the sender is unknown | 401 and an audit row. No case is created. |
 | The regulator is offline during send | The draft moves to RetryPending and the portal answers 502. |
-| The regulator is offline during the affected notice | The local run stays complete, regulatorStatus is failed, and the portal returns a warning instead of a false success. |
+| The regulator is offline during the affected notice | The local run stays complete, regulatorStatus is failed and the portal returns a warning instead of a false success. |
 | Fewer people were reached than claimed | One medium AFFECTED-NOTICE-SHORTFALL alert, deduplicated by notice key. |
 | The same notice arrives twice | 200 with duplicate true. One row. |
 | Five wrong passwords | 429 for 15 minutes for that username. |
@@ -124,14 +124,14 @@ a recorded reason. The move lands in `case_events` and in the audit chain.
 | A sensor ships faster than its limit | 429, counted as refused. The shipper does not stop. |
 
 These behaviours are not aspirational. Most of them have a row in
-`docs/TEST_LOG.md`, and the integration tests exercise them directly.
+`docs/TEST_LOG.md` and the integration tests exercise them directly.
 
 ## 6. The data, in plain words
 
 | Record | What it holds |
 |---|---|
 | organisations | the fictional companies in the lab |
-| users, memberships, sessions | people, their role per organisation, and sign-in state |
+| users, memberships, sessions | people, their role per organisation and sign-in state |
 | cases, case_facts | the regulator's work record and the incident facts |
 | notifications, notification_versions | the organisation's report, kept as immutable versions |
 | intake_receipts | the proof that a submission was accepted |
@@ -172,13 +172,13 @@ duty and runs at intake, not in the worker.
 Each alert names the rule and the case and gives a reason a person can read. A
 dedupe key stops the same rule from opening the same alert twice for the same
 case and the same input. An analyst acknowledges, snoozes with a reason and a
-return date, or resolves with a resolution. A snooze sweep reopens what expires.
+return date or resolves with a resolution. A snooze sweep reopens what expires.
 
 ## 8. Security controls and why they exist
 
 | Control | Why it exists |
 |---|---|
-| One permission gate, deny by default | every route asks the same matrix, so a missing grant denies |
+| One permission gate, deny by default | every route asks the same matrix so a missing grant denies |
 | scrypt password hashes with per-secret salt | a stolen dump is expensive to crack |
 | sessions expire after 15 minutes idle and 8 hours absolute | a stolen cookie dies |
 | console one-time code, 5 minutes, 3 tries | a password alone is not enough |
@@ -190,23 +190,22 @@ return date, or resolves with a resolution. A snooze sweep reopens what expires.
 | hash-chained audit | tampering breaks the chain at the altered row |
 | evidence quarantine by allowlist | unknown files never become downloadable |
 | extraction notices | bulk copying becomes visible without blocking work |
-| trip wire | a request burst locks the service, and only an operator reopens it |
+| trip wire | a request burst locks the service and only an operator reopens it |
 | mTLS intake on 8101 | a client certificate is required before a byte is read |
 | OIDC with PKCE S256 | the lab can show a real identity provider, with roles still local |
 | sensor token | only the shipper can open sensor alerts |
 
 Three of these deserve a sentence more. The permission gate is one function,
-`can(role, action)` in `apps/regulator/server/policy.ts`. Every route asks it,
-and a role with no grant is denied. The audit chain proves that a row was not
+`can(role, action)` in `apps/regulator/server/policy.ts`. Every route asks it and a role with no grant is denied. The audit chain proves that a row was not
 changed after it was written. It does not prove that the original entry was
-true. That is a narrower claim, and the honest one. The trip wire is a blunt
+true. That is a narrower claim and the honest one. The trip wire is a blunt
 instrument on purpose. A burst of unauthenticated requests from one address
 locks the service, kills every session and writes an audit row and a high
 alert. An operator reopens it.
 
 ## 9. What was built
 
-The work went through gates, and each gate closed with tests and evidence.
+The work went through gates and each gate closed with tests and evidence.
 
 Gate A fixed the interface. Synthetic banners, a real not-found state, badges
 bound to the right record, one definition per count, text-only rendering and
@@ -226,13 +225,13 @@ headers, queue-aware health checks, backups with a timed restore rehearsal and
 runbooks with dated exercise notes.
 
 The stretch pass added three optional lab paths. Keycloak single sign-on with
-PKCE, mutual TLS on a second intake port, and a Suricata sensor that watches the
+PKCE, mutual TLS on a second intake port and a Suricata sensor that watches the
 app ports and ships alerts to the regulator inbox. Wazuh runs natively on arm64
-with one manager and one agent, and a probe raised a file integrity alert that
+with one manager and one agent and a probe raised a file integrity alert that
 reached the regulator inbox.
 
 The last feature added the affected-person notice. The portal records one
-dispatch per draft, one delivery row per synthetic recipient, and reports the
+dispatch per draft, one delivery row per synthetic recipient and reports the
 counts to the regulator. The case page shows sent of total and the shortfall.
 
 ## 10. How it is tested
@@ -260,7 +259,7 @@ test cannot run in this environment, the row says so.
 2. The host deployment serves both apps behind a TLS 1.3 edge. The Docker lab
    speaks plain HTTP inside its own network.
 3. The console code is a real second factor with single-use codes. Keycloak
-   carries a realm TOTP policy for a marked user, and a provider sign-in trusts
+   carries a TOTP policy for a marked user and a provider sign-in trusts
    the provider for the second factor.
 4. The shared group passphrase carries no per-person attribution.
 5. The timers pace the work and never claim legal force.
@@ -271,7 +270,7 @@ test cannot run in this environment, the row says so.
 
 | Question | Answer | Open first |
 |---|---|---|
-| What is this in one sentence? | A two-system lab for the POPIA section 22 duty: an organisation reports a breach, the regulator works the case, and the affected people are notified. | this brief |
+| What is this in one sentence? | A two-system lab for the POPIA section 22 duty: an organisation reports a breach, the regulator works the case and the affected people are notified. | this brief |
 | What does section 22 require? | The responsible party must tell the Information Regulator and the affected people after a compromise, as soon as reasonably possible. | section 2 |
 | Who uses each side? | Organisation staff at 8200 and regulator staff at 8100, with four regulator roles and three organisation roles. | section 3, README |
 | What happens to one report? | Draft, approve at a hash-bound revision, sign, send, triage, rules, affected notice, close. | section 4 |
@@ -280,8 +279,8 @@ test cannot run in this environment, the row says so.
 | How is it tested? | 118 automated tests and 11 browser flows. Every result has a row in docs/TEST_LOG.md. | section 10 |
 | How do I run it? | The README quick start, then docs/SETUP.md for an empty machine. | README |
 | How do I sign in? | README lists every account, the group passphrase, the Keycloak users and the machine channels. | README |
-| Is this the real regulator portal? | No. The official channel is the Regulator's eServices Portal, and receipts say test_receiver. | section 11 |
-| What is not finished? | The Wazuh manager on arm64 and the D4 disclosure wording. Everything else is built. | section 11, docs/PROGRESS.md |
+| Is this the real regulator portal? | No. The official channel is the Regulator's eServices Portal and receipts say test_receiver. | section 11 |
+| What is not finished? | The Wazuh manager on arm64 and the D4 disclosure wording. Everything else is built. | section 11 |
 | Where is the design reasoning? | The ADRs, the risk register and the NIST mapping. | docs/adr, docs/RISKS.md, docs/NIST_MAP.md |
 
 ## 13. Words used here
@@ -294,7 +293,7 @@ test cannot run in this environment, the row says so.
 - Case: the regulator's work record for one incident.
 - Receipt: the regulator's proof that a submission was accepted.
 - JWS: a signed JSON payload. The signature covers the exact bytes.
-- Audit chain: rows linked by hashes, so a change breaks the chain.
+- Audit chain: rows linked by hashes so a change breaks the chain.
 - Quarantine: holding an uploaded file until a supervisor clears it.
 - Shortfall: fewer people reached than the notice claims.
 - Alert: a rule hit with a readable reason.
@@ -303,6 +302,6 @@ The full list is in `docs/GLOSSARY.md`.
 
 ## 14. Reading paths
 
-- Marker: this brief, then `docs/TEST_LOG.md`, then `docs/D4_MAPPING.md`.
-- New group member: this brief, then `docs/PROGRESS.md`, then `docs/DEMO.md`.
+- Marker: this brief, then `docs/TEST_LOG.md`.
+- New group member: this brief, then `docs/DEMO.md`.
 - Operator: `README.md`, then `docs/SETUP.md`, then `docs/runbooks/`.
