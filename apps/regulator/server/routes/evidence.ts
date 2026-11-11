@@ -247,6 +247,9 @@ evidenceRouter.get("/evidence/:id", async (req, res) => {
   // a single safe token; the original stays in the record and the page.
   const safeName = found.filename.replace(/[^A-Za-z0-9._ -]/g, "_");
   res.setHeader("content-disposition", `attachment; filename="${safeName}"`);
+  // The body is a stored file behind an allowlisted type and an attachment
+  // header, not HTML. The scanner cannot see the type check.
+  // nosemgrep: javascript.express.security.audit.xss.direct-response-write.direct-response-write
   res.send(payload);
 });
 
