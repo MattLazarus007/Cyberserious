@@ -1,7 +1,7 @@
 # Change log
 
-This list covers the November pass, which I ran. The earlier build and the
-dashboard belong to the group, and README.md names the maintainers. Each entry
+This list covers the November pass, which I ran. The dashboard, the interface
+and the earlier build belong to the team, and README.md names the maintainers. Each entry
 names the change and the check that proves it. Test ids refer to
 `docs/TEST_LOG.md`.
 

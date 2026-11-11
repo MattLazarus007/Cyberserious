@@ -4,8 +4,8 @@ Group 1, Eduvos ITNPA3. Last updated 9 November 2026.
 
 The upstream prototype arrived on 15 October. The group rebuilt it into a
 working regulator register and an organisation portal over the next four days.
-The dashboard and the interface started with the team. I worked on the backend,
-the security stack and the November pass.
+The dashboard, the interface and the rest of the system came from the team. I
+ran the November pass.
 
 ## How we built it
 
