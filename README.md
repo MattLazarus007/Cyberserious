@@ -1,10 +1,10 @@
 # CyberSerious
 
 Breach notification and case management for section 22 of POPIA. Group 1
-built this for Eduvos ITNPA3. The dashboard and the interface came from the
-team. I worked on the backend, the security stack and the November pass. It
-runs on one machine. Every record is synthetic. Nothing here is an official
-reporting channel.
+built this for Eduvos ITNPA3. The team built the dashboard, the interface and
+most of the system, and other members added work after that. I ran the
+November pass. It runs on one machine. Every record is synthetic. Nothing here
+is an official reporting channel.
 
 An organisation that loses personal information drafts a report, approves
 that exact revision and sends it. The regulator side receives the signed
@@ -194,6 +194,14 @@ Keycloak user. I ran osquery as a host inventory with a heartbeat. Then I
 audited the codebase and fixed ten defects. The live acceptance sweep ran 36
 checks on the host pair and 36 on the Docker pair, all passing. `CHANGELOG.md`
 lists each change with its test and the machine it ran on.
+
+## Who built what
+
+Group 1 built this together. The dashboard and the interface came from the
+team, and other members added later work. I ran the November pass: plan
+closure, the native Wazuh manager, the Keycloak TOTP policy, the osquery
+inventory, the code audit and the live acceptance sweep. The five maintainers
+are named below.
 
 ## Maintainers
 
