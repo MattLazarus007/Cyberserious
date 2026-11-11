@@ -1,7 +1,12 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { existsSync } from "node:fs";
 import pg from "pg";
 import { resetDb, startApp, loginFull, dbUrl } from "./help.ts";
+
+// The infected-upload check needs a running clamd. A runner without the
+// scanner skips it; the host runs it.
+const scanSkip = existsSync("data/clamav/clamd.sock") ? false : "the clamd socket is not up";
 
 const eicar = [
   "X5O!P%@AP[4\\PZX54(P^)7CC)7}$",
@@ -32,7 +37,7 @@ async function lastScanAudit(): Promise<{ result: string; meta: Record<string, u
   }
 }
 
-test("an infected upload is refused and leaves no evidence row", async () => {
+test("an infected upload is refused and leaves no evidence row", { skip: scanSkip }, async () => {
   resetDb();
   const srv = await startApp();
   try {
