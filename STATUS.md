@@ -29,8 +29,9 @@ minutes. The other posts a heartbeat every fifteen minutes.
 Proof: live acceptance 36 of 36 on the host pair and 36 of 36 on Docker.
 `npm test` 202 pass, Playwright 12 pass, coverage 90.50 percent lines against
 a floor of 90, ZAP 0 high and 1 accepted medium. gitleaks, OSV, Trivy and
-Semgrep are clean. Lynis index 75. `scripts/verify.sh` passes 8 of 8 gates in
-420 seconds. See `docs/TEST_LOG.md` and `docs/security/`.
+Semgrep are clean. Lynis index 75. `scripts/verify.sh` passes 8 of 8 gates.
+The GitHub workflow passes on both the push and the pull request run at
+44eeb96. See `docs/TEST_LOG.md` and `docs/security/`.
 
 ## What is partial
 

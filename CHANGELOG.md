@@ -81,6 +81,17 @@ names the change and the check that proves it. Test ids refer to
   portal send and the affected notice. T-154, T-155.
 - Both dashboards render with 7 notifications and no client errors. T-156.
 
+### CI, on the GitHub runner
+
+- The workflow now quotes the lab keys. YAML read the 64 digit values as numbers and the seed failed.
+- The dependency step downloads the pinned osv-scanner binary and checks its sha256.
+- The runner installs gitleaks, trivy, caddy, semgrep and age, so the script tests run there.
+- The key tests use a file backend for the keychain when the test sets it. The macOS keychain stays the default.
+- The disk check uses `df -Pk`, which works on macOS and Linux.
+- The test database URLs sit in the workflow environment.
+- The upload scan test skips only where clamd is absent. On the host it runs.
+- Both workflow runs pass at commit 44eeb96: push 42986720386 and pull request 42986735986.
+
 ### Documentation
 
 - README, STATUS, PROGRESS, BRIEF, SETUP, DEMO, D4_MAPPING, the control matrix,
