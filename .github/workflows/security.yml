@@ -57,10 +57,10 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y age
-          curl -sSfL -o /tmp/gitleaks.tgz https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_linux_x64.tar.gz
+          curl -sSfL -o /tmp/gitleaks_8.30.1_linux_x64.tar.gz https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_linux_x64.tar.gz
           curl -sSfL -o /tmp/gitleaks_checksums.txt https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_checksums.txt
           grep " gitleaks_8.30.1_linux_x64.tar.gz$" /tmp/gitleaks_checksums.txt | (cd /tmp && sha256sum -c -)
-          tar -xzf /tmp/gitleaks.tgz -C /tmp gitleaks
+          tar -xzf /tmp/gitleaks_8.30.1_linux_x64.tar.gz -C /tmp gitleaks
           sudo install -m 0755 /tmp/gitleaks /usr/local/bin/gitleaks
           curl -sSfL -o /tmp/trivy.tgz https://github.com/aquasecurity/trivy/releases/download/v0.76.2/trivy_0.76.2_Linux-64bit.tar.gz
           tar -xzf /tmp/trivy.tgz -C /tmp trivy
