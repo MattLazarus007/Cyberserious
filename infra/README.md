@@ -35,3 +35,5 @@ Drop the database volume as well:
 - The regulator carries no public network. Only the portal posts signed submissions to the regulator intake. The regulator holds no intake url for the portal. `tests/scripts/compose.test.ts` checks that rule in the file.
 - A shared Docker network allows traffic both ways. The submission direction is a configuration rule, not a bridge rule. A production split would use separate networks plus a firewall policy between them.
 - The worker writes anchors under `data/anchors` inside its container. That path does not survive `down` unless you add a volume.
+
+- The two osquery plists under `infra/osquery/` use `/Users/operator/cyberserious` as a placeholder. Replace it with your home path before you install them.
