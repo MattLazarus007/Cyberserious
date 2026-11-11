@@ -18,7 +18,7 @@ not stop the run.
 
 ## Files
 
-- `infra/sensor/local.rules`: the three lab rules.
+- `infra/sensor/local.rules`: the four lab rules.
 - `infra/sensor/suricata.yaml`: lab override, logs to `infra/sensor/out/`.
 - `scripts/build-fixture-pcap.mjs`: builds the replay fixture with real
   checksums. It needs no package.

@@ -45,7 +45,7 @@ row says N/A and names the compensating control.
 2. **No inline IPS.** Suricata observes; it does not drop packets on a span port here.
 3. **No commercial EDR or SIEM.** osquery plus the local chained store show the pattern, not 24/7 coverage.
 4. **Wazuh runs natively on arm64 in 4.14.9.** The earlier failure came from an amd64-only tag under qemu. One manager and one agent run on this host. No cluster and no indexer.
-5. **Keycloak TOTP is optional in the realm export.** The application enforces its own per-session OTP. Keycloak MFA enrollment needs an owner decision.
+5. **Keycloak TOTP is configured in the realm export.** The user mfa1 must enrol an authenticator before any client signs it in. The application also enforces its own per-session OTP.
 6. **The anchor is local.** The worker writes one HMAC anchor per UTC day and the CLI verifies it. It is not published to an external timestamp authority. Security events are not deleted by the retention sweep because deleting a row would break the hash chain; the sweep reports the count older than 90 days instead.
 7. **osquery Full Disk Access is an owner approval.** The daemon is loaded and inventory queries work; endpoint security events need the approval.
 8. **Caddy trust is in the login keychain.** The system keychain trust prompt was denied by macOS; the user trust works for this account.

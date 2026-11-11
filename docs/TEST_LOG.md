@@ -5,6 +5,17 @@ counts are the actual results, not the hoped-for ones. Automated
 tests live in tests/ and run with npm test or npm run test:e2e.
 Manual evidence names the command and what it printed.
 
+## Where each test ran
+
+Every result names its place. The four places are:
+
+- `host`: the launchd services on this Mac, on the dev databases.
+- `docker`: the compose lab on ports 9100 and 9200, on its own database pair.
+- `test runner`: `npm test` on the test databases, each file resetting its schema.
+- `browser`: Playwright, on the test databases unless a row says otherwise.
+
+A row without a place in its text ran in the suite that its section names.
+
 Seeded baseline for every automated run: 7 cases, 6 notifications,
 11 open alerts, 1 pending case, 5 open cases, 13 research sources.
 

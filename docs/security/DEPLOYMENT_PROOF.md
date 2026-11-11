@@ -308,17 +308,16 @@ the exact number of rows.
   not drop packets. Blocking is done by pf and by the application ban list.
 - The pf bad-address table is applied by the owner. The web page shows the
   application ban list and labels the pf step separately.
-- Wazuh does not run on this arm64 host because the manager segfaults under
-  qemu. Vector plus the in-app correlation rules cover the shipping and alerting
-  path that is shown here.
-- osquery is installed but its Full Disk Access and EndpointSecurity approval is
-  a manual macOS step. The security page reports host telemetry as missing
-  rather than claiming it is present.
+- Wazuh runs natively on arm64 with one manager and one agent. A probe raised
+  rule 554 and the row reached the regulator inbox. A cluster and an indexer are
+  not built.
+- osquery runs as two LaunchAgents and posts a heartbeat. Full Disk Access is
+  optional and adds protected paths and event tables only.
 - The local Caddy CA is trusted in the login keychain, not system-wide. The
   header capture and `curl` proof do not depend on that trust.
-- Keycloak is present for the organisation app, but optional realm-side MFA is
-  not enabled. The enforced MFA step in the regulator app is the application
-  OTP.
+- Keycloak carries a realm TOTP policy. The user mfa1 must complete Mobile
+  Authenticator setup before any client signs it in. The regulator app also
+  enforces its own per-session OTP.
 - Keys are held in the macOS Keychain, not in a hardware HSM. That is a lab
   choice and should be replaced for production.
 
