@@ -13,6 +13,7 @@ Every result names its place. The four places are:
 - `docker`: the compose lab on ports 9100 and 9200, on its own database pair.
 - `test runner`: `npm test` on the test databases, each file resetting its schema.
 - `browser`: Playwright, on the test databases unless a row says otherwise.
+- `ci`: the GitHub workflow on an ubuntu-24.04 runner with a Postgres 16 service.
 
 A row without a place in its text ran in the suite that its section names.
 
@@ -279,6 +280,20 @@ measured 90.50 percent lines against a floor of 90.
 | T-154 | The host pair passes the live acceptance sweep | Pass manual | 36 checks against 8100 and 8200: group and code sign-in, counts, note write, analyst refusal, supervisor move and return, alert acknowledge and resolve, chain intact, ban and unban, admin refusal, malformed id 404, evidence upload, review and download, portal draft to notice, new case visible |
 | T-155 | The Docker pair passes the same sweep | Pass manual | 36 checks against 9100 and 9200, all pass, including the intake send and the affected notice |
 | T-156 | Both dashboards render with no client errors | Pass manual | Playwright: 7 notifications and 14 alert cards on each; no pageerror, no console error, no 5xx |
+
+### CI runs, 11 November 2026
+
+The GitHub workflow runs on ubuntu-24.04 with Node 24 and a Postgres 16 service. Both runs pass at commit 44eeb96: the push run 42986720386 and the pull request run 42986735986.
+
+The steps are: create both databases, migrate and seed, install the lab scanners, gitleaks, npm audit and osv-scanner, Semgrep, the test suite and the browser suite.
+
+- Test suite: 202 tests, 198 pass, 0 fail, 4 skipped, 0 todo.
+- Browser suite: 12 passed.
+- Pull request: CLEAN and mergeable, 0 commits behind main.
+
+The four skips need a tool the runner does not carry. One scan test needs the clamd socket, two sensor tests need the Suricata binary, and one upload test needs clamd. On this Mac all 202 pass with 0 skipped.
+
+The workflow needed six fixes before it could pass: quoted lab keys (YAML read them as numbers), a real osv-scanner download with its checksum, pinned installs for gitleaks, trivy and caddy, a Semgrep note on the file download, a keychain file backend for the Linux runner, and a portable disk check. The test database URLs are now in the workflow environment.
 
 ### Gate, 9 November 2026
 
