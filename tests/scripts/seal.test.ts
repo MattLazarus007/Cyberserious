@@ -11,7 +11,13 @@ const pub = join(dir, "backup.pub");
 const plain = join(dir, "plain.txt");
 const sealed = join(dir, "plain.txt.age");
 const opened = join(dir, "opened.txt");
-const env = { ...process.env, KEYCHAIN_SERVICE: service, BACKUP_PUB: pub };
+const keychainDir = mkdtempSync(join(tmpdir(), "cyberserious-keychain-"));
+const env = {
+  ...process.env,
+  KEYCHAIN_SERVICE: service,
+  BACKUP_PUB: pub,
+  KEYCHAIN_FILE_DIR: keychainDir,
+};
 
 function run(...args: string[]) {
   return spawnSync("bash", ["scripts/seal.sh", ...args], { encoding: "utf8", env });
@@ -24,6 +30,7 @@ test.before(() => {
 test.after(() => {
   spawnSync("bash", ["scripts/keychain.sh", "delete", "backup-key"], { env, encoding: "utf8" });
   rmSync(dir, { recursive: true, force: true });
+  rmSync(keychainDir, { recursive: true, force: true });
 });
 
 test("a sealed file round trips and the plaintext is not in the ciphertext", () => {
