@@ -19,7 +19,7 @@ Wazuh runs natively on arm64 now. One manager and one agent handle enrollment
 and file integrity. A probe under `/lab` raised rule 554 and the row reached
 the regulator inbox.
 
-Keycloak carries a realm TOTP policy. The user `mfa1` must complete Mobile
+Keycloak carries a TOTP policy. The user `mfa1` must complete Mobile
 Authenticator setup before any client signs it in. Users without an OTP
 credential are not asked.
 

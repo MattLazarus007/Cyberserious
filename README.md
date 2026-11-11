@@ -2,7 +2,7 @@
 
 Breach notification and case management for section 22 of POPIA. Group 1
 built this for Eduvos ITNPA3. The team built the dashboard, the interface and
-most of the system, and other members added work after that. I ran the
+most of the system. Other members added work after that. I ran the
 November pass. It runs on one machine. Every record is synthetic. Nothing here
 is an official reporting channel.
 
@@ -17,7 +17,8 @@ ones land in a hash-chained audit log.
 
 If you are new to the project, read [docs/BRIEF.md](docs/BRIEF.md) first. It
 explains the law, both systems, the data and the answers a marker asks for, in
-plain words. Everything below assumes you have read it.
+plain words. [docs/README.md](docs/README.md) is the map of every other
+document, grouped by what it answers.
 
 ## Quick start
 
@@ -77,7 +78,7 @@ Regulator workspace, port 8100:
 | so1 | demo-so-pass | security officer | organisation role, kept for the shared seed |
 
 The three organisation roles exist in the regulator database for the shared
-fixtures. The regulator screens refuse them, because the permission table
+fixtures. The regulator screens refuse them because the permission table
 gives those roles nothing on that side.
 
 Organisation portal, https://localhost:8444. The application listens on
@@ -114,7 +115,7 @@ OIDC_ISSUER=http://localhost:18080/realms/cyberserious \
 ```
 
 A "Sign in with single sign-on" link appears above the password form. The
-The realm is cyberserious. The client is regulator-web. PKCE S256 is required.
+The provider name is cyberserious. The client is regulator-web. PKCE S256 is required.
 The provider proves the identity. The local database still decides the role.
 
 | Provider user | Password |
@@ -167,7 +168,7 @@ db/migrations             twenty regulator migrations
 db/org-migrations         four organisation migrations
 db/seed.ts                seven cases, alerts from the rules, research
 db/seed_org.ts            one company, three users, 25 synthetic recipients
-docs/                     guides, decisions, risks, evidence, runbooks
+docs/                     documentation index, guides, decisions, risks, evidence, runbooks
 ```
 
 Postgres holds everything durable: cases with facts, immutable notification
@@ -178,18 +179,20 @@ clock.
 
 ## Documents worth opening first
 
-docs/BRIEF.md explains the law, both systems and the data for a first-time
-reader.
-docs/PROGRESS.md states where the build stands.
-docs/TEST_LOG.md holds every acceptance result, T-01 to T-156.
-docs/DEMO.md scripts the walkthrough across both systems.
-docs/SETUP.md covers the empty machine, secrets and the optional listeners.
-docs/runbooks/ holds the restore, incident and sensor procedures.
+[docs/README.md](docs/README.md) is the full map. I keep the short list here
+for the first ten minutes:
+
+- `docs/BRIEF.md` explains the law, both systems and the data for a first-time reader.
+- `docs/STATUS.md` states what works, what is partial and what is blocked.
+- `docs/PROGRESS.md` tells the story of the build and what remains.
+- `docs/TEST_LOG.md` holds every acceptance result, from T-01 to the current row.
+- `docs/SETUP.md` covers the empty machine, the secrets and the optional listeners.
+- `docs/runbooks/` holds the restore, incident and sensor procedures.
 
 ## What changed in November
 
 The last pass closed the plan items that were still open. I moved Wazuh to a
-native arm64 manager and agent on the host. I added realm TOTP for a marked
+native arm64 manager and agent on the host. I added Keycloak TOTP for a marked
 Keycloak user. I ran osquery as a host inventory with a heartbeat. Then I
 audited the codebase and fixed ten defects. The live acceptance sweep ran 36
 checks on the host pair and 36 on the Docker pair, all passing. `CHANGELOG.md`
@@ -198,7 +201,7 @@ lists each change with its test and the machine it ran on.
 ## Who built what
 
 Group 1 built this together. The dashboard and the interface came from the
-team, and other members added later work. I ran the November pass: plan
+team. Other members added later work. I ran the November pass: plan
 closure, the native Wazuh manager, the Keycloak TOTP policy, the osquery
 inventory, the code audit and the live acceptance sweep. The five maintainers
 are named below.
@@ -213,12 +216,12 @@ YadavSingh, RynhardtVanNiekerk and AndileMushwana.
 ## Limits, stated plainly
 
 The console code is a second factor with single-use codes, not a hardware
-token. Keycloak runs as a lab provider and the realm can require TOTP for a
+token. Keycloak runs as a lab provider and the provider can require TOTP for a
 marked user. A provider sign-in trusts the provider for the second factor, so
 the provider's MFA policy is the control there. The shared group passphrase
 carries no attribution. The timers pace the work and never claim legal force.
 The system computes no verdicts. The host deployment serves both apps behind a
-TLS 1.3 edge; the Docker lab speaks plain HTTP inside its own network. The
+TLS 1.3 edge. The Docker lab speaks plain HTTP inside its own network. The
 sensor is Suricata with four lab rules. Wazuh runs natively on arm64 with one
 manager and one agent.
 

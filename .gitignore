@@ -16,3 +16,6 @@ suricata.log
 # Session handoffs
 SESSION_HANDOFF.md
 .full-review/
+
+# Local workflow files stay off the repository
+.github/workflows/
