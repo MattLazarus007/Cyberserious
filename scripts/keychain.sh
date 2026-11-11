@@ -7,6 +7,13 @@
 #   delete <name>   remove the item
 set -euo pipefail
 
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+# A test sets KEYCHAIN_FILE_DIR to exercise the same contract on a runner
+# without the macOS keychain.
+if [ -n "${KEYCHAIN_FILE_DIR:-}" ]; then
+  exec bash "$ROOT/scripts/keychain-file.sh" "$@"
+fi
+
 SERVICE="${KEYCHAIN_SERVICE:-cyberserious}"
 NAME="${2:-}"
 
