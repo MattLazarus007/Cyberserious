@@ -31,7 +31,10 @@ Proof: live acceptance 36 of 36 on the host pair and 36 of 36 on Docker.
 a floor of 90, ZAP 0 high and 1 accepted medium. gitleaks, OSV, Trivy and
 Semgrep are clean. Lynis index 75. `scripts/verify.sh` passes 8 of 8 gates.
 The GitHub workflow passes on both the push and the pull request run at
-44eeb96. See `docs/TEST_LOG.md` and `docs/security/`.
+44eeb96. An independent black-box pass passed 41 checks on the host pair and
+38 of 39 on the Docker pair, with one lab difference for the missing scanner.
+See `docs/TEST_LOG.md`, `docs/security/PENTEST_REPORT.md` and
+`docs/security/`.
 
 ## What is partial
 
